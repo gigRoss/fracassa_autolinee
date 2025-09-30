@@ -39,3 +39,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+node_modules/
+.next/
+out/
+.vercel/
+coverage/
+dist/
+logs/
+*.log
+pnpm-debug.log*
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.bmad-core/
+.cursor/
+docs/
+web-bundles/
