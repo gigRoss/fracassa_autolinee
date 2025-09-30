@@ -1,26 +1,156 @@
 @import "tailwindcss";
 
+/*
+  Design Tokens (Story 5.1):
+  - Brand palette, neutrals, semantic states
+  - Typography scale and base settings
+  Usage: prefer CSS variables or utility classes below instead of hardcoding
+*/
 :root {
+  /* Brand colors (align with site) */
+  --brand-primary: #0b5fff;
+  --brand-primary-foreground: #ffffff;
+  --brand-secondary: #0a2a66;
+  --brand-secondary-foreground: #ffffff;
+  --brand-accent-orange: #f28c00;
+  --brand-accent-orange-foreground: #111827;
+
+  /* Neutrals */
+  --neutral-0: #ffffff;
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
+
+  /* Semantic */
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+  --error: #dc2626;
+  --error-foreground: #ffffff;
+
+  /* Background and foreground */
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Typography */
+  --font-sans-base: var(--font-geist-sans, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji");
+  --font-mono-base: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.875rem;  /* 14px */
+  --font-size-base: 1rem;    /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand-primary);
+  --color-brand-foreground: var(--brand-primary-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/* Force app to remain light (white background) even in dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
+    --neutral-0: #ffffff;
+    --neutral-50: #f9fafb;
+    --neutral-100: #f3f4f6;
+    --neutral-200: #e5e7eb;
+    --neutral-300: #d1d5db;
+    --neutral-400: #9ca3af;
+    --neutral-500: #6b7280;
+    --neutral-600: #4b5563;
+    --neutral-700: #374151;
+    --neutral-800: #1f2937;
+    --neutral-900: #111827;
   }
 }
 
+/* Base elements */
+html { font-family: var(--font-sans-base); }
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans-base);
+  line-height: var(--line-height-base);
 }
+
+h1 { font-size: var(--font-size-2xl); line-height: var(--line-height-tight); }
+h2 { font-size: var(--font-size-xl); line-height: var(--line-height-tight); }
+h3 { font-size: var(--font-size-lg); line-height: var(--line-height-tight); }
+small { font-size: var(--font-size-xs); }
+
+code, pre, kbd, samp { font-family: var(--font-mono-base); }
+
+/* Utility classes for common components */
+.btn { 
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 2.5rem; padding: 0 1rem; border-radius: 0.5rem; 
+  font-size: var(--font-size-sm);
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  background: color-mix(in oklab, var(--neutral-0) 80%, transparent);
+  color: var(--foreground);
+}
+.btn:hover { background: color-mix(in oklab, var(--neutral-0) 70%, transparent); }
+.btn:disabled { opacity: .6; }
+
+.btn-primary {
+  background: var(--brand-primary);
+  color: var(--brand-primary-foreground);
+  border-color: color-mix(in oklab, var(--brand-primary) 80%, black 20%);
+}
+.btn-primary:hover { background: color-mix(in oklab, var(--brand-primary) 90%, black 10%); }
+
+.btn-secondary {
+  background: var(--brand-secondary);
+  color: var(--brand-secondary-foreground);
+  border-color: color-mix(in oklab, var(--brand-secondary) 80%, black 20%);
+}
+.btn-secondary:hover { background: color-mix(in oklab, var(--brand-secondary) 90%, black 10%); }
+
+/* Accent (orange) buttons */
+.btn-accent {
+  background: var(--brand-accent-orange);
+  color: var(--brand-accent-orange-foreground);
+  border-color: color-mix(in oklab, var(--brand-accent-orange) 80%, black 20%);
+}
+.btn-accent:hover { background: color-mix(in oklab, var(--brand-accent-orange) 92%, black 8%); }
+
+.btn-outline-accent {
+  background: transparent;
+  color: var(--brand-accent-orange);
+  border-color: var(--brand-accent-orange);
+}
+.btn-outline-accent:hover { background: color-mix(in oklab, var(--brand-accent-orange) 10%, transparent); }
+
+.input, .select {
+  height: 2.25rem; padding: 0 0.75rem; border-radius: 0.5rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  background: color-mix(in oklab, var(--neutral-0) 80%, transparent);
+}
+
+.card { 
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  border-radius: 0.5rem; background: color-mix(in oklab, var(--neutral-0) 60%, transparent);
+}
+
+/* Documentation: Use tokens via var(--brand-primary) etc., or utilities (.btn, .btn-primary, .input, .card) */
+
+/* Brand backgrounds */
+.bg-hero-brand { background: var(--neutral-0); }
