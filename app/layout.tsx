@@ -24,12 +24,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="it">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ fontFamily: "var(--font-sans-base)" }}
       >
-        <SiteChrome>{children}</SiteChrome>
+        <a href="#main-content" className="skip-link">Salta al contenuto principale</a>
+        <SiteChrome>
+          <main id="main-content" role="main">
+            {children}
+          </main>
+        </SiteChrome>
       </body>
     </html>
   );

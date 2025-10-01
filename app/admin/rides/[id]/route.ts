@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySession, SESSION_COOKIE } from "@/app/lib/auth";
-import { getRideById, updateRide, seedRides, RideWithStops } from "@/app/lib/ridesStore";
-import { departures } from "@/app/lib/data";
+import { getRideById, updateRide, RideWithStops } from "@/app/lib/ridesStore";
 import { emitAudit } from "@/app/lib/adminData";
 
-seedRides(departures);
-
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   const session = verifySession(token);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const rideId = params.id;
-  const existing = getRideById(rideId);
+  const { id: rideId } = await params;
+  const existing = await getRideById(rideId);
   if (!existing) {
     return NextResponse.json({ error: "Ride not found" }, { status: 404 });
   }
@@ -31,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: "Formato orario arrivo non valido (HH:MM)" }, { status: 400 });
     }
 
-    const updated = updateRide(rideId, body);
+    const updated = await updateRide(rideId, body);
     if (!updated) {
       return NextResponse.json({ error: "Ride not found" }, { status: 404 });
     }
@@ -77,20 +74,20 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   const session = verifySession(token);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const rideId = params.id;
-  const existing = getRideById(rideId);
+  const { id: rideId } = await params;
+  const existing = await getRideById(rideId);
   if (!existing) {
     return NextResponse.json({ error: "Ride not found" }, { status: 404 });
   }
 
-  const archived = updateRide(rideId, { archived: true });
+  const archived = await updateRide(rideId, { archived: true });
   if (!archived) {
     return NextResponse.json({ error: "Ride not found" }, { status: 404 });
   }

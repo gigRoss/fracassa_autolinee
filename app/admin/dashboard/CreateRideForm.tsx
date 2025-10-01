@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { stops } from "@/app/lib/data";
+import { useEffect, useMemo, useState } from "react";
+import type { Stop } from "@/app/lib/data";
 
 type StopMode = "existing" | "new";
 type IntermediateStop = {
@@ -14,6 +14,7 @@ type IntermediateStop = {
 
 export default function CreateRideForm() {
   const [lineName, setLineName] = useState("");
+  const [stopsList, setStopsList] = useState<Stop[]>([]);
   const [originMode, setOriginMode] = useState<StopMode>("existing");
   const [originStopId, setOriginStopId] = useState("");
   const [originNewCity, setOriginNewCity] = useState("");
@@ -29,9 +30,24 @@ export default function CreateRideForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const sortedStops = useMemo(() => {
-    return [...stops].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/admin/stops", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json()) as Stop[];
+        if (!cancelled) setStopsList(data);
+      } catch {}
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  const sortedStops = useMemo(() => {
+    return [...stopsList].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
+  }, [stopsList]);
 
   function addIntermediate() {
     setIntermediateStops((prev) => [...prev, { stopId: "", time: "" }]);

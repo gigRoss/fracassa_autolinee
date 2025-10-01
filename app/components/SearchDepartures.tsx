@@ -2,14 +2,21 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import {
-  departures,
-  stops,
-  stopIdToStop,
-  toMinutes,
-} from "../lib/data";
+import { toMinutes } from "../lib/data";
 
-function useSuggestions(query: string): string[] {
+async function fetchStops(): Promise<Array<{ id: string; name: string; city: string }>> {
+  const res = await fetch("/stops", { cache: "no-store" });
+  if (!res.ok) return [];
+  return (await res.json()) as Array<{ id: string; name: string; city: string }>;
+}
+
+async function fetchRides(): Promise<Array<{ id: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string }>> {
+  const res = await fetch("/rides", { cache: "no-store" });
+  if (!res.ok) return [];
+  return (await res.json()) as Array<{ id: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string }>;
+}
+
+function useSuggestions(query: string, stops: Array<{ id: string; name: string; city: string }>): string[] {
   const normalized = query.trim().toLowerCase();
   return useMemo(() => {
     if (!normalized) return [];
@@ -21,7 +28,7 @@ function useSuggestions(query: string): string[] {
       if (stopMatch) names.add(stop.name);
     }
     return Array.from(names).slice(0, 8);
-  }, [normalized]);
+  }, [normalized, stops]);
 }
 
 export default function SearchDepartures() {
@@ -30,12 +37,27 @@ export default function SearchDepartures() {
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [selectedStop, setSelectedStop] = useState<string>("");
   const [sortAsc, setSortAsc] = useState<boolean>(true);
+  const [stops, setStops] = useState<Array<{ id: string; name: string; city: string }>>([]);
+  const [rides, setRides] = useState<Array<{ id: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string }>>([]);
 
-  const suggestions = useSuggestions(query);
+  // Load stops and rides from public API
+  useMemo(() => {
+    (async () => {
+      try {
+        const [s, r] = await Promise.all([fetchStops(), fetchRides()]);
+        setStops(s);
+        setRides(r);
+      } catch {}
+    })();
+  }, []);
+
+  const suggestions = useSuggestions(query, stops);
+
+  const stopIdToStop = useMemo(() => Object.fromEntries(stops.map((s) => [s.id, s] as const)), [stops]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const results = departures.filter((d) => {
+    const results = rides.filter((d) => {
       const origin = stopIdToStop[d.originStopId];
       const dest = stopIdToStop[d.destinationStopId];
       const cityOrigin = origin.city.toLowerCase();
@@ -74,7 +96,7 @@ export default function SearchDepartures() {
     });
     const sorted = results.sort((a, b) => toMinutes(a.departureTime) - toMinutes(b.departureTime));
     return sortAsc ? sorted : [...sorted].reverse();
-  }, [query, selectedCity, selectedStop, sortAsc]);
+  }, [query, selectedCity, selectedStop, sortAsc, rides, stopIdToStop]);
 
   const handleSelectSuggestion = (value: string) => {
     setQuery(value);
@@ -207,11 +229,11 @@ export default function SearchDepartures() {
                         {d.lineName} • {origin.city} ({origin.name}) → {dest.city} ({dest.name})
                       </div>
                       <div className="text-xs text-black/60 dark:text-white/60 mt-1">
-                        Partenza {d.departureTime}
+                        Partenza {d.departureTime} • Arrivo {d.arrivalTime}
                       </div>
                     </div>
                     <div className="text-sm font-mono opacity-80">
-                      {d.departureTime}
+                      {d.departureTime} → {d.arrivalTime}
                     </div>
                   </Link>
                 </li>

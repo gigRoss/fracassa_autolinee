@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySession, SESSION_COOKIE } from "@/app/lib/auth";
-import { listRides, createRide, seedRides, RideWithStops } from "@/app/lib/ridesStore";
+import { listRides, createRide, RideWithStops } from "@/app/lib/ridesStore";
 import { emitAudit } from "@/app/lib/adminData";
-import { departures } from "@/app/lib/data";
-
-seedRides(departures);
+import { NextResponse as _NR } from "next/server";
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get(SESSION_COOKIE)?.value;
@@ -13,7 +11,8 @@ export async function GET(req: NextRequest) {
   }
   const archivedCookie = req.cookies.get("archived_rides")?.value || "";
   const archivedIds = new Set(archivedCookie.split(",").filter(Boolean));
-  const visible = listRides().filter((r) => !archivedIds.has(r.id));
+  const all = await listRides();
+  const visible = all.filter((r) => !archivedIds.has(r.id) && !r.archived);
   return NextResponse.json(visible);
 }
 
@@ -36,7 +35,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Formato orario non valido (HH:MM)" }, { status: 400 });
     }
 
-    const created = createRide({
+    const created = await createRide({
       lineName: body.lineName,
       originStopId: body.originStopId,
       destinationStopId: body.destinationStopId,
