@@ -117,7 +117,7 @@ export default function SearchDepartures() {
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 120)}
           placeholder="Cerca per città o fermata..."
-          className="w-full h-12 px-4 rounded-md border bg-white/80 dark:bg-black/20 backdrop-blur text-base outline-none focus:ring-2"
+          className="w-full h-12 px-4 rounded-md border bg-white backdrop-blur text-base outline-none focus:ring-2"
           style={{
             borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)",
             boxShadow: "0 0 0 2px color-mix(in oklab, var(--brand-primary) 25%, transparent)",
@@ -145,11 +145,11 @@ export default function SearchDepartures() {
         )}
       </div>
 
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="mt-4 flex flex-col gap-3">
         <select
           value={selectedCity}
           onChange={(e) => setSelectedCity(e.target.value)}
-          className="h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+          className="h-10 px-3 rounded-md border bg-white"
           style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
           aria-label="Filtro città"
         >
@@ -164,7 +164,7 @@ export default function SearchDepartures() {
         <select
           value={selectedStop}
           onChange={(e) => setSelectedStop(e.target.value)}
-          className="h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+          className="h-10 px-3 rounded-md border bg-white"
           style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
           aria-label="Filtro fermata"
         >
@@ -188,7 +188,7 @@ export default function SearchDepartures() {
 
       <div className="mt-6">
         {filtered.length === 0 ? (
-          <div className="card p-5" style={{ background: "color-mix(in oklab, var(--neutral-0) 60%, transparent)" }}>
+          <div className="card p-5 bg-white">
             <div className="text-sm font-medium mb-1">Nessuna corsa trovata</div>
             <div className="text-sm text-black/70 dark:text-white/70 mb-3">
               Prova a:
