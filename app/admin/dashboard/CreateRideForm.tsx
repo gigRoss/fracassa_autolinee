@@ -166,23 +166,19 @@ export default function CreateRideForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       {error && (
-        <div className="text-sm" style={{ color: "var(--error)", background: "color-mix(in oklab, var(--error) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--error) 30%, transparent)" }} className="rounded p-2">
+        <div className="text-sm rounded p-2" style={{ color: "var(--error)", background: "color-mix(in oklab, var(--error) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--error) 30%, transparent)" }}>
           {error}
         </div>
       )}
       {success && (
-        <div className="text-sm" style={{ color: "var(--success)", background: "color-mix(in oklab, var(--success) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--success) 30%, transparent)" }} className="rounded p-2">
+        <div className="text-sm rounded p-2" style={{ color: "var(--success)", background: "color-mix(in oklab, var(--success) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--success) 30%, transparent)" }}>
           {success}
         </div>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="space-y-3">
         <div>
           <label className="block text-xs mb-1">Linea*</label>
-          <input value={lineName} onChange={(e) => setLineName(e.target.value)} className="w-full h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="L1" />
-        </div>
-        <div>
-          <label className="block text-xs mb-1">Partenza (HH:MM)*</label>
-          <input value={departureTime} onChange={(e) => setDepartureTime(e.target.value)} className="w-full h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="08:15" />
+          <input value={lineName} onChange={(e) => setLineName(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="L1" />
         </div>
         <div>
           <label className="block text-xs mb-1">Origine*</label>
@@ -198,7 +194,7 @@ export default function CreateRideForm() {
                 setOriginStopId(val);
               }
             }}
-            className="w-full h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+            className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
             style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
          >
             <option value="">Seleziona fermata</option>
@@ -210,27 +206,23 @@ export default function CreateRideForm() {
             <option value="__new__">+ Aggiungi nuova fermata…</option>
           </select>
           {originMode === "new" && (
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="mt-2 space-y-2">
               <input
                 value={originNewCity}
                 onChange={(e) => setOriginNewCity(e.target.value)}
                 placeholder="Città"
-                className="w-full h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
               />
               <input
                 value={originNewName}
                 onChange={(e) => setOriginNewName(e.target.value)}
                 placeholder="Nome fermata"
-                className="w-full h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
               />
             </div>
           )}
         </div>
         <div>
-          <label className="block text-xs mb-1">Arrivo (HH:MM)*</label>
-          <input value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} className="w-full h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="08:55" />
-        </div>
-        <div className="sm:col-span-2">
           <label className="block text-xs mb-1">Destinazione*</label>
           <select
             value={destinationMode === "existing" ? destinationStopId : "__new__"}
@@ -244,7 +236,7 @@ export default function CreateRideForm() {
                 setDestinationStopId(val);
               }
             }}
-            className="w-full h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+            className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
             style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
          >
             <option value="">Seleziona fermata</option>
@@ -256,29 +248,37 @@ export default function CreateRideForm() {
             <option value="__new__">+ Aggiungi nuova fermata…</option>
           </select>
           {destinationMode === "new" && (
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="mt-2 space-y-2">
               <input
                 value={destinationNewCity}
                 onChange={(e) => setDestinationNewCity(e.target.value)}
                 placeholder="Città"
-                className="w-full h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
               />
               <input
                 value={destinationNewName}
                 onChange={(e) => setDestinationNewName(e.target.value)}
                 placeholder="Nome fermata"
-                className="w-full h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
               />
             </div>
           )}
+        </div>
+        <div>
+          <label className="block text-xs mb-1">Partenza (HH:MM)*</label>
+          <input value={departureTime} onChange={(e) => setDepartureTime(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="08:15" />
+        </div>
+        <div>
+          <label className="block text-xs mb-1">Arrivo (HH:MM)*</label>
+          <input value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="08:55" />
         </div>
       </div>
 
       <div className="pt-2">
         <div className="text-sm font-medium mb-2">Fermate intermedie</div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {intermediateStops.map((s, i) => (
-            <div key={i} className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+            <div key={i} className="space-y-2 p-3 rounded-md border" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)", background: "color-mix(in oklab, var(--foreground) 3%, transparent)" }}>
               <select
                 value={s.isNew ? "__new__" : s.stopId}
                 onChange={(e) => {
@@ -289,7 +289,7 @@ export default function CreateRideForm() {
                     updateIntermediate(i, { isNew: false, stopId: val });
                   }
                 }}
-                className="h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
                 style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
               >
                 <option value="">Seleziona fermata</option>
@@ -303,39 +303,37 @@ export default function CreateRideForm() {
               <input
                 value={s.time}
                 onChange={(e) => updateIntermediate(i, { time: e.target.value })}
-                placeholder="HH:MM"
-                className="h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+                placeholder="Orario (HH:MM)"
+                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
                 style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
               />
-              <div>
-                <button type="button" className="btn" onClick={() => removeIntermediate(i)}>
-                  Rimuovi
-                </button>
-              </div>
               {s.isNew && (
-                <div className="sm:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="space-y-2">
                   <input
                     value={s.newCity || ""}
                     onChange={(e) => updateIntermediate(i, { newCity: e.target.value })}
                     placeholder="Città"
-                    className="h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+                    className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
                     style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
                   />
                   <input
                     value={s.newName || ""}
                     onChange={(e) => updateIntermediate(i, { newName: e.target.value })}
                     placeholder="Nome fermata"
-                    className="h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+                    className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
                     style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
                   />
                 </div>
               )}
+              <button type="button" className="btn w-full" onClick={() => removeIntermediate(i)}>
+                Rimuovi fermata
+              </button>
             </div>
           ))}
         </div>
-        <div className="mt-2">
-          <button type="button" className="btn" onClick={addIntermediate}>
-            Aggiungi fermata intermedia
+        <div className="mt-3">
+          <button type="button" className="btn w-full" onClick={addIntermediate}>
+            + Aggiungi fermata intermedia
           </button>
         </div>
       </div>
