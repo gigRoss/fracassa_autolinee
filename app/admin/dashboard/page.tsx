@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { verifySession, SESSION_COOKIE } from "@/app/lib/auth";
 import { logoutAction } from "@/app/lib/authActions";
 // import { fetchKpis } from "@/app/lib/adminData";
-import { Stop } from "@/app/lib/data";
+
 import SimplifiedDashboard from "./SimplifiedDashboard";
 import Link from "next/link";
 // import RecentChanges from "./RecentChanges";

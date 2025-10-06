@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { useMemo, useState, useEffect, useRef } from "react";
-import { toMinutes } from "../lib/data";
 import { useAnalytics } from "../hooks/useAnalytics";
+
+function toMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
 
 async function fetchStops(): Promise<Array<{ id: string; name: string; city: string }>> {
   const res = await fetch("/stops", { cache: "no-store" });
