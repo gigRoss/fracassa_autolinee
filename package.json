@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
     "start": "next start",
     "db:migrate": "tsx app/lib/migrate.ts",
     "db:seed": "tsx app/lib/seed.ts",
@@ -15,6 +15,7 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.5",
     "next": "15.5.4",
+    "pdf-parse": "^2.1.7",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

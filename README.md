@@ -1,36 +1,145 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚌 Fracassa Autolinee - Sistema Gestione Orari
 
-## Getting Started
+Sistema web per la consultazione degli orari e la gestione delle corse per Fracassa Autolinee.
 
-First, run the development server:
+## 📋 Caratteristiche
+
+- 🔍 Ricerca corse per partenza/destinazione e orario
+- 📱 Interfaccia responsive per mobile e desktop
+- 🔐 Dashboard amministratore per gestione corse e fermate
+- 📊 Sistema di audit per tracciare modifiche
+- 🗄️ Database SQLite (sviluppo) / Turso (produzione)
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Database**: Turso (SQLite distribuito)
+- **ORM**: Drizzle ORM
+- **Styling**: Tailwind CSS 4
+- **Language**: TypeScript
+- **Deployment**: Vercel (raccomandato)
+
+## 🚀 Quick Start
+
+### Prerequisiti
+- Node.js 20+ 
+- npm
+
+### Installazione
 
 ```bash
+# Clona il repository
+git clone [url-repository]
+cd fracassa_autolinee
+
+# Installa le dipendenze
+npm install
+
+# Setup database locale
+npm run db:migrate
+npm run db:seed
+
+# Avvia il server di sviluppo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Apri [http://localhost:3000](http://localhost:3000) nel browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📝 Script Disponibili
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev          # Avvia il server di sviluppo
+npm run build        # Build per produzione
+npm run start        # Avvia il server di produzione
+npm run db:migrate   # Esegue le migrations
+npm run db:seed      # Popola il database con dati di test
+npm run db:reset     # Reset completo del database locale
+```
 
-## Learn More
+## 🗄️ Database
 
-To learn more about Next.js, take a look at the following resources:
+Il progetto supporta due modalità:
+- **Locale**: SQLite (`local.db`) per sviluppo
+- **Produzione**: Turso per deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Configurazione tramite variabile d'ambiente `DATABASE_MODE`:
+- `local`: usa `file:./local.db`
+- `production`: usa Turso con `TURSO_DATABASE_URL` e `TURSO_AUTH_TOKEN`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🌐 Deployment in Produzione
 
-## Deploy on Vercel
+Segui la guida dettagliata in [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) per:
+- Setup database Turso
+- Deploy su Vercel
+- Configurazione environment variables
+- Verifica post-deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Quick Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# 1. Crea database Turso
+turso db create fracassa-autolinee-prod
+turso db show fracassa-autolinee-prod --url
+turso db tokens create fracassa-autolinee-prod
+
+# 2. Esegui migrations su produzione
+export TURSO_DATABASE_URL="libsql://..."
+export TURSO_AUTH_TOKEN="..."
+./scripts/migrate-production.sh
+
+# 3. Deploy su Vercel
+# Vai su vercel.com, importa il repo e configura le env variables
+```
+
+## 📁 Struttura Progetto
+
+```
+fracassa_autolinee/
+├── app/
+│   ├── components/         # Componenti React riutilizzabili
+│   ├── lib/               # Logica business e utilità
+│   │   ├── db.ts          # Configurazione database
+│   │   ├── schema.ts      # Schema Drizzle
+│   │   ├── auth.ts        # Autenticazione admin
+│   │   └── ...
+│   ├── admin/             # Dashboard amministratore
+│   ├── ride/[id]/         # Dettaglio corsa
+│   └── page.tsx           # Homepage
+├── drizzle/
+│   └── migrations/        # Migrations database
+├── scripts/               # Script di utilità
+└── public/                # Asset statici
+```
+
+## 🔐 Amministrazione
+
+Accedi alla dashboard admin su `/admin/login`.
+
+**Default credentials** (solo sviluppo):
+- Username: `admin`
+- Password: `password123`
+
+⚠️ **IMPORTANTE**: Cambia le credenziali di default prima del deployment in produzione!
+
+## 📚 Documentazione
+
+- [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) - Guida completa al deployment
+- [`docs/`](./docs/) - Documentazione architetturale e requisiti
+- [Next.js Docs](https://nextjs.org/docs)
+- [Drizzle ORM](https://orm.drizzle.team)
+- [Turso Docs](https://docs.turso.tech)
+
+## 🤝 Contribuire
+
+1. Crea un branch per la tua feature (`git checkout -b feature/AmazingFeature`)
+2. Commit delle modifiche (`git commit -m 'Add some AmazingFeature'`)
+3. Push al branch (`git push origin feature/AmazingFeature`)
+4. Apri una Pull Request
+
+## 📄 License
+
+Questo progetto è proprietario di Fracassa Autolinee.
+
+## 📞 Supporto
+
+Per assistenza, contatta il team di sviluppo.

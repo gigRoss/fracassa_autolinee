@@ -81,6 +81,6 @@ export function verifySession(token: string | undefined | null): SessionPayload 
   return verify(token, getSessionSecret());
 }
 
-export { SESSION_COOKIE };
+export { SESSION_COOKIE, DEFAULT_SESSION_TTL_MS };
 
 
