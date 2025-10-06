@@ -5,7 +5,17 @@ export async function GET() {
   try {
     const rides = await listRides();
     const visible = rides.filter((r) => !r.archived);
-    return NextResponse.json(visible);
+    // Map 'id' to 'slug' for the public API
+    const mapped = visible.map((r) => ({
+      slug: r.id,
+      lineName: r.lineName,
+      originStopId: r.originStopId,
+      destinationStopId: r.destinationStopId,
+      departureTime: r.departureTime,
+      arrivalTime: r.arrivalTime,
+      intermediateStops: r.intermediateStops,
+    }));
+    return NextResponse.json(mapped);
   } catch (e) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }

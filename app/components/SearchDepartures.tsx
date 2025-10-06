@@ -10,10 +10,10 @@ async function fetchStops(): Promise<Array<{ id: string; name: string; city: str
   return (await res.json()) as Array<{ id: string; name: string; city: string }>;
 }
 
-async function fetchRides(): Promise<Array<{ id: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string }>> {
+async function fetchRides(): Promise<Array<{ slug: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string; intermediateStops?: Array<{ stopId: string; time: string }> }>> {
   const res = await fetch("/rides", { cache: "no-store" });
   if (!res.ok) return [];
-  return (await res.json()) as Array<{ id: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string }>;
+  return (await res.json()) as Array<{ slug: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string; intermediateStops?: Array<{ stopId: string; time: string }> }>;
 }
 
 function useSuggestions(query: string, stops: Array<{ id: string; name: string; city: string }>): string[] {
@@ -38,7 +38,7 @@ export default function SearchDepartures() {
   const [selectedStop, setSelectedStop] = useState<string>("");
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [stops, setStops] = useState<Array<{ id: string; name: string; city: string }>>([]);
-  const [rides, setRides] = useState<Array<{ id: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string }>>([]);
+  const [rides, setRides] = useState<Array<{ slug: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string; intermediateStops?: Array<{ stopId: string; time: string }> }>>([]);
 
   // Load stops and rides from public API
   useMemo(() => {
@@ -65,34 +65,55 @@ export default function SearchDepartures() {
       const stopOrigin = origin.name.toLowerCase();
       const stopDest = dest.name.toLowerCase();
 
+      // Get intermediate stops info
+      const intermediates = (d.intermediateStops || [])
+        .map((is) => stopIdToStop[is.stopId])
+        .filter(Boolean);
+
       // Apply city filter if selected
       if (selectedCity) {
-        if (
-          origin.city.toLowerCase() !== selectedCity.toLowerCase() &&
-          dest.city.toLowerCase() !== selectedCity.toLowerCase()
-        ) {
+        const selectedCityLower = selectedCity.toLowerCase();
+        const hasMatchingCity = 
+          origin.city.toLowerCase() === selectedCityLower ||
+          dest.city.toLowerCase() === selectedCityLower ||
+          intermediates.some((stop) => stop.city.toLowerCase() === selectedCityLower);
+        
+        if (!hasMatchingCity) {
           return false;
         }
       }
 
       // Apply stop filter if selected
       if (selectedStop) {
-        if (
-          origin.name.toLowerCase() !== selectedStop.toLowerCase() &&
-          dest.name.toLowerCase() !== selectedStop.toLowerCase()
-        ) {
+        const selectedStopLower = selectedStop.toLowerCase();
+        const hasMatchingStop = 
+          origin.name.toLowerCase() === selectedStopLower ||
+          dest.name.toLowerCase() === selectedStopLower ||
+          intermediates.some((stop) => stop.name.toLowerCase() === selectedStopLower);
+        
+        if (!hasMatchingStop) {
           return false;
         }
       }
 
       // Apply free-text query from story 1.1
       if (!q) return true;
-      return (
+      
+      // Check origin and destination
+      const matchesOriginOrDest = 
         cityOrigin.includes(q) ||
         cityDest.includes(q) ||
         stopOrigin.includes(q) ||
-        stopDest.includes(q)
+        stopDest.includes(q);
+      
+      // Check intermediate stops
+      const matchesIntermediate = intermediates.some(
+        (stop) => 
+          stop.city.toLowerCase().includes(q) ||
+          stop.name.toLowerCase().includes(q)
       );
+      
+      return matchesOriginOrDest || matchesIntermediate;
     });
     const sorted = results.sort((a, b) => toMinutes(a.departureTime) - toMinutes(b.departureTime));
     return sortAsc ? sorted : [...sorted].reverse();
@@ -218,22 +239,72 @@ export default function SearchDepartures() {
             {filtered.map((d) => {
               const origin = stopIdToStop[d.originStopId];
               const dest = stopIdToStop[d.destinationStopId];
+              
+              // Check if query matches an intermediate stop
+              const q = query.trim().toLowerCase();
+              const selectedStopLower = selectedStop.toLowerCase();
+              const selectedCityLower = selectedCity.toLowerCase();
+              
+              let matchedIntermediateStop = null;
+              let matchedIntermediateTime = null;
+              
+              if (d.intermediateStops && d.intermediateStops.length > 0) {
+                for (const is of d.intermediateStops) {
+                  const stop = stopIdToStop[is.stopId];
+                  if (!stop) continue;
+                  
+                  const matchesQuery = q && (
+                    stop.city.toLowerCase().includes(q) || 
+                    stop.name.toLowerCase().includes(q)
+                  );
+                  const matchesSelectedStop = selectedStop && stop.name.toLowerCase() === selectedStopLower;
+                  const matchesSelectedCity = selectedCity && stop.city.toLowerCase() === selectedCityLower;
+                  
+                  // If intermediate stop matches any filter, use it
+                  if (matchesQuery || matchesSelectedStop || matchesSelectedCity) {
+                    // Check it doesn't also match origin or destination
+                    const isOrigin = stop.id === d.originStopId;
+                    const isDest = stop.id === d.destinationStopId;
+                    
+                    if (!isOrigin && !isDest) {
+                      matchedIntermediateStop = stop;
+                      matchedIntermediateTime = is.time;
+                      break;
+                    }
+                  }
+                }
+              }
+              
+              // Use intermediate stop info if matched, otherwise use origin
+              const displayOrigin = matchedIntermediateStop || origin;
+              const displayDepartureTime = matchedIntermediateTime || d.departureTime;
+              
               return (
-                <li key={d.id}>
+                <li key={`${d.slug}-${d.originStopId}-${d.departureTime}`}>
                   <Link
-                    href={`/ride/${d.id}`}
+                    href={`/ride/${d.slug}`}
                     className="card p-4 flex items-center justify-between transition-colors block"
                   >
                     <div className="min-w-0">
                       <div className="text-sm font-medium">
-                        {d.lineName} • {origin.city} ({origin.name}) → {dest.city} ({dest.name})
+                        {matchedIntermediateStop ? (
+                          // Show intermediate stop to destination
+                          <>{displayOrigin.name} → {dest.name}</>
+                        ) : (
+                          // Show origin to destination
+                          <>{origin.name} → {dest.name}</>
+                        )}
                       </div>
                       <div className="text-xs text-black/60 dark:text-white/60 mt-1">
-                        Partenza {d.departureTime} • Arrivo {d.arrivalTime}
+                        {matchedIntermediateStop ? (
+                          <>Partenza da fermata intermedia {displayDepartureTime} • Arrivo {d.arrivalTime}</>
+                        ) : (
+                          <>Partenza {d.departureTime} • Arrivo {d.arrivalTime}</>
+                        )}
                       </div>
                     </div>
                     <div className="text-sm font-mono opacity-80">
-                      {d.departureTime} → {d.arrivalTime}
+                      {displayDepartureTime} → {d.arrivalTime}
                     </div>
                   </Link>
                 </li>

@@ -33,7 +33,7 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
       </div>
 
       <h1 className="text-xl font-semibold mb-2">
-        {ride.lineName} • {origin.city} ({origin.name}) → {dest.city} ({dest.name})
+         {origin.name} → {dest.name}
       </h1>
       <div className="text-sm text-black/70 dark:text-white/70 mb-6">
         Partenza {ride.departureTime} • Arrivo {ride.arrivalTime} • Durata {duration}
@@ -41,9 +41,9 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
 
       <div className="rounded-md border border-black/10 dark:border-white/15 divide-y divide-black/10 dark:divide-white/10">
         <div className="p-4 flex items-center justify-between">
-          <div className="font-medium">Partenza</div>
+          {/*  <div className="font-medium">Partenza</div> */}
           <div className="text-sm">
-            {origin.city} ({origin.name}) • {ride.departureTime}
+            {origin.name} • {ride.departureTime}
           </div>
         </div>
         {ride.intermediateStops && ride.intermediateStops.length > 0 && (
@@ -53,9 +53,9 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
               if (!via) return null;
               return (
                 <div className="p-4 flex items-center justify-between" key={`${s.stopId}-${s.time}-${idx}`}>
-                  <div className="font-medium">Fermata intermedia</div>
+                  {/* <div className="font-medium">Fermata intermedia</div> */}
                   <div className="text-sm">
-                    {via.city} ({via.name}) • {s.time}
+                    {via.name} • {s.time}
                   </div>
                 </div>
               );
@@ -63,7 +63,7 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
           </>
         )}
         <div className="p-4 flex items-center justify-between">
-          <div className="font-medium">Arrivo</div>
+          {/* <div className="font-medium">Arrivo</div> */}
           <div className="text-sm">
             {dest.city} ({dest.name}) • {ride.arrivalTime}
           </div>
