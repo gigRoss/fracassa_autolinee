@@ -1,6 +1,8 @@
 import { getDb } from './db';
-import { stops, rides } from './schema';
+import { stops, rides, adminUsers } from './schema';
 import { stops as initialStops, departures } from './data';
+import { hashPassword } from './auth';
+import { randomBytes } from 'crypto';
 import * as dotenv from 'dotenv';
 import { eq } from 'drizzle-orm';
 
@@ -52,6 +54,32 @@ async function main() {
       }
     }
     console.log(`✅ Ensured ${departures.length} rides present`);
+    
+    // Seed default admin user
+    const adminEmail = 'admin@example.com';
+    const adminExists = await db.select({ id: adminUsers.id }).from(adminUsers).where(eq(adminUsers.email, adminEmail));
+    
+    if (adminExists.length === 0) {
+      const adminId = `admin-${Date.now()}-${randomBytes(4).toString('hex')}`;
+      const adminPassword = 'admin123';
+      const salt = randomBytes(16).toString('hex');
+      const hash = hashPassword(adminPassword, salt);
+      
+      await db.insert(adminUsers).values({
+        id: adminId,
+        email: adminEmail,
+        passwordHash: `${salt}:${hash}`,
+        name: 'Admin User',
+        createdAt: now,
+      });
+      
+      console.log('✅ Default admin created:');
+      console.log('   Email: admin@example.com');
+      console.log('   Password: admin123');
+      console.log('   🚨 CHANGE THIS PASSWORD IN PRODUCTION!');
+    } else {
+      console.log('ℹ️  Admin user already exists');
+    }
     
     console.log('✅ Seed completed successfully');
     process.exit(0);

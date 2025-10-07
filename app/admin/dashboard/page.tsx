@@ -5,6 +5,7 @@ import { logoutAction } from "@/app/lib/authActions";
 // import { fetchKpis } from "@/app/lib/adminData";
 import { Stop } from "@/app/lib/data";
 import SimplifiedDashboard from "./SimplifiedDashboard";
+import Link from "next/link";
 // import RecentChanges from "./RecentChanges";
 // import CreateRideForm from "./CreateRideForm";
 // import RidesList from "./RidesList";
@@ -93,6 +94,16 @@ export default async function AdminDashboardPage() {
       </div>
 
       <SimplifiedDashboard rides={ridesWithLabels} />
+
+      {/* Link discreto gestione utenti */}
+      <div className="pt-8 border-t border-black/10 dark:border-white/10">
+        <Link 
+          href="/admin/users" 
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+        >
+          Gestione utenti
+        </Link>
+      </div>
 
       {/* CODICE ORIGINALE COMMENTATO - DA RIATTIVARE SE NECESSARIO */}
       {/* 

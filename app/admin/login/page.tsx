@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { findAdminByEmail, verifyPassword, createSession, SESSION_COOKIE, verifySession } from "@/app/lib/auth";
+import { findAdminByEmail, verifyPassword, createSession, SESSION_COOKIE, verifySession, updateLastAccess } from "@/app/lib/auth";
 
 async function loginAction(formData: FormData) {
   "use server";
@@ -15,10 +15,13 @@ async function loginAction(formData: FormData) {
     return { ok: false, errors };
   }
 
-  const user = findAdminByEmail(email);
+  const user = await findAdminByEmail(email);
   if (!user || !verifyPassword(password, user)) {
     return { ok: false, errors: { form: "Credenziali non valide" } };
   }
+
+  // Update last access timestamp in database
+  await updateLastAccess(email);
 
   const token = createSession(user.email);
   (await cookies()).set(SESSION_COOKIE, token, {

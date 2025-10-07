@@ -40,7 +40,6 @@ export async function getStopById(id: string): Promise<Stop | undefined> {
  */
 export async function createStop(stop: Omit<Stop, "id">): Promise<Stop> {
   const db = getDb();
-  const now = new Date();
   
   // Retry logic for duplicate ID (unlikely but possible with timestamp-based IDs)
   let attempts = 0;
@@ -50,17 +49,20 @@ export async function createStop(stop: Omit<Stop, "id">): Promise<Stop> {
     try {
       const id = `s${Date.now()}-${attempts}`;
       
-      const [created] = await db.insert(stops).values({
+      // Insert without returning (Turso compatibility)
+      await db.insert(stops).values({
         id,
         name: stop.name,
         city: stop.city,
-        createdAt: now,
-        updatedAt: now,
-      }).returning({
-        id: stops.id,
-        name: stops.name,
-        city: stops.city,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
+      
+      // Fetch the created stop
+      const created = await getStopById(id);
+      if (!created) {
+        throw new Error('Failed to retrieve created stop');
+      }
       
       return created;
     } catch (error: any) {
