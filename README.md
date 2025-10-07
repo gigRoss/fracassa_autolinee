@@ -66,14 +66,6 @@ Configurazione tramite variabile d'ambiente `DATABASE_MODE`:
 - `local`: usa `file:./local.db`
 - `production`: usa Turso con `TURSO_DATABASE_URL` e `TURSO_AUTH_TOKEN`
 
-## 🌐 Deployment in Produzione
-
-Segui la guida dettagliata in [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) per:
-- Setup database Turso
-- Deploy su Vercel
-- Configurazione environment variables
-- Verifica post-deploy
-
 ### Quick Deploy
 
 ```bash
