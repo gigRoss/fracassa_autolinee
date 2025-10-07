@@ -1,6 +1,7 @@
 # 🚌 Fracassa Autolinee - Sistema Gestione Orari
 
-Sistema web per la consultazione degli orari e la gestione delle corse per Fracassa Autolinee.
+Sistema web ottimizzato per uso mobile per la consultazione degli orari e la gestione delle corse per Fracassa Autolinee.
+Si consiglia l'apertura da smartphone
 
 ## 📋 Caratteristiche
 
