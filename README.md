@@ -1,138 +1,128 @@
-# 🚌 Fracassa Autolinee - Sistema Gestione Orari
+# 🚌 Fracassa Autolinee - Schedule Management System
 
-Sistema web ottimizzato per uso mobile per la consultazione degli orari e la gestione delle corse per Fracassa Autolinee.
-Si consiglia l'apertura da smartphone
+Mobile-optimized web system for schedule consultation and ride management for Fracassa Autolinee.
+Best viewed on smartphone
 
-## 📋 Caratteristiche
+## 📋 Features
 
-- 🔍 Ricerca corse per partenza/destinazione e orario
-- 📱 Interfaccia responsive per mobile e desktop
-- 🔐 Dashboard amministratore per gestione corse e fermate
-- 📊 Sistema di audit per tracciare modifiche
-- 🗄️ Database SQLite (sviluppo) / Turso (produzione)
+- 🔍 Search rides by departure/destination and time
+- 📱 Responsive interface for mobile and desktop
+- 🔐 Administrator dashboard for ride and stop management
+- 📊 Audit system to track changes
+- 🗄️ SQLite database (development) / Turso (production)
 
 ## 🛠️ Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
-- **Database**: Turso (SQLite distribuito)
+- **Database**: Turso (distributed SQLite)
 - **ORM**: Drizzle ORM
 - **Styling**: Tailwind CSS 4
 - **Language**: TypeScript
-- **Deployment**: Vercel (raccomandato)
+- **Deployment**: Vercel (recommended)
 
 ## 🚀 Quick Start
 
-### Prerequisiti
+### Prerequisites
 - Node.js 20+ 
 - npm
 
-### Installazione
+### Installation
 
 ```bash
-# Clona il repository
+# Clone the repository
 git clone [url-repository]
 cd fracassa_autolinee
 
-# Installa le dipendenze
+# Install dependencies
 npm install
 
-# Setup database locale
+# Setup local database
 npm run db:migrate
 npm run db:seed
 
-# Avvia il server di sviluppo
+# Start development server
 npm run dev
 ```
 
-Apri [http://localhost:3000](http://localhost:3000) nel browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 📝 Script Disponibili
+## 📝 Available Scripts
 
 ```bash
-npm run dev          # Avvia il server di sviluppo
-npm run build        # Build per produzione
-npm run start        # Avvia il server di produzione
-npm run db:migrate   # Esegue le migrations
-npm run db:seed      # Popola il database con dati di test
-npm run db:reset     # Reset completo del database locale
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run db:migrate   # Run migrations
+npm run db:seed      # Populate database with test data
+npm run db:reset     # Complete reset of local database
 ```
 
 ## 🗄️ Database
 
-Il progetto supporta due modalità:
-- **Locale**: SQLite (`local.db`) per sviluppo
-- **Produzione**: Turso per deployment
+The project supports two modes:
+- **Local**: SQLite (`local.db`) for development
+- **Production**: Turso for deployment
 
-Configurazione tramite variabile d'ambiente `DATABASE_MODE`:
-- `local`: usa `file:./local.db`
-- `production`: usa Turso con `TURSO_DATABASE_URL` e `TURSO_AUTH_TOKEN`
+Configuration via `DATABASE_MODE` environment variable:
+- `local`: uses `file:./local.db`
+- `production`: uses Turso with `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`
 
 ### Quick Deploy
 
 ```bash
-# 1. Crea database Turso
+# 1. Create Turso database
 turso db create fracassa-autolinee-prod
 turso db show fracassa-autolinee-prod --url
 turso db tokens create fracassa-autolinee-prod
 
-# 2. Esegui migrations su produzione
+# 2. Run migrations on production
 export TURSO_DATABASE_URL="libsql://..."
 export TURSO_AUTH_TOKEN="..."
 ./scripts/migrate-production.sh
 
-# 3. Deploy su Vercel
-# Vai su vercel.com, importa il repo e configura le env variables
-```
 
-## 📁 Struttura Progetto
+## 📁 Project Structure
 
 ```
 fracassa_autolinee/
 ├── app/
-│   ├── components/         # Componenti React riutilizzabili
-│   ├── lib/               # Logica business e utilità
-│   │   ├── db.ts          # Configurazione database
-│   │   ├── schema.ts      # Schema Drizzle
-│   │   ├── auth.ts        # Autenticazione admin
+│   ├── components/         # Reusable React components
+│   ├── lib/               # Business logic and utilities
+│   │   ├── db.ts          # Database configuration
+│   │   ├── schema.ts      # Drizzle schema
+│   │   ├── auth.ts        # Admin authentication
 │   │   └── ...
-│   ├── admin/             # Dashboard amministratore
-│   ├── ride/[id]/         # Dettaglio corsa
+│   ├── admin/             # Administrator dashboard
+│   ├── ride/[id]/         # Ride detail
 │   └── page.tsx           # Homepage
 ├── drizzle/
-│   └── migrations/        # Migrations database
-├── scripts/               # Script di utilità
-└── public/                # Asset statici
+│   └── migrations/        # Database migrations
+├── scripts/               # Utility scripts
+└── public/                # Static assets
 ```
 
-## 🔐 Amministrazione
 
-Accedi alla dashboard admin su `/admin/login`.
 
-**Default credentials** (solo sviluppo):
-- Username: `admin`
-- Password: `password123`
 
-⚠️ **IMPORTANTE**: Cambia le credenziali di default prima del deployment in produzione!
+## 📚 Documentation
 
-## 📚 Documentazione
-
-- [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) - Guida completa al deployment
-- [`docs/`](./docs/) - Documentazione architetturale e requisiti
+- [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) - Complete deployment guide
+- [`docs/`](./docs/) - Architectural documentation and requirements
 - [Next.js Docs](https://nextjs.org/docs)
 - [Drizzle ORM](https://orm.drizzle.team)
 - [Turso Docs](https://docs.turso.tech)
 
-## 🤝 Contribuire
+## 🤝 Contributing
 
-1. Crea un branch per la tua feature (`git checkout -b feature/AmazingFeature`)
-2. Commit delle modifiche (`git commit -m 'Add some AmazingFeature'`)
-3. Push al branch (`git push origin feature/AmazingFeature`)
-4. Apri una Pull Request
+1. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+2. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+3. Push to the branch (`git push origin feature/AmazingFeature`)
+4. Open a Pull Request
 
 ## 📄 License
 
-Questo progetto è proprietario di Fracassa Autolinee.
+This project is proprietary to Fracassa Autolinee.
 
-## 📞 Supporto
+## 📞 Support
 
-Per assistenza, contatta il team di sviluppo.
+For assistance, contact the development team.
