@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listStops } from "@/app/lib/stopsStore";
 import { getRideById } from "@/app/lib/ridesStore";
+import { formatDuration } from "@/app/lib/data";
 type Params = { id: string };
 
 export default async function RideDetail({ params }: { params: Promise<Params> }) {
