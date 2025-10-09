@@ -2,6 +2,7 @@ import { getDb } from './db';
 import { stops, rides as ridesTable, intermediateStops as intermediateTable } from './schema';
 import { eq, or } from 'drizzle-orm';
 import type { Stop } from './data';
+import { nowInItaly } from './dateUtils';
 
 /**
  * List all stops from database
@@ -54,8 +55,8 @@ export async function createStop(stop: Omit<Stop, "id">): Promise<Stop> {
         id,
         name: stop.name,
         city: stop.city,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: nowInItaly(),
+        updatedAt: nowInItaly(),
       });
       
       // Fetch the created stop
@@ -98,7 +99,7 @@ export async function updateStop(id: string, update: Partial<Omit<Stop, 'id'>>):
     .set({
       name: update.name ?? existing.name,
       city: update.city ?? existing.city,
-      updatedAt: new Date(),
+      updatedAt: nowInItaly(),
     })
     .where(eq(stops.id, id));
 

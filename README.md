@@ -7,6 +7,7 @@ Best viewed on smartphone
 
 - 🔍 Search rides by departure/destination and time
 - 📱 Responsive interface for mobile and desktop
+- 💾 Installable as Progressive Web App (PWA)
 - 🔐 Administrator dashboard for ride and stop management
 - 📊 Audit system to track changes
 - 🗄️ SQLite database (development) / Turso (production)
@@ -45,6 +46,44 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 📱 Installazione PWA
+
+L'applicazione può essere installata come Progressive Web App per un accesso rapido e un'esperienza simile a un'app native.
+
+### 🍎 Su Mac
+
+#### Safari (metodo consigliato)
+1. Apri il sito in Safari
+2. Clicca su **"Condividi"** nella barra degli strumenti (o premi `⌘ + Shift + I`)
+3. Scorri e seleziona **"Aggiungi al Dock"**
+4. Conferma il nome dell'app e clicca **"Aggiungi"**
+
+L'app apparirà nel tuo Dock e potrà essere aperta come una normale applicazione Mac.
+
+#### Chrome/Edge
+1. Apri il sito in Chrome o Edge
+2. Clicca sul menu **⋮** (tre puntini in alto a destra)
+3. Seleziona **"Installa Fracassa Autolinee..."**
+4. Conferma cliccando **"Installa"**
+
+### 📱 Su iPhone/iPad
+
+1. Apri il sito in Safari
+2. Tocca il pulsante **Condividi** ⎙ (in basso al centro)
+3. Scorri verso il basso e seleziona **"Aggiungi a Home"**
+4. Modifica il nome se necessario e tocca **"Aggiungi"**
+
+L'icona apparirà sulla tua home screen.
+
+### 🤖 Su Android
+
+1. Apri il sito in Chrome
+2. Tocca il menu **⋮** (tre puntini in alto a destra)
+3. Seleziona **"Installa app"** o **"Aggiungi a schermata Home"**
+4. Conferma l'installazione
+
+In alternativa, l'app mostrerà automaticamente un banner di installazione dopo qualche secondo.
 
 ## 📝 Available Scripts
 
