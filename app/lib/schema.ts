@@ -73,6 +73,45 @@ export const auditEvents = sqliteTable('audit_events', {
 }));
 
 // ============================================================================
+// ANALYTICS_EVENTS TABLE (Livello 1: Dati aggregati anonimi - NO consent needed)
+// ============================================================================
+export const analyticsEvents = sqliteTable('analytics_events', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  date: text('date').notNull(), // 'YYYY-MM-DD'
+  hour: integer('hour').notNull(), // 0-23
+  eventType: text('event_type').notNull(), // 'search', 'view_ride', 'view_stop', 'pageview'
+  eventData: text('event_data'), // JSON leggero: { route: 'Teramo-Guazzano' } o { rideId: '...' }
+  count: integer('count').notNull().default(1), // Aggregato: numero occorrenze
+  createdAt: integer('created_at', { mode: 'timestamp' }),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }),
+}, (table) => ({
+  dateHourIdx: index('idx_analytics_date_hour').on(table.date, table.hour),
+  typeIdx: index('idx_analytics_type').on(table.eventType),
+  dateTypeIdx: index('idx_analytics_date_type').on(table.date, table.eventType),
+}));
+
+// ============================================================================
+// USER_SESSIONS TABLE (Livello 2: Session tracking - REQUIRES consent)
+// ============================================================================
+export const userSessions = sqliteTable('user_sessions', {
+  id: text('id').primaryKey(), // UUID generato client-side
+  firstSeen: integer('first_seen', { mode: 'timestamp' }).notNull(),
+  lastSeen: integer('last_seen', { mode: 'timestamp' }).notNull(),
+  pageviews: integer('pageviews').notNull().default(1),
+  events: text('events'), // JSON array di eventi: [{ type, data, timestamp }]
+  // Dati tecnici (solo se consenso dato)
+  userAgent: text('user_agent'),
+  language: text('language'),
+  timezone: text('timezone'),
+  screenResolution: text('screen_resolution'),
+  isPWA: integer('is_pwa', { mode: 'boolean' }).default(false),
+  // Privacy: NO IP address, NO fingerprinting aggressivo
+}, (table) => ({
+  firstSeenIdx: index('idx_sessions_first_seen').on(table.firstSeen),
+  lastSeenIdx: index('idx_sessions_last_seen').on(table.lastSeen),
+}));
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -125,5 +164,11 @@ export type NewAdminUser = typeof adminUsers.$inferInsert;
 
 export type AuditEvent = typeof auditEvents.$inferSelect;
 export type NewAuditEvent = typeof auditEvents.$inferInsert;
+
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type NewAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+
+export type UserSession = typeof userSessions.$inferSelect;
+export type NewUserSession = typeof userSessions.$inferInsert;
 
 

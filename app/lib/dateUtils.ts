@@ -40,11 +40,13 @@ export function toItalianTime(date: Date | number | null | undefined): Date | nu
  * Format a date in Italian format
  * @param date - The date to format (already in Italian time if from DB)
  * @param includeTime - Whether to include time (default: true)
- * @returns Formatted string like "09/10/2025, 14:30" or "09/10/2025"
+ * @param includeSeconds - Whether to include seconds (default: false)
+ * @returns Formatted string like "09/10/2025, 14:30:45" or "09/10/2025, 14:30" or "09/10/2025"
  */
 export function formatItalianDate(
   date: Date | number | null | undefined,
-  includeTime: boolean = true
+  includeTime: boolean = true,
+  includeSeconds: boolean = false
 ): string {
   if (!date) return "Mai";
   
@@ -52,14 +54,20 @@ export function formatItalianDate(
   
   // Read UTC components (which represent Italian time)
   if (includeTime) {
-    return d.toLocaleString("it-IT", {
+    const options: Intl.DateTimeFormatOptions = {
       timeZone: "UTC",
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    });
+    };
+    
+    if (includeSeconds) {
+      options.second = "2-digit";
+    }
+    
+    return d.toLocaleString("it-IT", options);
   } else {
     return d.toLocaleDateString("it-IT", {
       timeZone: "UTC",

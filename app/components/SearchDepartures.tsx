@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { toMinutes } from "../lib/data";
+import { useAnalytics } from "../hooks/useAnalytics";
 
 async function fetchStops(): Promise<Array<{ id: string; name: string; city: string }>> {
   const res = await fetch("/stops", { cache: "no-store" });
@@ -32,6 +33,7 @@ function useSuggestions(query: string, stops: Array<{ id: string; name: string; 
 }
 
 export default function SearchDepartures() {
+  const { trackEvent, trackSessionEvent } = useAnalytics();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string>("");
@@ -39,6 +41,7 @@ export default function SearchDepartures() {
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [stops, setStops] = useState<Array<{ id: string; name: string; city: string }>>([]);
   const [rides, setRides] = useState<Array<{ slug: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string; intermediateStops?: Array<{ stopId: string; time: string }> }>>([]);
+  const searchTracked = useRef(false);
 
   // Load stops and rides from public API
   useMemo(() => {
@@ -122,8 +125,43 @@ export default function SearchDepartures() {
   const handleSelectSuggestion = (value: string) => {
     setQuery(value);
     setFocused(false);
-    
   };
+
+  // Track searches when user performs meaningful search
+  useEffect(() => {
+    // Only track if there's an actual search (query or filters)
+    const hasSearch = query.trim() || selectedCity || selectedStop;
+    
+    if (hasSearch && !searchTracked.current) {
+      // Build search description
+      const searchParts = [];
+      if (query.trim()) searchParts.push(query.trim());
+      if (selectedCity) searchParts.push(`città: ${selectedCity}`);
+      if (selectedStop) searchParts.push(`fermata: ${selectedStop}`);
+      
+      const searchDescription = searchParts.join(', ');
+      
+      // Track anonymous event (always)
+      trackEvent('search', {
+        query: query.trim() || undefined,
+        city: selectedCity || undefined,
+        stop: selectedStop || undefined,
+        resultsCount: filtered.length,
+        hasResults: filtered.length > 0,
+      });
+
+      // Track in session (only with consent)
+      trackSessionEvent('search', {
+        searchDescription,
+        resultsCount: filtered.length,
+      });
+
+      searchTracked.current = true;
+    } else if (!hasSearch) {
+      // Reset tracking flag when search is cleared
+      searchTracked.current = false;
+    }
+  }, [query, selectedCity, selectedStop, filtered.length, trackEvent, trackSessionEvent]);
 
   
 
@@ -284,6 +322,19 @@ export default function SearchDepartures() {
                   <Link
                     href={`/ride/${d.slug}`}
                     className="card p-4 flex items-center justify-between transition-colors block"
+                    onClick={() => {
+                      // Track ride view
+                      trackEvent('view_ride', {
+                        rideSlug: d.slug,
+                        lineName: d.lineName,
+                        origin: origin.name,
+                        destination: dest.name,
+                      });
+                      trackSessionEvent('view_ride', {
+                        rideSlug: d.slug,
+                        fromSearch: true,
+                      });
+                    }}
                   >
                     <div className="min-w-0">
                       <div className="text-sm font-medium">
