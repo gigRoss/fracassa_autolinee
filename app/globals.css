@@ -58,6 +58,40 @@
   --bp-md: 768px;
   --bp-lg: 1024px;
   --bp-xl: 1280px;
+
+  /* === Mobile App Specific Design Tokens === */
+  
+  /* Mobile brand colors (Figma spec) */
+  --mobile-brand-blue: #162686;
+  --mobile-brand-blue-alt: #162685;
+  --mobile-brand-orange: #F49401;
+  --mobile-overlay-blue: rgba(22, 38, 133, 0.41);
+  --mobile-border-light: rgba(0, 0, 0, 0.14);
+  
+  /* Mobile spacing (4px base unit) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  
+  /* Mobile layout constraints */
+  --mobile-max-width: 393px;
+  --mobile-content-padding: 18px;
+  --mobile-hero-height: 222px;
+  --mobile-bottom-nav-height: 57px;
+  
+  /* Mobile animations */
+  --transition-fast: 200ms;
+  --transition-normal: 300ms;
+  --transition-slow: 400ms;
+  --easing-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --easing-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --easing-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
 }
 
 @theme inline {
@@ -186,6 +220,111 @@ textarea {
 }
 
 /* Documentation: Use tokens via var(--brand-primary) etc., or utilities (.btn, .btn-primary, .input, .card) */
+
+/* === Mobile App Custom Animations === */
+
+@keyframes splash-entry {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splash-fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-up-enter {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes field-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes button-press {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+/* Mobile-specific utility classes */
+.mobile-container {
+  max-width: var(--mobile-max-width);
+  margin: 0 auto;
+  padding: 0 var(--mobile-content-padding);
+}
+
+.mobile-safe-bottom {
+  padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Animation classes */
+.animate-splash-entry {
+  animation: splash-entry var(--transition-slow) var(--easing-decelerate);
+}
+
+.animate-splash-fade-out {
+  animation: splash-fade-out var(--transition-normal) var(--easing-accelerate);
+}
+
+.animate-slide-up {
+  animation: slide-up-enter var(--transition-slow) var(--easing-decelerate);
+}
+
+.animate-field-1 {
+  animation: field-appear var(--transition-normal) var(--easing-decelerate);
+  animation-delay: 0ms;
+}
+
+.animate-field-2 {
+  animation: field-appear var(--transition-normal) var(--easing-decelerate);
+  animation-delay: 100ms;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.animate-field-3 {
+  animation: field-appear var(--transition-normal) var(--easing-decelerate);
+  animation-delay: 200ms;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* Brand backgrounds */
 .bg-hero-brand { background: var(--neutral-0); }
