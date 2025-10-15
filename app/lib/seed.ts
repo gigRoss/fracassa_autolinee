@@ -5,6 +5,7 @@ import { hashPassword } from './auth';
 import { randomBytes } from 'crypto';
 import * as dotenv from 'dotenv';
 import { eq } from 'drizzle-orm';
+import { nowInItaly } from './dateUtils';
 
 // Load environment variables from .env.local
 dotenv.config({ path: '.env.local' });
@@ -18,7 +19,7 @@ async function main() {
   
   try {
     const db = getDb();
-    const now = new Date();
+    const now = nowInItaly();
     
     // Upsert stops
     for (const stop of initialStops) {

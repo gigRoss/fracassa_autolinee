@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toItalianISO } from "@/app/lib/dateUtils";
 
 type AuditChange = {
   field: string;
@@ -31,8 +32,14 @@ export default function RecentChanges() {
     const p = new URLSearchParams();
     if (actor) p.set("actor", actor);
     if (type) p.set("type", type);
-    if (from) p.set("from", new Date(from).toISOString());
-    if (to) p.set("to", new Date(to).toISOString());
+    if (from) {
+      const isoFrom = toItalianISO(new Date(from));
+      if (isoFrom) p.set("from", isoFrom);
+    }
+    if (to) {
+      const isoTo = toItalianISO(new Date(to));
+      if (isoTo) p.set("to", isoTo);
+    }
     const s = p.toString();
     return s ? `?${s}` : "";
   }, [actor, type, from, to]);

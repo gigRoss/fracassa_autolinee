@@ -1,6 +1,7 @@
 import { getDb } from "./db";
 import { rides as ridesTable, intermediateStops as intermediateTable } from "./schema";
 import { and, eq, inArray } from "drizzle-orm";
+import { nowInItaly } from "./dateUtils";
 
 export type RideWithStops = {
   id: string;
@@ -60,8 +61,8 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
     departureTime: ride.departureTime,
     arrivalTime: ride.arrivalTime,
     archived: ride.archived ?? false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: nowInItaly(),
+    updatedAt: nowInItaly(),
   });
 
   const inter = ride.intermediateStops || [];
@@ -126,7 +127,7 @@ export async function updateRide(
       departureTime: update.departureTime ?? existing.departureTime,
       arrivalTime: update.arrivalTime ?? existing.arrivalTime,
       archived: update.archived ?? existing.archived ?? false,
-      updatedAt: new Date(),
+      updatedAt: nowInItaly(),
     })
     .where(eq(ridesTable.id, rideId));
 

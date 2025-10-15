@@ -1,3 +1,5 @@
+import { nowInItaly, formatRelativeItalian } from "./dateUtils";
+
 export type KpiSummary = {
   scheduledToday: number;
   changedLast7d: number;
@@ -37,11 +39,8 @@ export type AuditEvent = {
 const auditEvents: AuditEvent[] = [];
 
 export function emitAudit(event: Omit<AuditEvent, "id" | "when" | "timestamp">) {
-  const now = new Date();
-  const timeStr = now.toLocaleString("it-IT", { hour: "2-digit", minute: "2-digit" });
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const label = now >= today ? `oggi ${timeStr}` : now.toLocaleString("it-IT");
+  const now = nowInItaly();
+  const label = formatRelativeItalian(now);
   const id = `chg-${String(auditEvents.length + 1).padStart(3, "0")}`;
   const complete: AuditEvent = { id, when: label, timestamp: now.getTime(), ...event };
   auditEvents.unshift(complete);

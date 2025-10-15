@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SiteChrome from "./components/SiteChrome";
 import PWAInstaller from "./components/PWAInstaller";
+import CookieConsent from "./components/CookieConsent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,6 +57,7 @@ export default function RootLayout({
           </main>
         </SiteChrome>
         <PWAInstaller />
+        <CookieConsent />
       </body>
     </html>
   );

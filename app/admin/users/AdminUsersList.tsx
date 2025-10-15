@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatItalianDate } from "@/app/lib/dateUtils";
 
 type AdminUserListItem = {
   id: string;
@@ -46,14 +47,7 @@ export default function AdminUsersList({
   }
 
   function formatDate(date: Date | null): string {
-    if (!date) return "Mai";
-    return new Date(date).toLocaleString("it-IT", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatItalianDate(date, true);
   }
 
   return (

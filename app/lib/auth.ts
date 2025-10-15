@@ -3,6 +3,7 @@ import { getDb } from "./db";
 import { adminUsers } from "./schema";
 import { eq } from "drizzle-orm";
 import type { AdminUser } from "./schema";
+import { nowInItaly } from "./dateUtils";
 
 const DEFAULT_SESSION_TTL_MS = 1000 * 60 * 60 * 8; // 8h
 const SESSION_COOKIE = "admin_session";
@@ -50,7 +51,7 @@ export function verifyPassword(password: string, user: AdminUser): boolean {
 export async function updateLastAccess(email: string): Promise<void> {
   const db = getDb();
   await db.update(adminUsers)
-    .set({ lastAccess: new Date() })
+    .set({ lastAccess: nowInItaly() })
     .where(eq(adminUsers.email, email.toLowerCase()));
 }
 
@@ -68,7 +69,7 @@ export async function createAdminUser(email: string, password: string, name: str
     email: email.toLowerCase(),
     passwordHash: `${salt}:${hash}`,
     name,
-    createdAt: new Date(),
+    createdAt: nowInItaly(),
   }).returning();
   
   return user;
