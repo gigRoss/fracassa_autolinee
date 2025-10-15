@@ -12,6 +12,7 @@ export type EditRide = {
   destinationStopId: string;
   departureTime: string;
   arrivalTime: string;
+  price?: string;
   intermediateStops?: IntermediateStop[];
 };
 
@@ -22,6 +23,7 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
   const [destinationStopId, setDestinationStopId] = useState(ride.destinationStopId);
   const [departureTime, setDepartureTime] = useState(ride.departureTime);
   const [arrivalTime, setArrivalTime] = useState(ride.arrivalTime);
+  const [price, setPrice] = useState(ride.price || "");
   const [intermediateStops, setIntermediateStops] = useState<IntermediateStop[]>(ride.intermediateStops || []);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +126,7 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
           destinationStopId,
           departureTime,
           arrivalTime,
+          price: price.trim() || undefined,
           intermediateStops: intermediateStops.filter((s) => s.stopId && s.time),
         }),
       });
@@ -217,6 +220,10 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
         <div>
           <label className="block text-xs mb-1">Arrivo (HH:MM)*</label>
           <input value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="08:55" />
+        </div>
+        <div>
+          <label className="block text-xs mb-1">Prezzo (€)</label>
+          <input value={price} onChange={(e) => setPrice(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="2.50" />
         </div>
       </div>
 

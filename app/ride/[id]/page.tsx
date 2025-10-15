@@ -36,6 +36,7 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
       </h1>
       <div className="text-sm text-black/70 dark:text-white/70 mb-6">
         Partenza {ride.departureTime} • Arrivo {ride.arrivalTime} • Durata {duration}
+        {ride.price && ` • Prezzo €${ride.price}`}
       </div>
 
       <div className="rounded-md border border-black/10 dark:border-white/15 divide-y divide-black/10 dark:divide-white/10">

@@ -25,6 +25,7 @@ export default function CreateRideForm() {
   const [destinationNewName, setDestinationNewName] = useState("");
   const [departureTime, setDepartureTime] = useState("");
   const [arrivalTime, setArrivalTime] = useState("");
+  const [price, setPrice] = useState("");
   const [intermediateStops, setIntermediateStops] = useState<IntermediateStop[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,6 +132,7 @@ export default function CreateRideForm() {
           destinationStopId: destId,
           departureTime,
           arrivalTime,
+          price: price.trim() || undefined,
           intermediateStops: processedIntermediates,
         }),
       });
@@ -150,6 +152,7 @@ export default function CreateRideForm() {
       setDestinationNewName("");
       setDepartureTime("");
       setArrivalTime("");
+      setPrice("");
       setIntermediateStops([]);
       // Trigger a refresh of server components list via router refresh
       if (typeof window !== "undefined") {
@@ -271,6 +274,10 @@ export default function CreateRideForm() {
         <div>
           <label className="block text-xs mb-1">Arrivo (HH:MM)*</label>
           <input value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="08:55" />
+        </div>
+        <div>
+          <label className="block text-xs mb-1">Prezzo (€)</label>
+          <input value={price} onChange={(e) => setPrice(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="2.50" />
         </div>
       </div>
 
