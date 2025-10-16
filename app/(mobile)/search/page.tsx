@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import HeroImage from '@/app/components/mobile/HeroImage';
 import SearchButton from '@/app/components/mobile/SearchButton';
 import InputField from '@/app/components/mobile/InputField';
+import SelectField from '@/app/components/mobile/SelectField';
 import BottomNav from '@/app/components/mobile/BottomNav';
+
+
 
 interface SearchFormData {
   origin: string;
@@ -17,6 +20,12 @@ interface FormErrors {
   origin?: string;
   destination?: string;
   date?: string;
+}
+
+interface Stop {
+  id: string;
+  name: string;
+  city: string;
 }
 
 /**
@@ -32,11 +41,32 @@ export default function SearchPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [stops, setStops] = useState<Stop[]>([]);
+  const [loadingStops, setLoadingStops] = useState(true);
   const [formData, setFormData] = useState<SearchFormData>({
     origin: '',
     destination: '',
     date: '',
   });
+
+  // Fetch stops on mount
+  useEffect(() => {
+    const fetchStops = async () => {
+      try {
+        const response = await fetch('/stops');
+        if (response.ok) {
+          const data = await response.json();
+          setStops(data);
+        }
+      } catch (error) {
+        console.error('Error fetching stops:', error);
+      } finally {
+        setLoadingStops(false);
+      }
+    };
+
+    fetchStops();
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -67,19 +97,31 @@ export default function SearchPage() {
     setLoading(true);
 
     try {
-      // TODO: Call API to search for routes
-      // const results = await searchRoutes(formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call search API
+      const queryParams = new URLSearchParams({
+        origin: formData.origin,
+        destination: formData.destination,
+        ...(formData.date && { date: formData.date }),
+      });
 
-      // TODO: Navigate to results or update UI with results
-      console.log('Searching for routes:', formData);
+      const response = await fetch(`/api/search?${queryParams.toString()}`);
       
-      // Example: router.push(`/results?origin=${formData.origin}&destination=${formData.destination}&date=${formData.date}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Search failed');
+      }
+
+      const data = await response.json();
+      
+      // Navigate to results page with search parameters
+      router.push(
+        `/results?origin=${encodeURIComponent(formData.origin)}&destination=${encodeURIComponent(formData.destination)}&date=${encodeURIComponent(formData.date)}`
+      );
     } catch (error) {
       console.error('Search error:', error);
-      setErrors({ origin: 'Si è verificato un errore. Riprova.' });
+      setErrors({ 
+        origin: error instanceof Error ? error.message : 'Si è verificato un errore. Riprova.' 
+      });
     } finally {
       setLoading(false);
     }
@@ -117,9 +159,8 @@ export default function SearchPage() {
             {/* Form Fields with staggered animation */}
             <div className="space-y-6">
               <div className="animate-field-1">
-                <InputField
+                <SelectField
                   id="origin"
-                  type="text"
                   label="Partenza"
                   placeholder="Seleziona fermata di partenza"
                   value={formData.origin}
@@ -127,19 +168,28 @@ export default function SearchPage() {
                   error={errors.origin}
                   required
                   autoFocus
+                  disabled={loadingStops}
+                  options={stops.map((stop) => ({
+                    value: stop.id,
+                    label: `${stop.name} (${stop.city})`,
+                  }))}
                 />
               </div>
 
               <div className="animate-field-2">
-                <InputField
+                <SelectField
                   id="destination"
-                  type="text"
                   label="Arrivo"
                   placeholder="Seleziona fermata di arrivo"
                   value={formData.destination}
                   onChange={(e) => handleInputChange('destination', e.target.value)}
                   error={errors.destination}
                   required
+                  disabled={loadingStops}
+                  options={stops.map((stop) => ({
+                    value: stop.id,
+                    label: `${stop.name} (${stop.city})`,
+                  }))}
                 />
               </div>
 
