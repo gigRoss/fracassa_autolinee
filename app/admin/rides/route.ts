@@ -41,21 +41,28 @@ export async function POST(req: NextRequest) {
       destinationStopId: body.destinationStopId,
       departureTime: body.departureTime,
       arrivalTime: body.arrivalTime,
+      price: body.price,
       intermediateStops: body.intermediateStops ?? [],
     });
+
+    const auditChanges = [
+      { field: "lineName", after: created.lineName },
+      { field: "originStopId", after: String(created.originStopId) },
+      { field: "destinationStopId", after: String(created.destinationStopId) },
+      { field: "departureTime", after: created.departureTime },
+      { field: "arrivalTime", after: created.arrivalTime },
+    ];
+    
+    if (created.price) {
+      auditChanges.push({ field: "price", after: created.price });
+    }
 
     emitAudit({
       actor: session.sub,
       type: "ride.created",
       rideId: created.id,
       description: `Corsa ${created.lineName} creata (${created.departureTime} → ${created.arrivalTime})`,
-      changes: [
-        { field: "lineName", after: created.lineName },
-        { field: "originStopId", after: String(created.originStopId) },
-        { field: "destinationStopId", after: String(created.destinationStopId) },
-        { field: "departureTime", after: created.departureTime },
-        { field: "arrivalTime", after: created.arrivalTime },
-      ],
+      changes: auditChanges,
     });
 
     return NextResponse.json(created, { status: 201 });

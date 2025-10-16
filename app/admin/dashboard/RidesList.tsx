@@ -88,6 +88,7 @@ export default async function RidesList() {
                   destinationStopId: d.destinationStopId,
                   departureTime: d.departureTime,
                   arrivalTime: d.arrivalTime,
+                  price: (d as any).price,
                   intermediateStops: (d as any).intermediateStops || [],
                 }}
               />

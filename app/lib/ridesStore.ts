@@ -10,6 +10,7 @@ export type RideWithStops = {
   destinationStopId: string;
   departureTime: string;
   arrivalTime: string;
+  price?: string; // importo della corsa (es. "2.50")
   intermediateStops?: Array<{ stopId: string; time: string }>;
   archived?: boolean;
 };
@@ -41,6 +42,7 @@ export async function listRides(): Promise<RideWithStops[]> {
     destinationStopId: r.destinationStopId,
     departureTime: r.departureTime,
     arrivalTime: r.arrivalTime,
+    price: r.price ?? undefined,
     archived: r.archived ?? false,
     intermediateStops: rideIdToIntermediates[r.id] || [],
   }));
@@ -60,6 +62,7 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
     destinationStopId: ride.destinationStopId,
     departureTime: ride.departureTime,
     arrivalTime: ride.arrivalTime,
+    price: ride.price ?? null,
     archived: ride.archived ?? false,
     createdAt: nowInItaly(),
     updatedAt: nowInItaly(),
@@ -99,6 +102,7 @@ export async function getRideById(rideId: string): Promise<RideWithStops | undef
     destinationStopId: r.destinationStopId,
     departureTime: r.departureTime,
     arrivalTime: r.arrivalTime,
+    price: r.price ?? undefined,
     archived: r.archived ?? false,
     intermediateStops: inter
       .sort((a, b) => a.stopOrder - b.stopOrder)
@@ -126,6 +130,7 @@ export async function updateRide(
       destinationStopId: update.destinationStopId ?? existing.destinationStopId,
       departureTime: update.departureTime ?? existing.departureTime,
       arrivalTime: update.arrivalTime ?? existing.arrivalTime,
+      price: update.price !== undefined ? update.price : existing.price,
       archived: update.archived ?? existing.archived ?? false,
       updatedAt: nowInItaly(),
     })

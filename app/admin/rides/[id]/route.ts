@@ -44,6 +44,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (body.destinationStopId !== undefined) pushChange("destinationStopId", existing.destinationStopId, updated.destinationStopId);
     if (body.departureTime !== undefined) pushChange("departureTime", existing.departureTime, updated.departureTime);
     if (body.arrivalTime !== undefined) pushChange("arrivalTime", existing.arrivalTime, updated.arrivalTime);
+    if (body.price !== undefined) pushChange("price", existing.price, updated.price);
     if (body.intermediateStops !== undefined) pushChange("intermediateStops", JSON.stringify(existing.intermediateStops ?? []), JSON.stringify(updated.intermediateStops ?? []));
     if (body.archived !== undefined) pushChange("archived", existing.archived ?? false, updated.archived ?? false);
 
