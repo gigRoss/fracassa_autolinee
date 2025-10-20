@@ -78,5 +78,3 @@ InputField.displayName = 'InputField';
 
 export default InputField;
 
-
-
