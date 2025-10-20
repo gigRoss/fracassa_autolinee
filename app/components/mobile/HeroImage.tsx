@@ -4,26 +4,23 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 interface HeroImageProps {
-  variant?: 'full' | 'compact';
   priority?: boolean;
   className?: string;
 }
 
 /**
  * Hero image component for branding at top of screens
- * Full variant: Homepage (y: 129px)
- * Compact variant: Search screen (y: 50px)
+ * Positioned at y: 50px (compact position for search screen)
  */
 export default function HeroImage({ 
-  variant = 'full', 
   priority = false,
   className = ''
 }: HeroImageProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Position based on variant
-  const topPosition = variant === 'full' ? 'top-[129px]' : 'top-[50px]';
+  // Fixed position for search screen
+  const topPosition = 'top-[50px]';
 
   return (
     <div 

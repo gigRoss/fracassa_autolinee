@@ -19,9 +19,9 @@ export default function SplashScreen() {
       setIsExiting(true);
     }, 2000);
 
-    // After exit animation completes, navigate to homepage
+    // After exit animation completes, navigate directly to search
     const navigateTimer = setTimeout(() => {
-      router.push('/home');
+      router.push('/search');
     }, 2300); // 2000ms wait + 300ms fade out
 
     // Cleanup timers on unmount
@@ -34,15 +34,16 @@ export default function SplashScreen() {
   return (
     <div 
       className={`
-        min-h-screen 
-        bg-white 
-        flex items-center justify-center
+        relative
+        w-full max-w-[393px] mx-auto
+        h-screen
+        bg-white
         ${isExiting ? 'animate-splash-fade-out' : ''}
       `}
       role="main"
       aria-label="Schermata di avvio"
     >
-      <div className="animate-splash-entry">
+      <div className="absolute left-[92px] top-[322px] animate-splash-entry">
         <Image
           src="/mobile/splash-logo.png"
           alt="Fracassa Autolinee logo"

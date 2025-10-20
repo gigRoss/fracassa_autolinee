@@ -20,7 +20,7 @@
 
 # production
 /build
-
+/drizzle/migrations
 # misc
 .DS_Store
 *.pem

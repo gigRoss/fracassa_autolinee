@@ -26,9 +26,9 @@ export default function BottomNav({ items, className = '' }: BottomNavProps) {
   // Default navigation items
   const defaultItems: NavItem[] = [
     {
-      id: 'home',
-      label: 'Home',
-      href: '/home',
+      id: 'search',
+      label: 'Ricerca',
+      href: '/search',
       icon: (
         <svg
           className="w-[18.67px] h-[20.42px]"
@@ -39,8 +39,8 @@ export default function BottomNav({ items, className = '' }: BottomNavProps) {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          <polyline points="9 22 9 12 15 12 15 22" />
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
         </svg>
       ),
     },
