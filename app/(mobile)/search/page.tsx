@@ -1,371 +1,626 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import BottomNav from '@/app/components/mobile/BottomNav';
-
-interface SearchFormData {
-  origin: string;
-  destination: string;
-  departureDate: string;
-  returnDate: string;
-}
-
-interface FormErrors {
-  origin?: string;
-  destination?: string;
-  departureDate?: string;
-  returnDate?: string;
-}
-
-interface Stop {
-  id: string;
-  name: string;
-  city: string;
-}
 
 /**
- * Search Screen - Exact Figma CSS implementation
- * Matches the provided CSS specifications exactly
+ * Search Screen - Based on autohtml-project design
+ * Implements the exact design from the HTML/CSS files
  */
 export default function SearchPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [stops, setStops] = useState<Stop[]>([]);
-  const [loadingStops, setLoadingStops] = useState(true);
-  const [formData, setFormData] = useState<SearchFormData>({
-    origin: '',
-    destination: '',
-    departureDate: '',
-    returnDate: '',
-  });
-
-  // Fetch stops on mount
-  useEffect(() => {
-    const fetchStops = async () => {
-      try {
-        const response = await fetch('/stops');
-        if (response.ok) {
-          const data = await response.json();
-          setStops(data);
-        }
-      } catch (error) {
-        console.error('Error fetching stops:', error);
-      } finally {
-        setLoadingStops(false);
-      }
-    };
-
-    fetchStops();
-  }, []);
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!formData.origin.trim()) {
-      newErrors.origin = 'Seleziona una fermata di partenza';
-    }
-
-    if (!formData.destination.trim()) {
-      newErrors.destination = 'Seleziona una fermata di arrivo';
-    }
-
-    if (!formData.departureDate) {
-      newErrors.departureDate = 'Seleziona una data';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // Find stop IDs from the text inputs
-      const originStop = stops.find(
-        s => `${s.name} (${s.city})` === formData.origin || s.name === formData.origin
-      );
-      const destStop = stops.find(
-        s => `${s.name} (${s.city})` === formData.destination || s.name === formData.destination
-      );
-
-      if (!originStop || !destStop) {
-        throw new Error('Seleziona fermate valide dall\'elenco');
-      }
-
-      const queryParams = new URLSearchParams({
-        origin: originStop.id,
-        destination: destStop.id,
-        date: formData.departureDate,
-      });
-
-      const response = await fetch(`/api/search?${queryParams.toString()}`);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Search failed');
-      }
-
-      router.push(
-        `/results?origin=${encodeURIComponent(originStop.id)}&destination=${encodeURIComponent(destStop.id)}&date=${encodeURIComponent(formData.departureDate)}`
-      );
-    } catch (error) {
-      console.error('Search error:', error);
-      setErrors({ 
-        origin: error instanceof Error ? error.message : 'Si è verificato un errore. Riprova.' 
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleInputChange = (field: keyof SearchFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
-    }
-  };
-
-  const handleSwap = () => {
-    setFormData(prev => ({
-      ...prev,
-      origin: prev.destination,
-      destination: prev.origin,
-    }));
-  };
 
   return (
-    <div 
-      className="relative mx-auto bg-white"
-      style={{ width: '393px', height: '852px' }}
-    >
-      {/* Logo Container - Centered at top */}
-      <div 
-        className="absolute flex justify-center"
-        style={{ width: '393px', height: '140px', left: '0px', top: '30px' }}
-      >
+    <div className="search">
+      {/* Logo Frame */}
+      <div className="frame-1">
         <Image
           src="/mobile/splash-logo.png"
           alt="Fracassa Autolinee"
-          width={150}
-          height={1500}
+          width={209}
+          height={209}
           priority
-          className="object-contain"
+          className="_305757967-504591061673203-1893046267709735490-n-1"
         />
       </div>
 
-      {/* Search Form Container */}
-      <form 
-        onSubmit={handleSubmit}
-        className="absolute"
-        style={{ width: '350px', height: '300px', left: '21px', top: '200px' }}
-      >
-        {/* Main Search Form - White background with shadow */}
-        <div 
-          className="absolute bg-white rounded-2xl shadow-lg"
-          style={{ 
-            width: '350px', 
-            height: '170px', 
-            left: '0px', 
-            top: '0px',
-            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)'
-          }}
-        >
-          {/* Origin/Destination Input Fields */}
-          <div className="flex flex-col p-4 gap-4">
-            {/* Origin Field */}
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-4 h-4 rounded-full border-2"
-                style={{ 
-                  background: 'rgba(22, 208, 32, 0.37)',
-                  borderColor: '#16D020'
-                }}
-              />
-              <div className="flex flex-col flex-1">
-                <span className="text-xs text-gray-400 font-medium">Da</span>
-                <input
-                  type="text"
-                  value={formData.origin}
-                  onChange={(e) => handleInputChange('origin', e.target.value)}
-                  placeholder="Cerca"
-                  disabled={loadingStops}
-                  list="origin-stops"
-                  className="bg-transparent border-none outline-none text-sm font-medium text-gray-600 placeholder-gray-300"
-                />
-                <div className="w-full h-px bg-gray-200 mt-1" />
-              </div>
+      {/* Bottom line */}
+      <Image className="vector-3" src="/mobile/search/vector-30.svg" alt="Bottom line" width={90} height={0} />
+
+      {/* Main Search Form */}
+      <div className="frame-38">
+        <div className="frame-31">
+          <div className="frame-10">
+            {/* Main search container */}
+            <div className="rectangle-7"></div>
+            
+            {/* Labels */}
+            <div className="da">Da</div>
+            <div className="a">A</div>
+            
+            {/* Input fields */}
+            <div className="frame-114">
+              <div className="cerca">Cerca</div>
+            </div>
+            <div className="frame-115">
+              <div className="cerca2">Cerca</div>
             </div>
 
-            {/* Destination Field */}
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-4 h-4 rounded-full border-2"
-                style={{ 
-                  background: 'rgba(244, 1, 1, 0.41)',
-                  borderColor: '#F40101'
-                }}
+            {/* Route indicators */}
+            <div className="frame-7"></div>
+            
+            {/* Swap button container */}
+            <div className="frame-113">
+              <Image
+                src="/mobile/search/frame-1120.svg"
+                alt="Route"
+                width={218}
+                height={0}
+                className="frame-112"
               />
-              <div className="flex flex-col flex-1">
-                <span className="text-xs text-gray-400 font-medium">A</span>
-                <input
-                  type="text"
-                  value={formData.destination}
-                  onChange={(e) => handleInputChange('destination', e.target.value)}
-                  placeholder="Cerca"
-                  disabled={loadingStops}
-                  list="destination-stops"
-                  className="bg-transparent border-none outline-none text-sm font-medium text-gray-600 placeholder-gray-300"
-                />
+              <Image
+                src="/mobile/search/frame-90.svg"
+                alt="Swap"
+                width={39}
+                height={42}
+                className="frame-9"
+              />
+            </div>
+
+            {/* Route dots */}
+            <div className="frame-12">
+              <div className="ellipse-1"></div>
+              <div className="frame-11">
+                <div className="ellipse-2"></div>
+                <div className="ellipse-3"></div>
+                <div className="ellipse-4"></div>
+                <div className="ellipse-5"></div>
+              </div>
+              <div className="frame-8">
+                <div className="ellipse-12"></div>
               </div>
             </div>
-            
-            {/* Swap Button - Positioned on the right */}
-            <div className="absolute flex justify-end items-center" style={{ top: '50%', right: '16px', transform: 'translateY(-50%)' }}>
-              <button
-                type="button"
-                onClick={handleSwap}
-                className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-colors"
-                aria-label="Scambia partenza e destinazione"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  {/* Freccia verso l'alto */}
-                  <path d="M8 2L11 5H5L8 2Z" fill="#9797A4"/>
-                  {/* Freccia verso il basso */}
-                  <path d="M8 14L5 11H11L8 14Z" fill="#9797A4"/>
-                </svg>
-              </button>
+          </div>
+        </div>
+
+        {/* Search Button */}
+        <div className="frame-37">
+          <div className="frame-17">
+            <div className="frame-116">
+              <div className="frame-35">
+                <Image
+                  src="/mobile/search/entypo-magnifying-glass0.svg"
+                  alt="Search"
+                  width={11}
+                  height={11}
+                  className="entypo-magnifying-glass"
+                />
+                <div className="cerca3">Cerca</div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Date Pickers */}
-        <div className="absolute flex gap-4" style={{ top: '180px', left: '0px' }}>
-          {/* Departure Date */}
-          <div 
-            className="bg-white rounded-2xl shadow-lg cursor-pointer hover:bg-gray-50 transition-colors"
-            style={{ 
-              width: '165px', 
-              height: '51px',
-              boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)'
-            }}
-          >
-            <label 
-              htmlFor="departure-date"
-              className="flex flex-col items-center justify-center h-full cursor-pointer"
-            >
-              <span className="text-xs text-gray-400 font-medium">Andata</span>
-              <span className="text-xs text-gray-400 font-medium">
-                {formData.departureDate ? new Date(formData.departureDate + 'T00:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) : '-'}
-              </span>
-            </label>
-            <input
-              id="departure-date"
-              type="date"
-              value={formData.departureDate}
-              onChange={(e) => handleInputChange('departureDate', e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
-              className="absolute opacity-0 cursor-pointer"
-              style={{ inset: 0, width: '100%', height: '100%' }}
-            />
-            <svg 
-              className="absolute pointer-events-none" 
-              style={{ width: '12px', height: '8px', right: '12px', top: '50%', transform: 'translateY(-50%)' }}
-              viewBox="0 0 13 8" 
-              fill="none"
-            >
-              <path d="M1 1L6.5 6.5L12 1" stroke="#D6D8DC" strokeWidth="1" />
-            </svg>
-          </div>
-
-          {/* Return Date */}
-          <div 
-            className="bg-white rounded-2xl shadow-lg cursor-pointer hover:bg-gray-50 transition-colors"
-            style={{ 
-              width: '165px', 
-              height: '51px',
-              boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)'
-            }}
-          >
-            <label 
-              htmlFor="return-date"
-              className="flex flex-col items-center justify-center h-full cursor-pointer"
-            >
-              <span className="text-xs text-gray-400 font-medium">Ritorno</span>
-              <span className="text-xs text-gray-400 font-medium">
-                {formData.returnDate ? new Date(formData.returnDate + 'T00:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) : '-'}
-              </span>
-            </label>
-            <input
-              id="return-date"
-              type="date"
-              value={formData.returnDate}
-              onChange={(e) => handleInputChange('returnDate', e.target.value)}
-              min={formData.departureDate || new Date().toISOString().split('T')[0]}
-              className="absolute opacity-0 cursor-pointer"
-              style={{ inset: 0, width: '100%', height: '100%' }}
-            />
-            <svg 
-              className="absolute pointer-events-none" 
-              style={{ width: '12px', height: '8px', right: '12px', top: '50%', transform: 'translateY(-50%)' }}
-              viewBox="0 0 13 8" 
-              fill="none"
-            >
-              <path d="M1 1L6.5 6.5L12 1" stroke="#D6D8DC" strokeWidth="1" />
-            </svg>
+        <div className="frame-30">
+          <div className="frame-109">
+            <div className="frame-48">
+              <div className="andata">Andata</div>
+            </div>
+            <div className="frame-108">
+              <div className="div">-</div>
+              <Image
+                src="/mobile/search/vector-50.svg"
+                alt="Dropdown"
+                width={12.5}
+                height={8}
+                className="vector-5"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Search Button */}
-        <button
-          type="submit"
-          disabled={loading || loadingStops}
-          className="absolute bg-orange-500 hover:bg-orange-600 active:scale-95 transition-all disabled:opacity-50 rounded-2xl shadow-lg flex items-center justify-center gap-2"
-          style={{ 
-            width: '109px', 
-            height: '47px', 
-            left: '120px', 
-            top: '250px',
-            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)'
-          }}
-        >
-          <svg 
-            width="10" 
-            height="10" 
-            viewBox="0 0 10 10" 
-            fill="none"
-          >
-            <path d="M6.5 6.5L9 9M3.5 7.5C1.567 7.5 0 5.933 0 4C0 2.067 1.567 0.5 3.5 0.5C5.433 0.5 7 2.067 7 4C7 5.933 5.433 7.5 3.5 7.5Z" stroke="#FFFFFF" strokeWidth="1"/>
-          </svg>
-          <span className="text-white font-semibold text-sm">
-            {loading ? '...' : 'Cerca'}
-          </span>
-        </button>
+        <div className="frame-32">
+          <div className="frame-111">
+            <div className="frame-47">
+              <div className="ritorno">Ritorno</div>
+            </div>
+            <div className="frame-110">
+              <div className="div">-</div>
+              <Image
+                src="/mobile/search/vector-51.svg"
+                alt="Dropdown"
+                width={12.5}
+                height={8}
+                className="vector-52"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
-        {/* Datalists for autocomplete */}
-        <datalist id="origin-stops">
-          {stops.map((stop) => (
-            <option key={stop.id} value={`${stop.name} (${stop.city})`} />
-          ))}
-        </datalist>
-        <datalist id="destination-stops">
-          {stops.map((stop) => (
-            <option key={stop.id} value={`${stop.name} (${stop.city})`} />
-          ))}
-        </datalist>
-      </form>
+      {/* Profile Icon */}
+      <div className="frame-23">
+        <Image
+          src="/mobile/search/material-symbols-person-outline0.svg"
+          alt="Profile"
+          width={17}
+          height={17}
+          className="material-symbols-person-outline"
+        />
+      </div>
 
-      {/* Bottom Navigation */}
-      {/* <BottomNav /> */}
+
+      <style jsx>{`
+        .search,
+        .search * {
+          box-sizing: border-box;
+        }
+        .search {
+          background: #ffffff;
+          height: 852px;
+          position: relative;
+          overflow: hidden;
+        }
+        .frame-1 {
+          background: #ffffff;
+          border-radius: 61px;
+          padding: 6px 74px 6px 74px;
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          align-items: center;
+          justify-content: flex-start;
+          width: 357px;
+          height: 222px;
+          position: absolute;
+          left: 18px;
+          top: 55px;
+        }
+        ._305757967-504591061673203-1893046267709735490-n-1 {
+          flex-shrink: 0;
+          width: 209px;
+          height: 209px;
+          position: relative;
+          object-fit: cover;
+          aspect-ratio: 1;
+        }
+        .vector-3 {
+          width: 90px;
+          height: 0px;
+          position: absolute;
+          left: 151px;
+          top: 844px;
+          overflow: visible;
+        }
+        .frame-38 {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          width: 334px;
+          position: absolute;
+          left: 29px;
+          top: 254px;
+        }
+        .frame-31 {
+          align-self: stretch;
+          flex-shrink: 0;
+          height: 122px;
+          position: relative;
+        }
+        .frame-10 {
+          width: 334px;
+          height: 122px;
+          position: absolute;
+          left: 0px;
+          top: 0px;
+        }
+        .rectangle-7 {
+          background: rgba(255, 254, 254, 0.6);
+          border-radius: 16px;
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
+          width: 334px;
+          height: 122px;
+          position: absolute;
+          left: 0px;
+          top: 0px;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        }
+        .da {
+          color: #d6d8dc;
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 12px;
+          font-weight: 500;
+          position: absolute;
+          left: 46px;
+          top: 18px;
+        }
+        .a {
+          color: #cecfd2;
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 12px;
+          font-weight: 500;
+          position: absolute;
+          left: 46px;
+          top: 71px;
+        }
+        .frame-114 {
+          padding: 10px;
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          align-items: center;
+          justify-content: flex-start;
+          height: 32px;
+          position: absolute;
+          left: 36px;
+          top: 30px;
+        }
+        .cerca {
+          color: rgba(151, 151, 164, 0.3);
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          position: relative;
+        }
+        .frame-115 {
+          padding: 10px;
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          align-items: center;
+          justify-content: flex-start;
+          position: absolute;
+          left: 38px;
+          top: 78px;
+        }
+        .cerca2 {
+          color: rgba(139, 139, 152, 0.3);
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          position: relative;
+        }
+        .frame-7 {
+          width: 15px;
+          height: 15px;
+          position: absolute;
+          left: 16px;
+          top: 18px;
+        }
+        .frame-113 {
+          display: flex;
+          flex-direction: row;
+          gap: 22px;
+          align-items: center;
+          justify-content: center;
+          position: absolute;
+          left: 36px;
+          top: 41px;
+        }
+        .frame-112 {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          flex-shrink: 0;
+          width: 218px;
+          height: auto;
+          position: relative;
+          overflow: visible;
+        }
+        .frame-9 {
+          flex-shrink: 0;
+          width: 39px;
+          height: 42px;
+          position: relative;
+          overflow: visible;
+        }
+        .frame-12 {
+          display: flex;
+          flex-direction: column;
+          gap: 9px;
+          align-items: center;
+          justify-content: flex-start;
+          width: 15px;
+          position: absolute;
+          left: 16px;
+          top: 18px;
+        }
+        .ellipse-1 {
+          background: rgba(22, 208, 32, 0.37);
+          border-radius: 50%;
+          border-style: solid;
+          border-color: #16d020;
+          border-width: 2.73px;
+          align-self: stretch;
+          flex-shrink: 0;
+          height: 15px;
+          position: relative;
+        }
+        .frame-11 {
+          display: flex;
+          flex-direction: column;
+          gap: 2.44px;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          position: relative;
+        }
+        .ellipse-2 {
+          background: #d9d9d9;
+          border-radius: 50%;
+          flex-shrink: 0;
+          width: 3.67px;
+          height: 3.67px;
+          position: relative;
+        }
+        .ellipse-3 {
+          background: #d9d9d9;
+          border-radius: 50%;
+          flex-shrink: 0;
+          width: 3.67px;
+          height: 3.67px;
+          position: relative;
+        }
+        .ellipse-4 {
+          background: #d9d9d9;
+          border-radius: 50%;
+          flex-shrink: 0;
+          width: 3.67px;
+          height: 3.67px;
+          position: relative;
+        }
+        .ellipse-5 {
+          background: #d9d9d9;
+          border-radius: 50%;
+          flex-shrink: 0;
+          width: 3.67px;
+          height: 3.67px;
+          position: relative;
+        }
+        .frame-8 {
+          align-self: stretch;
+          flex-shrink: 0;
+          height: 15px;
+          position: relative;
+        }
+        .ellipse-12 {
+          background: rgba(244, 1, 1, 0.41);
+          border-radius: 50%;
+          border-style: solid;
+          border-color: #f40101;
+          border-width: 2.73px;
+          width: 15px;
+          height: 15px;
+          position: absolute;
+          left: 0px;
+          top: 0px;
+        }
+        .frame-37 {
+          background: #f49401;
+          border-radius: 16px;
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
+          padding: 15px 27px 15px 27px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          width: 109px;
+          height: 47px;
+          position: absolute;
+          left: 113px;
+          top: 209px;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        }
+        .frame-17 {
+          display: flex;
+          flex-direction: row;
+          gap: 1px;
+          align-items: center;
+          justify-content: flex-start;
+          flex-shrink: 0;
+          position: relative;
+        }
+        .frame-116 {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          flex-shrink: 0;
+          width: 54px;
+          position: relative;
+        }
+        .frame-35 {
+          display: flex;
+          flex-direction: row;
+          gap: 4px;
+          align-items: center;
+          justify-content: flex-start;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
+        }
+        .entypo-magnifying-glass {
+          flex-shrink: 0;
+          width: 11px;
+          height: 11px;
+          position: relative;
+          overflow: visible;
+          aspect-ratio: 1;
+        }
+        .cerca3 {
+          color: #ffffff;
+          text-align: left;
+          font-family: "Inter-SemiBold", sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          position: relative;
+        }
+        .frame-30 {
+          background: rgba(255, 254, 254, 0.6);
+          border-radius: 16px;
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
+          padding: 4px 55px 4px 55px;
+          flex-shrink: 0;
+          width: 165px;
+          height: 51px;
+          position: absolute;
+          left: 0px;
+          top: 136px;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        }
+        .frame-109 {
+          display: flex;
+          flex-direction: column;
+          gap: 0px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          width: 96.5px;
+          position: absolute;
+          left: 61px;
+          top: 4px;
+        }
+        .frame-48 {
+          display: flex;
+          flex-direction: column;
+          gap: 0px;
+          align-items: center;
+          justify-content: flex-start;
+          flex-shrink: 0;
+          width: 42px;
+          position: relative;
+        }
+        .andata {
+          color: #d6d8dc;
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 12px;
+          font-weight: 500;
+          position: relative;
+          align-self: stretch;
+        }
+        .frame-108 {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
+        }
+        .div {
+          color: #d6d8dc;
+          text-align: center;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 12px;
+          font-weight: 500;
+          position: relative;
+          width: 42px;
+        }
+        .vector-5 {
+          flex-shrink: 0;
+          width: 12.5px;
+          height: 8px;
+          position: relative;
+          overflow: visible;
+        }
+        .frame-32 {
+          background: rgba(255, 254, 254, 0.6);
+          border-radius: 16px;
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
+          padding: 4px 55px 4px 55px;
+          flex-shrink: 0;
+          width: 165px;
+          height: 51px;
+          position: absolute;
+          left: 169px;
+          top: 136px;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        }
+        .frame-111 {
+          display: flex;
+          flex-direction: column;
+          gap: 0px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          width: 95.5px;
+          position: absolute;
+          left: 62px;
+          top: 4px;
+        }
+        .frame-47 {
+          display: flex;
+          flex-direction: column;
+          gap: 0px;
+          align-items: center;
+          justify-content: flex-start;
+          flex-shrink: 0;
+          width: 42px;
+          position: relative;
+        }
+        .ritorno {
+          color: #d6d8dc;
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 12px;
+          font-weight: 500;
+          position: relative;
+          align-self: stretch;
+        }
+        .frame-110 {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
+        }
+        .vector-52 {
+          flex-shrink: 0;
+          width: 12.5px;
+          height: 8px;
+          position: relative;
+          overflow: visible;
+        }
+        .frame-23 {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          align-items: center;
+          justify-content: center;
+          width: 17px;
+          height: 11px;
+          position: absolute;
+          left: 354px;
+          top: 806px;
+        }
+        .material-symbols-person-outline {
+          align-self: stretch;
+          flex-shrink: 0;
+          height: 17px;
+          position: relative;
+          overflow: visible;
+          aspect-ratio: 1;
+        }
+      `}</style>
     </div>
   );
 }
