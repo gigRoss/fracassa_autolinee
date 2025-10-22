@@ -1,16 +1,20 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Calendar from '../../components/mobile/Calendar';
 import StopsModal from '../../components/mobile/StopsModal';
-import { stops } from '../../lib/data';
+import type { Stop } from '../../lib/data';
 
 /**
  * Search Screen - Based on autohtml-project design
  * Implements the exact design from the HTML/CSS files
  */
 export default function SearchPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   // State for date selection
   const [andataDate, setAndataDate] = useState<Date | null>(null);
   const [ritornoDate, setRitornoDate] = useState<Date | null>(null);
@@ -18,10 +22,96 @@ export default function SearchPage() {
   const [isRitornoCalendarOpen, setIsRitornoCalendarOpen] = useState(false);
 
   // State for stops selection
-  const [fromStop, setFromStop] = useState<typeof stops[0] | null>(null);
-  const [toStop, setToStop] = useState<typeof stops[0] | null>(null);
+  const [stops, setStops] = useState<Stop[]>([]);
+  const [fromStop, setFromStop] = useState<Stop | null>(null);
+  const [toStop, setToStop] = useState<Stop | null>(null);
   const [isFromStopModalOpen, setIsFromStopModalOpen] = useState(false);
   const [isToStopModalOpen, setIsToStopModalOpen] = useState(false);
+  
+  // State for loading and error handling
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load stops from API on component mount
+  useEffect(() => {
+    const loadStops = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await fetch('/stops');
+        if (!response.ok) {
+          throw new Error('Failed to fetch stops');
+        }
+        const stopsData = await response.json();
+        setStops(stopsData);
+      } catch (err) {
+        console.error('Error loading stops:', err);
+        setError('Errore nel caricamento delle fermate. Riprova più tardi.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadStops();
+  }, []);
+
+  // Load search parameters from URL on component mount
+  useEffect(() => {
+    const fromStopId = searchParams.get('from');
+    const toStopId = searchParams.get('to');
+    const andataParam = searchParams.get('andata');
+    const ritornoParam = searchParams.get('ritorno');
+
+    // Set dates if provided
+    if (andataParam) {
+      try {
+        setAndataDate(new Date(andataParam));
+      } catch (err) {
+        console.error('Invalid andata date:', err);
+      }
+    }
+    
+    if (ritornoParam) {
+      try {
+        setRitornoDate(new Date(ritornoParam));
+      } catch (err) {
+        console.error('Invalid ritorno date:', err);
+      }
+    }
+
+    // Set stops if provided (will be set after stops are loaded)
+    if (fromStopId || toStopId) {
+      // Wait for stops to be loaded, then set the selected stops
+      const setStopsFromParams = () => {
+        if (stops.length > 0) {
+          if (fromStopId) {
+            const fromStop = stops.find(stop => stop.id === fromStopId);
+            if (fromStop) setFromStop(fromStop);
+          }
+          if (toStopId) {
+            const toStop = stops.find(stop => stop.id === toStopId);
+            if (toStop) setToStop(toStop);
+          }
+        }
+      };
+
+      // If stops are already loaded, set them immediately
+      if (stops.length > 0) {
+        setStopsFromParams();
+      } else {
+        // Otherwise, wait for stops to load
+        const interval = setInterval(() => {
+          if (stops.length > 0) {
+            setStopsFromParams();
+            clearInterval(interval);
+          }
+        }, 100);
+
+        // Cleanup interval after 5 seconds to avoid infinite loop
+        setTimeout(() => clearInterval(interval), 5000);
+      }
+    }
+  }, [searchParams, stops]);
 
   // Format date for display
   const formatDateDisplay = (date: Date | null) => {
@@ -51,7 +141,7 @@ export default function SearchPage() {
   };
 
   // Handle stop selection
-  const handleFromStopSelect = (stop: typeof stops[0]) => {
+  const handleFromStopSelect = (stop: Stop) => {
     setFromStop(stop);
     // If same stop is selected for destination, clear it
     if (toStop && toStop.id === stop.id) {
@@ -59,9 +149,123 @@ export default function SearchPage() {
     }
   };
 
-  const handleToStopSelect = (stop: typeof stops[0]) => {
+  const handleToStopSelect = (stop: Stop) => {
     setToStop(stop);
   };
+
+  // Handle search button click
+  const handleSearch = () => {
+    // Build search parameters
+    const searchParams = new URLSearchParams();
+    
+    if (fromStop) {
+      searchParams.set('from', fromStop.id);
+    }
+    if (toStop) {
+      searchParams.set('to', toStop.id);
+    }
+    if (andataDate) {
+      searchParams.set('andata', andataDate.toISOString());
+    }
+    if (ritornoDate) {
+      searchParams.set('ritorno', ritornoDate.toISOString());
+    }
+    
+    // Navigate to search results page
+    router.push(`/search-results?${searchParams.toString()}`);
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="search">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <div className="loading-text">Caricamento fermate...</div>
+        </div>
+        <style jsx>{`
+          .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: #ffffff;
+          }
+          .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #f49401;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+          }
+          .loading-text {
+            font-family: "Inter-Medium", sans-serif;
+            font-size: 14px;
+            color: #666666;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="search">
+        <div className="error-container">
+          <div className="error-icon">⚠️</div>
+          <div className="error-text">{error}</div>
+          <button className="retry-button" onClick={() => window.location.reload()}>
+            Riprova
+          </button>
+        </div>
+        <style jsx>{`
+          .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: #ffffff;
+            padding: 20px;
+          }
+          .error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+          }
+          .error-text {
+            font-family: "Inter-Medium", sans-serif;
+            font-size: 14px;
+            color: #666666;
+            text-align: center;
+            margin-bottom: 24px;
+          }
+          .retry-button {
+            background: #f49401;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-family: "Inter-SemiBold", sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          .retry-button:hover {
+            background: #e08500;
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="search">
@@ -93,10 +297,10 @@ export default function SearchPage() {
             
             {/* Input fields */}
             <div className="frame-114" onClick={() => setIsFromStopModalOpen(true)}>
-              <div className={`cerca ${fromStop ? 'selected' : ''}`}>{fromStop ? `${fromStop.name}, ${fromStop.city}` : 'Cerca'}</div>
+              <div className={`cerca ${fromStop ? 'selected' : ''}`}>{fromStop ? `${fromStop.name}` : 'Cerca'}</div>
             </div>
             <div className="frame-115" onClick={() => setIsToStopModalOpen(true)}>
-              <div className={`cerca2 ${toStop ? 'selected' : ''}`}>{toStop ? `${toStop.name}, ${toStop.city}` : 'Cerca'}</div>
+              <div className={`cerca2 ${toStop ? 'selected' : ''}`}>{toStop ? `${toStop.name}` : 'Cerca'}</div>
             </div>
 
             {/* Route indicators */}
@@ -137,7 +341,7 @@ export default function SearchPage() {
         </div>
 
         {/* Search Button */}
-        <div className="frame-37">
+        <div className="frame-37" onClick={handleSearch}>
           <div className="frame-17">
             <div className="frame-116">
               <div className="frame-35">
@@ -544,6 +748,12 @@ export default function SearchPage() {
           left: 113px;
           top: 209px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+
+        .frame-37:hover {
+          background: #e08501;
         }
         .frame-17 {
           display: flex;
