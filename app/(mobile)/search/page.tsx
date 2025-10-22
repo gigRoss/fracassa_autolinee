@@ -1,12 +1,67 @@
 'use client';
 
 import Image from 'next/image';
+import { useState } from 'react';
+import Calendar from '../../components/mobile/Calendar';
+import StopsModal from '../../components/mobile/StopsModal';
+import { stops } from '../../lib/data';
 
 /**
  * Search Screen - Based on autohtml-project design
  * Implements the exact design from the HTML/CSS files
  */
 export default function SearchPage() {
+  // State for date selection
+  const [andataDate, setAndataDate] = useState<Date | null>(null);
+  const [ritornoDate, setRitornoDate] = useState<Date | null>(null);
+  const [isAndataCalendarOpen, setIsAndataCalendarOpen] = useState(false);
+  const [isRitornoCalendarOpen, setIsRitornoCalendarOpen] = useState(false);
+
+  // State for stops selection
+  const [fromStop, setFromStop] = useState<typeof stops[0] | null>(null);
+  const [toStop, setToStop] = useState<typeof stops[0] | null>(null);
+  const [isFromStopModalOpen, setIsFromStopModalOpen] = useState(false);
+  const [isToStopModalOpen, setIsToStopModalOpen] = useState(false);
+
+  // Format date for display
+  const formatDateDisplay = (date: Date | null) => {
+    if (!date) return '-';
+    return date.toLocaleDateString('it-IT', {
+      day: '2-digit',
+      month: '2-digit'
+    });
+  };
+
+  // Handle date selection
+  const handleAndataDateSelect = (date: Date) => {
+    setAndataDate(date);
+    // If ritorno date is before andata date, clear it
+    if (ritornoDate && ritornoDate < date) {
+      setRitornoDate(null);
+    }
+  };
+
+  const handleRitornoDateSelect = (date: Date) => {
+    setRitornoDate(date);
+  };
+
+  // Get minimum date for ritorno (should be after andata)
+  const getRitornoMinDate = () => {
+    return andataDate || new Date();
+  };
+
+  // Handle stop selection
+  const handleFromStopSelect = (stop: typeof stops[0]) => {
+    setFromStop(stop);
+    // If same stop is selected for destination, clear it
+    if (toStop && toStop.id === stop.id) {
+      setToStop(null);
+    }
+  };
+
+  const handleToStopSelect = (stop: typeof stops[0]) => {
+    setToStop(stop);
+  };
 
   return (
     <div className="search">
@@ -37,11 +92,11 @@ export default function SearchPage() {
             <div className="a">A</div>
             
             {/* Input fields */}
-            <div className="frame-114">
-              <div className="cerca">Cerca</div>
+            <div className="frame-114" onClick={() => setIsFromStopModalOpen(true)}>
+              <div className={`cerca ${fromStop ? 'selected' : ''}`}>{fromStop ? `${fromStop.name}, ${fromStop.city}` : 'Cerca'}</div>
             </div>
-            <div className="frame-115">
-              <div className="cerca2">Cerca</div>
+            <div className="frame-115" onClick={() => setIsToStopModalOpen(true)}>
+              <div className={`cerca2 ${toStop ? 'selected' : ''}`}>{toStop ? `${toStop.name}, ${toStop.city}` : 'Cerca'}</div>
             </div>
 
             {/* Route indicators */}
@@ -100,13 +155,13 @@ export default function SearchPage() {
         </div>
 
         {/* Date Pickers */}
-        <div className="frame-30">
+        <div className="frame-30" onClick={() => setIsAndataCalendarOpen(true)}>
           <div className="frame-109">
             <div className="frame-48">
               <div className="andata">Andata</div>
             </div>
             <div className="frame-108">
-              <div className="div">-</div>
+              <div className="div">{formatDateDisplay(andataDate)}</div>
               <Image
                 src="/mobile/search/vector-50.svg"
                 alt="Dropdown"
@@ -118,13 +173,13 @@ export default function SearchPage() {
           </div>
         </div>
 
-        <div className="frame-32">
+        <div className="frame-32" onClick={() => setIsRitornoCalendarOpen(true)}>
           <div className="frame-111">
             <div className="frame-47">
               <div className="ritorno">Ritorno</div>
             </div>
             <div className="frame-110">
-              <div className="div">-</div>
+              <div className="div">{formatDateDisplay(ritornoDate)}</div>
               <Image
                 src="/mobile/search/vector-51.svg"
                 alt="Dropdown"
@@ -147,6 +202,42 @@ export default function SearchPage() {
           className="material-symbols-person-outline"
         />
       </div>
+
+      {/* Calendar Components */}
+      <Calendar
+        isOpen={isAndataCalendarOpen}
+        onClose={() => setIsAndataCalendarOpen(false)}
+        onDateSelect={handleAndataDateSelect}
+        selectedDate={andataDate || undefined}
+        minDate={new Date()}
+      />
+
+      <Calendar
+        isOpen={isRitornoCalendarOpen}
+        onClose={() => setIsRitornoCalendarOpen(false)}
+        onDateSelect={handleRitornoDateSelect}
+        selectedDate={ritornoDate || undefined}
+        minDate={getRitornoMinDate()}
+      />
+
+      {/* Stops Modal Components */}
+      <StopsModal
+        isOpen={isFromStopModalOpen}
+        onClose={() => setIsFromStopModalOpen(false)}
+        onStopSelect={handleFromStopSelect}
+        selectedStop={fromStop || undefined}
+        title="Seleziona partenza"
+        stops={stops}
+      />
+
+      <StopsModal
+        isOpen={isToStopModalOpen}
+        onClose={() => setIsToStopModalOpen(false)}
+        onStopSelect={handleToStopSelect}
+        selectedStop={toStop || undefined}
+        title="Seleziona destinazione"
+        stops={stops}
+      />
 
 
       <style jsx>{`
@@ -256,9 +347,18 @@ export default function SearchPage() {
           align-items: center;
           justify-content: flex-start;
           height: 32px;
+          width: 250px;
           position: absolute;
           left: 36px;
           top: 30px;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          border-radius: 8px;
+          z-index: 10;
+        }
+
+        .frame-114:hover {
+          background: rgba(244, 148, 1, 0.1);
         }
         .cerca {
           color: rgba(151, 151, 164, 0.3);
@@ -268,6 +368,10 @@ export default function SearchPage() {
           font-weight: 500;
           position: relative;
         }
+
+        .cerca.selected {
+          color: #333333;
+        }
         .frame-115 {
           padding: 10px;
           display: flex;
@@ -275,9 +379,19 @@ export default function SearchPage() {
           gap: 10px;
           align-items: center;
           justify-content: flex-start;
+          height: 32px;
+          width: 250px;
           position: absolute;
           left: 38px;
           top: 78px;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          border-radius: 8px;
+          z-index: 10;
+        }
+
+        .frame-115:hover {
+          background: rgba(244, 148, 1, 0.1);
         }
         .cerca2 {
           color: rgba(139, 139, 152, 0.3);
@@ -286,6 +400,10 @@ export default function SearchPage() {
           font-size: 14px;
           font-weight: 500;
           position: relative;
+        }
+
+        .cerca2.selected {
+          color: #333333;
         }
         .frame-7 {
           width: 15px;
@@ -315,6 +433,7 @@ export default function SearchPage() {
           height: auto;
           position: relative;
           overflow: visible;
+          pointer-events: none;
         }
         .frame-9 {
           flex-shrink: 0;
@@ -322,6 +441,8 @@ export default function SearchPage() {
           height: 42px;
           position: relative;
           overflow: visible;
+          pointer-events: auto;
+          cursor: pointer;
         }
         .frame-12 {
           display: flex;
@@ -483,6 +604,12 @@ export default function SearchPage() {
           left: 0px;
           top: 136px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+
+        .frame-30:hover {
+          background: rgba(255, 254, 254, 0.8);
         }
         .frame-109 {
           display: flex;
@@ -524,7 +651,7 @@ export default function SearchPage() {
           position: relative;
         }
         .div {
-          color: #d6d8dc;
+          color: #333333;
           text-align: center;
           font-family: "Inter-Medium", sans-serif;
           font-size: 12px;
@@ -553,6 +680,12 @@ export default function SearchPage() {
           left: 169px;
           top: 136px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+
+        .frame-32:hover {
+          background: rgba(255, 254, 254, 0.8);
         }
         .frame-111 {
           display: flex;
