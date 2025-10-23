@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { stops, stopIdToStop, formatDuration } from '../../lib/data';
+import { truncateStopName } from '../../lib/textUtils';
 import type { Stop } from '../../lib/data';
 
 /**
@@ -118,8 +119,8 @@ export default function SearchResultsPage() {
             <div className="rectangle-7"></div>
             <div className="da">Da</div>
             <div className="a">A</div>
-            <div className="la-tua-posizione">{fromStop?.name || 'La tua posizione'}</div>
-            <div className="teramo-p-zza-garibaldi">{toStop?.name || 'Teramo P.zza Garibaldi'}</div>
+            <div className="la-tua-posizione">{truncateStopName(fromStop?.name || 'La tua posizione')}</div>
+            <div className="teramo-p-zza-garibaldi">{truncateStopName(toStop?.name || 'Teramo P.zza Garibaldi')}</div>
             <div className="frame-7"></div>
             <div className="frame-9"></div>
             <div className="vector-1"></div>
@@ -239,9 +240,9 @@ export default function SearchResultsPage() {
                   <div className="ellipse-13"></div>
                 </div>
                 <div className="frame-136">
-                  <div className="la-tua-posizione2">{fromStopName}</div>
+                  <div className="la-tua-posizione2">{truncateStopName(fromStopName)}</div>
                   <div className="_30-min">{duration}</div>
-                  <div className="teramo-p-zza-garibaldi2">{toStopName}</div>
+                  <div className="teramo-p-zza-garibaldi2">{truncateStopName(toStopName)}</div>
                 </div>
               </div>
               <div className="frame-131" onClick={() => handlePurchase(ride.id)}>
@@ -259,8 +260,8 @@ export default function SearchResultsPage() {
         })}
         </div>
       </div>
-      
-      <style jsx>{`
+    
+    <style jsx>{`
         .find-i,
         .find-i * {
           box-sizing: border-box;
@@ -892,7 +893,7 @@ export default function SearchResultsPage() {
           transform: scale(0.95);
         }
       `}</style>
-    </div>
-  );
+  </div>
+);
 }
 
