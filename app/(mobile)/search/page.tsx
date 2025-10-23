@@ -597,8 +597,9 @@ export default function SearchPage() {
         .frame-115:hover {
           background: rgba(244, 148, 1, 0.1);
         }
+          /* TO DO: check if this is correct and Cerca  */
         .cerca2 {
-          color: rgba(139, 139, 152, 0.3);
+          color: rgba(77, 95, 84, 0.41);
           text-align: left;
           font-family: "Inter-Medium", sans-serif;
           font-size: 14px;
