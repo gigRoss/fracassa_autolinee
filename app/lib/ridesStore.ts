@@ -29,23 +29,32 @@ export async function listRides(): Promise<RideWithStops[]> {
     .from(intermediateTable)
     .where(inArray(intermediateTable.rideId, rideIds));
 
-  const rideIdToIntermediates: Record<string, Array<{ stopId: string; time: string }>> = {};
+  const rideIdToIntermediates: Record<string, Array<{ stopId: string; time: string; stopOrder: number }>> = {};
   for (const s of intermediates) {
     if (!rideIdToIntermediates[s.rideId]) rideIdToIntermediates[s.rideId] = [];
-    rideIdToIntermediates[s.rideId].push({ stopId: s.stopId, time: s.arrivalTime });
+    rideIdToIntermediates[s.rideId].push({ stopId: s.stopId, time: s.arrivalTime, stopOrder: s.stopOrder });
   }
 
-  return base.map((r) => ({
-    id: r.id,
-    lineName: r.lineName,
-    originStopId: r.originStopId,
-    destinationStopId: r.destinationStopId,
-    departureTime: r.departureTime,
-    arrivalTime: r.arrivalTime,
-    price: r.price ?? undefined,
-    archived: r.archived ?? false,
-    intermediateStops: rideIdToIntermediates[r.id] || [],
-  }));
+  return base.map((r) => {
+    const allStops = rideIdToIntermediates[r.id] || [];
+    const sortedStops = [...allStops].sort((a, b) => a.stopOrder - b.stopOrder);
+    const maxOrder = Math.max(...sortedStops.map(s => s.stopOrder), 0);
+    const trueIntermediates = sortedStops
+      .filter(s => s.stopOrder > 0 && s.stopOrder < maxOrder)
+      .map(({ stopId, time }) => ({ stopId, time }));
+    
+    return {
+      id: r.id,
+      lineName: r.lineName,
+      originStopId: r.originStopId,
+      destinationStopId: r.destinationStopId,
+      departureTime: r.departureTime,
+      arrivalTime: r.arrivalTime,
+      price: r.price ?? undefined,
+      archived: r.archived ?? false,
+      intermediateStops: trueIntermediates,
+    };
+  });
 }
 
 /**
@@ -68,6 +77,15 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
     updatedAt: nowInItaly(),
   });
 
+  // Insert origin stop as first stop (order 0)
+  await db.insert(intermediateTable).values({
+    rideId: id,
+    stopId: ride.originStopId,
+    arrivalTime: ride.departureTime,
+    stopOrder: 0,
+  });
+
+  // Insert intermediate stops
   const inter = ride.intermediateStops || [];
   let order = 1;
   for (const s of inter) {
@@ -79,6 +97,14 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
       stopOrder: order++,
     });
   }
+
+  // Insert destination stop as last stop
+  await db.insert(intermediateTable).values({
+    rideId: id,
+    stopId: ride.destinationStopId,
+    arrivalTime: ride.arrivalTime,
+    stopOrder: order,
+  });
 
   return { id, ...ride };
 }
@@ -95,6 +121,12 @@ export async function getRideById(rideId: string): Promise<RideWithStops | undef
     .select()
     .from(intermediateTable)
     .where(eq(intermediateTable.rideId, rideId));
+  
+  // Filter out origin (stopOrder 0) and destination (last stopOrder) from intermediate stops
+  const sorted = inter.sort((a, b) => a.stopOrder - b.stopOrder);
+  const maxOrder = Math.max(...sorted.map(s => s.stopOrder), 0);
+  const trueIntermediates = sorted.filter(s => s.stopOrder > 0 && s.stopOrder < maxOrder);
+  
   return {
     id: r.id,
     lineName: r.lineName,
@@ -104,9 +136,7 @@ export async function getRideById(rideId: string): Promise<RideWithStops | undef
     arrivalTime: r.arrivalTime,
     price: r.price ?? undefined,
     archived: r.archived ?? false,
-    intermediateStops: inter
-      .sort((a, b) => a.stopOrder - b.stopOrder)
-      .map((s) => ({ stopId: s.stopId, time: s.arrivalTime })),
+    intermediateStops: trueIntermediates.map((s) => ({ stopId: s.stopId, time: s.arrivalTime })),
   };
 }
 
@@ -139,6 +169,16 @@ export async function updateRide(
   // Replace intermediate stops if provided
   if (update.intermediateStops) {
     await db.delete(intermediateTable).where(eq(intermediateTable.rideId, rideId));
+    
+    // Insert origin stop as first stop (order 0)
+    await db.insert(intermediateTable).values({
+      rideId,
+      stopId: update.originStopId ?? existing.originStopId,
+      arrivalTime: update.departureTime ?? existing.departureTime,
+      stopOrder: 0,
+    });
+    
+    // Insert intermediate stops
     let order = 1;
     for (const s of update.intermediateStops) {
       if (!s.stopId || !s.time) continue;
@@ -149,6 +189,14 @@ export async function updateRide(
         stopOrder: order++,
       });
     }
+    
+    // Insert destination stop as last stop
+    await db.insert(intermediateTable).values({
+      rideId,
+      stopId: update.destinationStopId ?? existing.destinationStopId,
+      arrivalTime: update.arrivalTime ?? existing.arrivalTime,
+      stopOrder: order,
+    });
   }
 
   return (await getRideById(rideId))!;

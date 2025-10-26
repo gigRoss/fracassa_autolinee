@@ -75,6 +75,8 @@ export async function getIntermediateStopById(id: number): Promise<IntermediateS
 
 /**
  * Get all intermediate stops for a specific ride
+ * This function returns ALL stops including origin and destination
+ * with stopOrder >= 0
  */
 export async function getIntermediateStopsByRideId(rideId: string): Promise<IntermediateStopWithDetails[]> {
   const db = getDb();

@@ -88,21 +88,32 @@ export async function GET(request: NextRequest) {
         intermediateStopsFromStore = await getIntermediateStopsByRideId(ride.id);
       } catch (error) {
         console.error(`Error fetching intermediate stops for ride ${ride.id}:`, error);
-        // Fallback to the data from ridesStore
-        intermediateStopsFromStore = (ride.intermediateStops || []).map(stop => ({
-          stopId: stop.stopId,
-          arrivalTime: stop.time,
-          stopName: stops.find(s => s.id === stop.stopId)?.name || `Stop ${stop.stopId}`,
-          stopCity: stops.find(s => s.id === stop.stopId)?.city || null,
-        }));
+        // Fallback: reconstruct all stops including origin and destination
+        intermediateStopsFromStore = [
+          {
+            stopId: ride.originStopId,
+            arrivalTime: ride.departureTime,
+            stopName: stops.find(s => s.id === ride.originStopId)?.name || `Stop ${ride.originStopId}`,
+            stopCity: stops.find(s => s.id === ride.originStopId)?.city || null,
+          },
+          ...(ride.intermediateStops || []).map(stop => ({
+            stopId: stop.stopId,
+            arrivalTime: stop.time,
+            stopName: stops.find(s => s.id === stop.stopId)?.name || `Stop ${stop.stopId}`,
+            stopCity: stops.find(s => s.id === stop.stopId)?.city || null,
+          })),
+          {
+            stopId: ride.destinationStopId,
+            arrivalTime: ride.arrivalTime,
+            stopName: stops.find(s => s.id === ride.destinationStopId)?.name || `Stop ${ride.destinationStopId}`,
+            stopCity: stops.find(s => s.id === ride.destinationStopId)?.city || null,
+          },
+        ];
       }
 
       // Get all stops in order for this ride using store data
-      const allStops = [
-        { stopId: ride.originStopId, time: ride.departureTime },
-        ...intermediateStopsFromStore.map(stop => ({ stopId: stop.stopId, time: stop.arrivalTime })),
-        { stopId: ride.destinationStopId, time: ride.arrivalTime },
-      ];
+      // intermediateStopsFromStore already includes origin and destination, so we use it directly
+      const allStops = intermediateStopsFromStore.map(stop => ({ stopId: stop.stopId, time: stop.arrivalTime }));
 
       // Find the indices of origin and destination stops
       const originIndex = allStops.findIndex((s) => s.stopId === originStop.id);
