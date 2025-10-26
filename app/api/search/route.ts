@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listRides } from "@/app/lib/ridesStore";
 import { listStops } from "@/app/lib/stopsStore";
-import { getIntermediateStopsByRideId } from "@/app/lib/intermediateStopsStore";
+import { getIntermediateStopsByRideId, searchRidesBetweenStops } from "@/app/lib/intermediateStopsStore";
 
 /**
  * Search API endpoint
@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     const origin = searchParams.get("origin");
     const destination = searchParams.get("destination");
     const date = searchParams.get("date");
+    const useIntermediateSearch = searchParams.get("useIntermediate") === "true";
 
     if (!origin || !destination) {
       return NextResponse.json(
@@ -53,6 +54,82 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Use the new SQL-based intermediate stops search if requested
+    if (useIntermediateSearch) {
+      const searchResults = await searchRidesBetweenStops(
+        originStop.id,
+        destinationStop.id
+      );
+
+      // Filter for non-archived rides
+      const visibleRideIds = new Set(visibleRides.map(r => r.id));
+      const filteredResults = searchResults.filter(r => visibleRideIds.has(r.rideId));
+
+      // Get full ride details for enriched response
+      const enrichedRides = await Promise.all(filteredResults.map(async (searchResult) => {
+        const ride = rides.find(r => r.id === searchResult.rideId);
+        if (!ride) return null;
+
+        const originStopData = stops.find((s) => s.id === ride.originStopId);
+        const destStopData = stops.find((s) => s.id === ride.destinationStopId);
+
+        // Get ALL intermediate stops for this ride
+        const allIntermediateStops = await getIntermediateStopsByRideId(ride.id);
+        
+        // Find the origin and destination positions in the stop order
+        const originStopOrder = allIntermediateStops.findIndex(s => s.stopId === originStop.id);
+        const destStopOrder = allIntermediateStops.findIndex(s => s.stopId === destinationStop.id);
+        
+        // Get intermediate stops between origin and destination
+        const relevantIntermediateStops = allIntermediateStops
+          .filter(s => {
+            const stopIndex = allIntermediateStops.findIndex(interStop => interStop.id === s.id);
+            return stopIndex > originStopOrder && stopIndex < destStopOrder;
+          })
+          .map(s => ({
+            stopId: s.stopId,
+            stopName: s.stopName,
+            city: s.stopCity,
+            time: s.arrivalTime
+          }));
+
+        // Return the searched origin and destination, not the ride's origin/destination
+        const searchedOriginStopData = stops.find((s) => s.id === originStop.id);
+        const searchedDestStopData = stops.find((s) => s.id === destinationStop.id);
+
+        return {
+          id: ride.id,
+          lineName: ride.lineName,
+          originStopId: originStop.id, // Use searched origin, not ride's origin
+          destinationStopId: destinationStop.id, // Use searched destination, not ride's destination
+          originStop: searchedOriginStopData
+            ? { id: searchedOriginStopData.id, name: searchedOriginStopData.name, city: searchedOriginStopData.city }
+            : null,
+          destinationStop: searchedDestStopData
+            ? { id: searchedDestStopData.id, name: searchedDestStopData.name, city: searchedDestStopData.city }
+            : null,
+          departureTime: searchResult.departureTime,
+          arrivalTime: searchResult.arrivalTime,
+          duration: searchResult.duration,
+          price: ride.price,
+          intermediateStops: relevantIntermediateStops,
+        };
+      }));
+
+      const validResults = enrichedRides.filter(r => r !== null);
+
+      return NextResponse.json({
+        results: validResults,
+        count: validResults.length,
+        query: {
+          origin: originStop.name,
+          destination: destinationStop.name,
+          date,
+        },
+        method: "intermediateStops",
+      });
+    }
+
     // Filter rides that match the route
     const matchingRides = visibleRides.filter((ride) => {
       // Direct match: origin -> destination
@@ -77,75 +154,29 @@ export async function GET(request: NextRequest) {
       return originIndex !== -1 && destIndex !== -1 && originIndex < destIndex;
     });
 
-    // Enrich rides with stop names and filter intermediate stops for the specific route
+    // Enrich rides with stop names - no intermediate stops shown
     const enrichedRides = await Promise.all(matchingRides.map(async (ride) => {
-      const originStopData = stops.find((s) => s.id === ride.originStopId);
-      const destStopData = stops.find((s) => s.id === ride.destinationStopId);
+      // Don't show any intermediate stops - only show origin and destination
+      const relevantIntermediateStops: any[] = [];
 
-      // Get intermediate stops from the store for better data consistency
-      let intermediateStopsFromStore = [];
-      try {
-        intermediateStopsFromStore = await getIntermediateStopsByRideId(ride.id);
-      } catch (error) {
-        console.error(`Error fetching intermediate stops for ride ${ride.id}:`, error);
-        // Fallback: reconstruct all stops including origin and destination
-        intermediateStopsFromStore = [
-          {
-            stopId: ride.originStopId,
-            arrivalTime: ride.departureTime,
-            stopName: stops.find(s => s.id === ride.originStopId)?.name || `Stop ${ride.originStopId}`,
-            stopCity: stops.find(s => s.id === ride.originStopId)?.city || null,
-          },
-          ...(ride.intermediateStops || []).map(stop => ({
-            stopId: stop.stopId,
-            arrivalTime: stop.time,
-            stopName: stops.find(s => s.id === stop.stopId)?.name || `Stop ${stop.stopId}`,
-            stopCity: stops.find(s => s.id === stop.stopId)?.city || null,
-          })),
-          {
-            stopId: ride.destinationStopId,
-            arrivalTime: ride.arrivalTime,
-            stopName: stops.find(s => s.id === ride.destinationStopId)?.name || `Stop ${ride.destinationStopId}`,
-            stopCity: stops.find(s => s.id === ride.destinationStopId)?.city || null,
-          },
-        ];
-      }
+      // Use the ride's departure and arrival times
+      const routeDepartureTime = ride.departureTime;
+      const routeArrivalTime = ride.arrivalTime;
 
-      // Get all stops in order for this ride using store data
-      // intermediateStopsFromStore already includes origin and destination, so we use it directly
-      const allStops = intermediateStopsFromStore.map(stop => ({ stopId: stop.stopId, time: stop.arrivalTime }));
-
-      // Find the indices of origin and destination stops
-      const originIndex = allStops.findIndex((s) => s.stopId === originStop.id);
-      const destIndex = allStops.findIndex((s) => s.stopId === destinationStop.id);
-
-      // Filter intermediate stops to only include those between origin and destination
-      const relevantIntermediateStops = intermediateStopsFromStore
-        .filter(stop => {
-          const stopIndex = allStops.findIndex(s => s.stopId === stop.stopId);
-          return stopIndex > originIndex && stopIndex < destIndex;
-        })
-        .map((intermediateStop) => ({
-          stopId: intermediateStop.stopId,
-          time: intermediateStop.arrivalTime,
-          stopName: intermediateStop.stopName || `Stop ${intermediateStop.stopId}`,
-          city: intermediateStop.stopCity || null,
-        }));
-
-      // Get the specific departure and arrival times for this route segment
-      const routeDepartureTime = allStops[originIndex].time;
-      const routeArrivalTime = allStops[destIndex].time;
+      // Return the searched origin and destination, not the ride's origin/destination
+      const searchedOriginStopData = stops.find((s) => s.id === originStop.id);
+      const searchedDestStopData = stops.find((s) => s.id === destinationStop.id);
 
       return {
         id: ride.id,
         lineName: ride.lineName,
-        originStopId: ride.originStopId,
-        destinationStopId: ride.destinationStopId,
-        originStop: originStopData
-          ? { id: originStopData.id, name: originStopData.name, city: originStopData.city }
+        originStopId: originStop.id, // Use searched origin, not ride's origin
+        destinationStopId: destinationStop.id, // Use searched destination, not ride's destination
+        originStop: searchedOriginStopData
+          ? { id: searchedOriginStopData.id, name: searchedOriginStopData.name, city: searchedOriginStopData.city }
           : null,
-        destinationStop: destStopData
-          ? { id: destStopData.id, name: destStopData.name, city: destStopData.city }
+        destinationStop: searchedDestStopData
+          ? { id: searchedDestStopData.id, name: searchedDestStopData.name, city: searchedDestStopData.city }
           : null,
         departureTime: routeDepartureTime,
         arrivalTime: routeArrivalTime,

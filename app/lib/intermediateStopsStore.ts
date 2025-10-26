@@ -1,6 +1,6 @@
-import { getDb } from "./db";
+import { getDb, getClient } from "./db";
 import { intermediateStops, rides, stops } from "./schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq, and, inArray, sql } from "drizzle-orm";
 import { nowInItaly } from "./dateUtils";
 
 export type IntermediateStopWithDetails = {
@@ -338,4 +338,79 @@ export async function getNextStopOrderForRide(rideId: string): Promise<number> {
     .limit(1);
   
   return result.length > 0 ? (result[0].maxOrder || 0) + 1 : 1;
+}
+
+/**
+ * Search rides between two stops using intermediate stops
+ * This finds rides that pass through both the origin and destination stops
+ */
+export type RideSearchResult = {
+  rideId: string;
+  departureStopName: string;
+  arrivalStopName: string;
+  departureTime: string;
+  arrivalTime: string;
+  duration: string; // HH:MM format
+};
+
+export async function searchRidesBetweenStops(
+  fromStopId: string,
+  toStopId: string
+): Promise<RideSearchResult[]> {
+  const client = getClient();
+  
+  // Raw SQL query optimized for SQLite
+  // Using proper parameter binding for libsql
+  const query = `
+    SELECT 
+      iA.ride_id as "rideId",
+      s.name as "starter",
+      s1.name as "arrivo",
+      iP.arrival_time as "orarioPartenza",
+      iA.arrival_time as "arrivalTime",
+      time(
+        strftime('%s','1970-01-01 ' || iA.arrival_time) - 
+        strftime('%s','1970-01-01 ' || iP.arrival_time),
+        'unixepoch'
+      ) AS "durata_hhmm"
+    FROM
+      intermediate_stops iP,
+      intermediate_stops iA,
+      stops s,
+      stops s1
+    WHERE
+      iP.stop_id = ?
+      AND iA.stop_id = ?
+      AND iP.ride_id = iA.ride_id
+      AND iA.arrival_time > iP.arrival_time
+      AND s.id = iP.stop_id
+      AND s1.id = iA.stop_id
+    GROUP BY iA.ride_id
+    ORDER BY iP.arrival_time
+  `;
+  
+  try {
+    // Execute the raw SQL query using libsql client
+    const result = await client.execute({
+      sql: query,
+      args: [fromStopId, toStopId]
+    });
+    
+    // Access the results - libsql returns rows as an array of Row objects
+    // The columns are accessed by index or by alias
+    return result.rows.map((row: any) => {
+      const rowData = row as Record<string, any>;
+      return {
+        rideId: String(rowData.rideId),
+        departureStopName: String(rowData.starter),
+        arrivalStopName: String(rowData.arrivo),
+        departureTime: String(rowData.orarioPartenza),
+        arrivalTime: String(rowData.arrivalTime),
+        duration: String(rowData.durata_hhmm),
+      };
+    });
+  } catch (error) {
+    console.error('Error executing search query:', error);
+    throw error;
+  }
 }
