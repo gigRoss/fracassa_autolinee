@@ -245,7 +245,13 @@ export default function SearchResultsPage() {
                 </div>
               </div>
               <div className="frame-131" onClick={() => handlePurchase(ride.id)}>
-                <div className="vector"></div>
+                <Image
+                  src="/mobile/search/mdi-cart-outline0.svg"
+                  alt="Cart"
+                  width={14}
+                  height={14}
+                  className="cart-icon"
+                />
                 <div className="acquista">Acquista</div>
               </div>
             </div>
@@ -759,14 +765,13 @@ export default function SearchResultsPage() {
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
         }
-        .vector {
+        .cart-icon {
           flex-shrink: 0;
-          width: 11.67px;
-          height: 11.67px;
+          width: 14px;
+          height: 14px;
           position: relative;
           overflow: visible;
           cursor: pointer;
-          background: white;
         }
         .acquista {
           color: #ffffff;
