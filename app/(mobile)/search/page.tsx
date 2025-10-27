@@ -7,6 +7,9 @@ import Calendar from '../../components/mobile/Calendar';
 import StopsModal from '../../components/mobile/StopsModal';
 import type { Stop } from '../../lib/data';
 
+// Force dynamic rendering since this page depends on search parameters
+export const dynamic = 'force-dynamic';
+
 /**
  * Search Content Component - Contains the main logic that uses useSearchParams
  */

@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+// Force dynamic rendering since this page uses client-side navigation
+export const dynamic = 'force-dynamic';
+
 /**
  * Splash Screen - Shows for 2 seconds on app launch
  * Displays Fracassa Autolinee logo centered

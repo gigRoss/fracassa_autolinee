@@ -1,17 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { stops, stopIdToStop, formatDuration } from '../../lib/data';
 import { truncateStopName } from '../../lib/textUtils';
 import type { Stop } from '../../lib/data';
 
+// Force dynamic rendering since this page depends on search parameters
+export const dynamic = 'force-dynamic';
+
 /**
- * Search Results Page - Shows available rides based on search criteria
- * Based on the design from searchPage/index.html
+ * Loading component for search results
  */
-export default function SearchResultsPage() {
+function SearchResultsLoading() {
+  return (
+    <div className="find-i">
+      <div className="loading-message">
+        <div className="loading-text">Caricamento...</div>
+      </div>
+      <style jsx>{`
+        .find-i {
+          background: #ffffff;
+          height: 852px;
+          position: relative;
+          overflow: hidden;
+        }
+        .loading-message {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          padding: 40px 20px;
+          text-align: center;
+        }
+        .loading-text {
+          color: #162686;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 16px;
+          font-weight: 500;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/**
+ * Search Results Content Component - Contains the main logic that uses useSearchParams
+ */
+function SearchResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -895,5 +932,16 @@ export default function SearchResultsPage() {
       `}</style>
   </div>
 );
+}
+
+/**
+ * Main Search Results Page - Wraps Content with Suspense for useSearchParams
+ */
+export default function SearchResultsPage() {
+  return (
+    <Suspense fallback={<SearchResultsLoading />}>
+      <SearchResultsContent />
+    </Suspense>
+  );
 }
 
