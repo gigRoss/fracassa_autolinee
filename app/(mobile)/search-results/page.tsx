@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { stops, stopIdToStop, formatDuration } from '../../lib/data';
 import type { Stop } from '../../lib/data';
 
@@ -164,7 +165,26 @@ export default function SearchResultsPage() {
       {/* Results section */}
       <div className="frame-322">
         <div className="rectangle-9"></div>
-        <div className="chiudi-e-dietro clear-search-button" onClick={handleBackToSearchCleared}></div>
+        {/* Back button */}
+        <div className="frame-back" onClick={handleBackToSearch}>
+          <Image
+            src="/mobile/search/frame-410.svg"
+            alt="Back"
+            width={23}
+            height={18}
+            className="back-arrow"
+          />
+        </div>
+        {/* Close button */}
+        <div className="chiudi-e-dietro clear-search-button" onClick={handleBackToSearchCleared}>
+          <Image
+            src="/mobile/search/frame-580.svg"
+            alt="Close"
+            width={15}
+            height={15}
+            className="close-icon"
+          />
+        </div>
       </div>
       
       <div className="frame-139">
@@ -786,14 +806,55 @@ export default function SearchResultsPage() {
           height: 169px;
           position: relative;
         }
+        .frame-back {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 30px;
+          height: 30px;
+          position: absolute;
+          left: 18px;
+          top: 14px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          padding: 4px;
+          border-radius: 4px;
+        }
+        
+        .frame-back:hover {
+          background: rgba(255, 255, 255, 0.1);
+          transform: scale(1.1);
+        }
+        
+        .frame-back:active {
+          transform: scale(0.95);
+        }
+        
+        .back-arrow {
+          width: 23px;
+          height: 18px;
+          position: relative;
+          overflow: visible;
+        }
+        
         .chiudi-e-dietro {
-          width: 14.29px;
-          height: 14.29px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 30px;
+          height: 30px;
           position: absolute;
           left: 355.86px;
           top: 14px;
           overflow: visible;
           cursor: pointer;
+        }
+        
+        .close-icon {
+          width: 15px;
+          height: 15px;
+          position: relative;
+          overflow: visible;
         }
         
         /* Loading, Error, and No Results States */
@@ -817,13 +878,6 @@ export default function SearchResultsPage() {
         }
         
         /* Clear Search Button Styles */
-        .clear-search-button {
-          cursor: pointer;
-          transition: all 0.2s ease;
-          padding: 4px;
-          border-radius: 4px;
-        }
-        
         .clear-search-button:hover {
           background: rgba(255, 255, 255, 0.1);
           transform: scale(1.1);
