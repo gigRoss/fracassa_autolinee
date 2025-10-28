@@ -156,8 +156,6 @@ function SearchResultsContent() {
             <div className="rectangle-7"></div>
             <div className="da">Da</div>
             <div className="a">A</div>
-            <div className="la-tua-posizione">{truncateStopName(fromStop?.name || 'La tua posizione')}</div>
-            <div className="teramo-p-zza-garibaldi">{truncateStopName(toStop?.name || 'Teramo P.zza Garibaldi')}</div>
             <div className="frame-7"></div>
             <div className="frame-9"></div>
             <div className="vector-1"></div>
