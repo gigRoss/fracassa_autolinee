@@ -3,6 +3,7 @@ import { createClient } from '@libsql/client';
 import * as schema from './schema';
 
 let dbInstance: ReturnType<typeof drizzle> | null = null;
+let clientInstance: ReturnType<typeof createClient> | null = null;
 
 /**
  * Get or create the database connection instance.
@@ -24,9 +25,19 @@ export function getDb() {
         : process.env.TURSO_AUTH_TOKEN,
     });
     
+    clientInstance = client;
     dbInstance = drizzle(client, { schema });
   }
   
   return dbInstance;
+}
+
+/**
+ * Get the underlying libsql client for raw SQL queries
+ */
+export function getClient() {
+  // Ensure getDb has been called to initialize both instances
+  getDb();
+  return clientInstance!;
 }
 

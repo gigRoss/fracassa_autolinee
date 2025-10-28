@@ -53,7 +53,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Fracassa Autolinee" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
+        className={`${inter.variable} ${geistMono.variable} antialiased`}
         style={{ fontFamily: "var(--font-sans-base)" }}
       >
         <a href="#main-content" className="skip-link">Salta al contenuto principale</a>

@@ -1,17 +1,19 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Calendar from '../../components/mobile/Calendar';
 import StopsModal from '../../components/mobile/StopsModal';
 import type { Stop } from '../../lib/data';
 
+// Force dynamic rendering since this page depends on search parameters
+export const dynamic = 'force-dynamic';
+
 /**
- * Search Screen - Based on autohtml-project design
- * Implements the exact design from the HTML/CSS files
+ * Search Content Component - Contains the main logic that uses useSearchParams
  */
-export default function SearchPage() {
+function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -151,6 +153,16 @@ export default function SearchPage() {
 
   const handleToStopSelect = (stop: Stop) => {
     setToStop(stop);
+  };
+
+  // Handle swapping stops
+  const handleSwapStops = () => {
+    if (fromStop && toStop) {
+      // Swap the stops
+      const tempStop = fromStop;
+      setFromStop(toStop);
+      setToStop(tempStop);
+    }
   };
 
   // Handle search button click
@@ -321,6 +333,7 @@ export default function SearchPage() {
                 width={39}
                 height={42}
                 className="frame-9"
+                onClick={handleSwapStops}
               />
             </div>
 
@@ -648,6 +661,15 @@ export default function SearchPage() {
           overflow: visible;
           pointer-events: auto;
           cursor: pointer;
+          transition: transform 0.2s ease;
+        }
+
+        .frame-9:hover {
+          transform: scale(1.05);
+        }
+
+        .frame-9:active {
+          transform: scale(0.95);
         }
         .frame-12 {
           display: flex;
@@ -966,5 +988,59 @@ export default function SearchPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+/**
+ * Loading fallback component for Suspense
+ */
+function SearchLoading() {
+  return (
+    <div className="search">
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <div className="loading-text">Caricamento...</div>
+      </div>
+      <style jsx>{`
+        .loading-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          background: #ffffff;
+        }
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #f49401;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+        .loading-text {
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 14px;
+          color: #666666;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/**
+ * Search Screen - Based on autohtml-project design
+ * Implements the exact design from the HTML/CSS files
+ */
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchLoading />}>
+      <SearchContent />
+    </Suspense>
   );
 }
