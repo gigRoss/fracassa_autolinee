@@ -1,8 +1,8 @@
 /**
- * Mobile App Root Layout
- * Wraps all mobile app routes: splash, home, search, etc.
+ * Buy Page Layout
+ * Simple layout wrapper for the buy page
  */
-export default function MobileLayout({
+export default function BuyLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -13,6 +13,4 @@ export default function MobileLayout({
     </div>
   );
 }
-
-
 
