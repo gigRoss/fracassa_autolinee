@@ -109,8 +109,8 @@ function SearchResultsContent() {
 
   // Handle ride purchase
   const handlePurchase = (rideId: string) => {
-    // TODO: Implement purchase flow
-    console.log('Purchase ride:', rideId);
+    // Navigate to buy page with ride ID
+    router.push(`/buy?rideId=${encodeURIComponent(rideId)}`);
   };
 
   // Handle back navigation with preserved search parameters
