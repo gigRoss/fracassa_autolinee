@@ -90,7 +90,7 @@ function SearchResultsContent() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/search?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`);
+      const response = await fetch(`/api/search?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&useIntermediate=true`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch ride data');
@@ -253,7 +253,7 @@ function SearchResultsContent() {
           const duration = ride.duration || formatDuration(ride.departureTime || '10:45', ride.arrivalTime || '11:15');
           const fromStopName = ride.originStop?.name || 'La tua posizione';
           const toStopName = ride.destinationStop?.name || 'Teramo P.zza Garibaldi';
-          
+
           return (
             <div key={ride.id} className={`frame-${index === 0 ? '15' : index === 1 ? '15' : index === 2 ? '39' : index === 3 ? '41' : '42'}`}>
               <div className="rectangle-72"></div>
