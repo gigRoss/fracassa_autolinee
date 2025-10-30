@@ -9,6 +9,7 @@ export type IntermediateStopWithDetails = {
   stopId: string;
   arrivalTime: string;
   stopOrder: number;
+  fascia: number | null;
   // Additional details from joins
   rideLineName: string | null;
   stopName: string | null;
@@ -20,6 +21,7 @@ export type IntermediateStopInput = {
   stopId: string;
   arrivalTime: string;
   stopOrder: number;
+  fascia?: number | null;
 };
 
 /**
@@ -35,6 +37,7 @@ export async function listIntermediateStops(): Promise<IntermediateStopWithDetai
       stopId: intermediateStops.stopId,
       arrivalTime: intermediateStops.arrivalTime,
       stopOrder: intermediateStops.stopOrder,
+      fascia: (intermediateStops as any).fascia,
       rideLineName: rides.lineName,
       stopName: stops.name,
       stopCity: stops.city,
@@ -60,6 +63,7 @@ export async function getIntermediateStopById(id: number): Promise<IntermediateS
       stopId: intermediateStops.stopId,
       arrivalTime: intermediateStops.arrivalTime,
       stopOrder: intermediateStops.stopOrder,
+      fascia: (intermediateStops as any).fascia,
       rideLineName: rides.lineName,
       stopName: stops.name,
       stopCity: stops.city,
@@ -88,6 +92,7 @@ export async function getIntermediateStopsByRideId(rideId: string): Promise<Inte
       stopId: intermediateStops.stopId,
       arrivalTime: intermediateStops.arrivalTime,
       stopOrder: intermediateStops.stopOrder,
+      fascia: (intermediateStops as any).fascia,
       rideLineName: rides.lineName,
       stopName: stops.name,
       stopCity: stops.city,
@@ -114,6 +119,7 @@ export async function getIntermediateStopsByStopId(stopId: string): Promise<Inte
       stopId: intermediateStops.stopId,
       arrivalTime: intermediateStops.arrivalTime,
       stopOrder: intermediateStops.stopOrder,
+      fascia: (intermediateStops as any).fascia,
       rideLineName: rides.lineName,
       stopName: stops.name,
       stopCity: stops.city,
@@ -175,6 +181,7 @@ export async function createIntermediateStop(input: IntermediateStopInput): Prom
     stopId: input.stopId,
     arrivalTime: input.arrivalTime,
     stopOrder: input.stopOrder,
+    fascia: (input as any).fascia ?? null,
   });
   
   // Get the created stop with details
@@ -185,6 +192,7 @@ export async function createIntermediateStop(input: IntermediateStopInput): Prom
       stopId: intermediateStops.stopId,
       arrivalTime: intermediateStops.arrivalTime,
       stopOrder: intermediateStops.stopOrder,
+      fascia: (intermediateStops as any).fascia,
       rideLineName: rides.lineName,
       stopName: stops.name,
       stopCity: stops.city,
@@ -254,6 +262,7 @@ export async function updateIntermediateStop(
       stopId: update.stopId ?? existing.stopId,
       arrivalTime: update.arrivalTime ?? existing.arrivalTime,
       stopOrder: update.stopOrder ?? existing.stopOrder,
+      fascia: (update as any).fascia ?? existing.fascia ?? null,
     })
     .where(eq(intermediateStops.id, id));
   
@@ -351,6 +360,8 @@ export type RideSearchResult = {
   departureTime: string;
   arrivalTime: string;
   duration: string; // HH:MM format
+  priceCents: number; // Importo in centesimi derivato da TRATTA_IMPORTO
+  currency: string; // Valuta da TRATTA_IMPORTO
 };
 
 export async function searchRidesBetweenStops(
@@ -372,7 +383,18 @@ export async function searchRidesBetweenStops(
         strftime('%s','1970-01-01 ' || iA.arrival_time) - 
         strftime('%s','1970-01-01 ' || iP.arrival_time),
         'unixepoch'
-      ) AS "durata_hhmm"
+      ) AS "durata_hhmm",
+     
+      (
+        SELECT t."IMPORTO"
+        FROM "TRATTA_IMPORTO" t
+        WHERE t."FASCIA" = CASE WHEN iA.fascia = iP.fascia THEN 1 ELSE (iA.fascia - iP.fascia) END
+      ) as "importoCents",
+      (
+        SELECT t."CURRENCY"
+        FROM "TRATTA_IMPORTO" t
+        WHERE t."FASCIA" = CASE WHEN iA.fascia = iP.fascia THEN 1 ELSE (iA.fascia - iP.fascia) END
+      ) as "currency"
     FROM
       intermediate_stops iP,
       intermediate_stops iA,
@@ -407,6 +429,8 @@ export async function searchRidesBetweenStops(
         departureTime: String(rowData.orarioPartenza),
         arrivalTime: String(rowData.arrivalTime),
         duration: String(rowData.durata_hhmm),
+        priceCents: Number(rowData.importoCents),
+        currency: String(rowData.currency),
       };
     });
   } catch (error) {

@@ -41,6 +41,8 @@ export const intermediateStops = sqliteTable('intermediate_stops', {
   stopId: text('stop_id').notNull().references(() => stops.id),
   arrivalTime: text('arrival_time').notNull(), // formato HH:MM
   stopOrder: integer('stop_order').notNull(),
+  // Matches migration column name (uppercase) that references TRATTA_IMPORTO.FASCIA
+  fascia: integer('FASCIA'),
 }, (table) => ({
   rideIdx: index('idx_intermediate_ride').on(table.rideId),
 }));

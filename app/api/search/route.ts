@@ -97,6 +97,14 @@ export async function GET(request: NextRequest) {
         const searchedOriginStopData = stops.find((s) => s.id === originStop.id);
         const searchedDestStopData = stops.find((s) => s.id === destinationStop.id);
 
+        const formatPrice = (cents?: number, currency?: string) => {
+          if (typeof cents !== 'number' || !isFinite(cents)) return undefined;
+          if ((currency || 'EUR').toUpperCase() === 'EUR') {
+            return `€${(cents / 100).toFixed(2).replace('.', ',')}`;
+          }
+          return `${(cents / 100).toFixed(2)} ${currency || ''}`.trim();
+        };
+
         return {
           id: ride.id,
           lineName: ride.lineName,
@@ -111,7 +119,7 @@ export async function GET(request: NextRequest) {
           departureTime: searchResult.departureTime,
           arrivalTime: searchResult.arrivalTime,
           duration: searchResult.duration,
-          price: ride.price,
+          price: formatPrice(searchResult.priceCents, searchResult.currency),
           intermediateStops: relevantIntermediateStops,
         };
       }));

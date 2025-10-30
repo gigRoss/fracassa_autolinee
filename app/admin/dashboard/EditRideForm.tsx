@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Stop, toMinutes } from "@/app/lib/data";
 
-type IntermediateStop = { stopId: string; time: string };
+type IntermediateStop = { stopId: string; time: string; fascia?: number | "" };
 
 export type EditRide = {
   id: string;
@@ -23,7 +23,6 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
   const [destinationStopId, setDestinationStopId] = useState(ride.destinationStopId);
   const [departureTime, setDepartureTime] = useState(ride.departureTime);
   const [arrivalTime, setArrivalTime] = useState(ride.arrivalTime);
-  const [price, setPrice] = useState(ride.price || "");
   const [intermediateStops, setIntermediateStops] = useState<IntermediateStop[]>(ride.intermediateStops || []);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +86,7 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
   }
 
   function addIntermediate() {
-    setIntermediateStops((prev) => [...prev, { stopId: "", time: "" }]);
+    setIntermediateStops((prev) => [...prev, { stopId: "", time: "", fascia: "" }]);
   }
   function updateIntermediate(idx: number, partial: Partial<IntermediateStop>) {
     setIntermediateStops((prev) => prev.map((s, i) => (i === idx ? { ...s, ...partial } : s)));
@@ -126,8 +125,9 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
           destinationStopId,
           departureTime,
           arrivalTime,
-          price: price.trim() || undefined,
-          intermediateStops: intermediateStops.filter((s) => s.stopId && s.time),
+          intermediateStops: intermediateStops
+            .filter((s) => s.stopId && s.time)
+            .map((s) => ({ stopId: s.stopId, time: s.time, fascia: s.fascia === "" ? undefined : Number(s.fascia) })),
         }),
       });
       if (!res.ok) {
@@ -221,10 +221,7 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
           <label className="block text-xs mb-1">Arrivo (HH:MM)*</label>
           <input value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="08:55" />
         </div>
-        <div>
-          <label className="block text-xs mb-1">Prezzo (€)</label>
-          <input value={price} onChange={(e) => setPrice(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="2.50" />
-        </div>
+        
       </div>
 
       <div className="pt-2">
@@ -251,6 +248,17 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
                 placeholder="Orario (HH:MM)"
                 className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
                 style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+              />
+              <input
+                value={s.fascia ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  updateIntermediate(i, { fascia: v === "" ? "" : Number(v) });
+                }}
+                placeholder="Fascia (es. 1, 2, 3 ,4)"
+                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+                style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+                inputMode="numeric"
               />
               <button type="button" className="btn w-full text-sm" onClick={() => removeIntermediate(i)}>
                 Rimuovi fermata

@@ -11,7 +11,7 @@ export type RideWithStops = {
   departureTime: string;
   arrivalTime: string;
   price?: string; // importo della corsa (es. "2.50")
-  intermediateStops?: Array<{ stopId: string; time: string }>;
+  intermediateStops?: Array<{ stopId: string; time: string; fascia?: number | null }>;
   archived?: boolean;
 };
 
@@ -29,10 +29,10 @@ export async function listRides(): Promise<RideWithStops[]> {
     .from(intermediateTable)
     .where(inArray(intermediateTable.rideId, rideIds));
 
-  const rideIdToIntermediates: Record<string, Array<{ stopId: string; time: string; stopOrder: number }>> = {};
+  const rideIdToIntermediates: Record<string, Array<{ stopId: string; time: string; stopOrder: number; fascia: number | null }>> = {};
   for (const s of intermediates) {
     if (!rideIdToIntermediates[s.rideId]) rideIdToIntermediates[s.rideId] = [];
-    rideIdToIntermediates[s.rideId].push({ stopId: s.stopId, time: s.arrivalTime, stopOrder: s.stopOrder });
+    rideIdToIntermediates[s.rideId].push({ stopId: s.stopId, time: s.arrivalTime, stopOrder: s.stopOrder, fascia: (s as any).fascia ?? null });
   }
 
   return base.map((r) => {
@@ -41,7 +41,7 @@ export async function listRides(): Promise<RideWithStops[]> {
     const maxOrder = Math.max(...sortedStops.map(s => s.stopOrder), 0);
     const trueIntermediates = sortedStops
       .filter(s => s.stopOrder > 0 && s.stopOrder < maxOrder)
-      .map(({ stopId, time }) => ({ stopId, time }));
+      .map(({ stopId, time, fascia }) => ({ stopId, time, fascia }));
     
     return {
       id: r.id,
@@ -83,6 +83,7 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
     stopId: ride.originStopId,
     arrivalTime: ride.departureTime,
     stopOrder: 0,
+    // fascia left null for endpoints unless set later
   });
 
   // Insert intermediate stops
@@ -95,6 +96,7 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
       stopId: s.stopId,
       arrivalTime: s.time,
       stopOrder: order++,
+      fascia: s.fascia ?? null,
     });
   }
 
@@ -104,6 +106,7 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
     stopId: ride.destinationStopId,
     arrivalTime: ride.arrivalTime,
     stopOrder: order,
+    // fascia left null for endpoints unless set later
   });
 
   return { id, ...ride };
@@ -136,7 +139,7 @@ export async function getRideById(rideId: string): Promise<RideWithStops | undef
     arrivalTime: r.arrivalTime,
     price: r.price ?? undefined,
     archived: r.archived ?? false,
-    intermediateStops: trueIntermediates.map((s) => ({ stopId: s.stopId, time: s.arrivalTime })),
+    intermediateStops: trueIntermediates.map((s) => ({ stopId: s.stopId, time: s.arrivalTime, fascia: (s as any).fascia ?? null })),
   };
 }
 
@@ -176,6 +179,7 @@ export async function updateRide(
       stopId: update.originStopId ?? existing.originStopId,
       arrivalTime: update.departureTime ?? existing.departureTime,
       stopOrder: 0,
+      // fascia left null for endpoints unless set later
     });
     
     // Insert intermediate stops
@@ -187,6 +191,7 @@ export async function updateRide(
         stopId: s.stopId,
         arrivalTime: s.time,
         stopOrder: order++,
+        fascia: s.fascia ?? null,
       });
     }
     
@@ -196,6 +201,7 @@ export async function updateRide(
       stopId: update.destinationStopId ?? existing.destinationStopId,
       arrivalTime: update.arrivalTime ?? existing.arrivalTime,
       stopOrder: order,
+      // fascia left null for endpoints unless set later
     });
   }
 
