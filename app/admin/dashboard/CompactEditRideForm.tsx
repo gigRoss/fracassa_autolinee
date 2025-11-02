@@ -43,7 +43,11 @@ export default function CompactEditRideForm({ ride, onDone }: { ride: CompactEdi
             arrivalTime: ride.arrivalTime,
             originFascia: ride.originFascia,
             destinationFascia: ride.destinationFascia,
-            intermediateStops: ride.intermediateStops || [],
+            intermediateStops: (ride.intermediateStops || []).map(s => ({
+              stopId: s.stopId,
+              time: s.time,
+              fascia: typeof s.fascia === "number" ? s.fascia : "",
+            })),
           }}
           onDone={onDone}
         />
