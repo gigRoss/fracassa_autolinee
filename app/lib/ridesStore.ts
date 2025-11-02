@@ -10,6 +10,8 @@ export type RideWithStops = {
   destinationStopId: string;
   departureTime: string;
   arrivalTime: string;
+  originFascia?: number | null;
+  destinationFascia?: number | null;
   intermediateStops?: Array<{ stopId: string; time: string; fascia?: number | null }>;
   archived?: boolean;
 };
@@ -38,6 +40,11 @@ export async function listRides(): Promise<RideWithStops[]> {
     const allStops = rideIdToIntermediates[r.id] || [];
     const sortedStops = [...allStops].sort((a, b) => a.stopOrder - b.stopOrder);
     const maxOrder = Math.max(...sortedStops.map(s => s.stopOrder), 0);
+    
+    // Extract fascia for origin (stopOrder 0) and destination (maxOrder)
+    const originStop = sortedStops.find(s => s.stopOrder === 0);
+    const destinationStop = sortedStops.find(s => s.stopOrder === maxOrder);
+    
     const trueIntermediates = sortedStops
       .filter(s => s.stopOrder > 0 && s.stopOrder < maxOrder)
       .map(({ stopId, time, fascia }) => ({ stopId, time, fascia }));
@@ -49,6 +56,8 @@ export async function listRides(): Promise<RideWithStops[]> {
       destinationStopId: r.destinationStopId,
       departureTime: r.departureTime,
       arrivalTime: r.arrivalTime,
+      originFascia: originStop?.fascia ?? null,
+      destinationFascia: destinationStop?.fascia ?? null,
       archived: r.archived ?? false,
       intermediateStops: trueIntermediates,
     };
@@ -80,7 +89,7 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
     stopId: ride.originStopId,
     arrivalTime: ride.departureTime,
     stopOrder: 0,
-    // fascia left null for endpoints unless set later
+    fascia: ride.originFascia ?? null,
   });
 
   // Insert intermediate stops
@@ -103,7 +112,7 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
     stopId: ride.destinationStopId,
     arrivalTime: ride.arrivalTime,
     stopOrder: order,
-    // fascia left null for endpoints unless set later
+    fascia: ride.destinationFascia ?? null,
   });
 
   return { id, ...ride };
@@ -125,6 +134,11 @@ export async function getRideById(rideId: string): Promise<RideWithStops | undef
   // Filter out origin (stopOrder 0) and destination (last stopOrder) from intermediate stops
   const sorted = inter.sort((a, b) => a.stopOrder - b.stopOrder);
   const maxOrder = Math.max(...sorted.map(s => s.stopOrder), 0);
+  
+  // Extract fascia for origin and destination
+  const originStop = sorted.find(s => s.stopOrder === 0);
+  const destinationStop = sorted.find(s => s.stopOrder === maxOrder);
+  
   const trueIntermediates = sorted.filter(s => s.stopOrder > 0 && s.stopOrder < maxOrder);
   
   return {
@@ -134,6 +148,8 @@ export async function getRideById(rideId: string): Promise<RideWithStops | undef
     destinationStopId: r.destinationStopId,
     departureTime: r.departureTime,
     arrivalTime: r.arrivalTime,
+    originFascia: (originStop as any)?.fascia ?? null,
+    destinationFascia: (destinationStop as any)?.fascia ?? null,
     archived: r.archived ?? false,
     intermediateStops: trueIntermediates.map((s) => ({ stopId: s.stopId, time: s.arrivalTime, fascia: (s as any).fascia ?? null })),
   };
@@ -175,13 +191,22 @@ export async function updateRide(
       .where(eq(ridesTable.id, rideId));
   }
 
-  // Replace intermediate stops if provided
-  if (update.intermediateStops !== undefined) {
+  // Replace intermediate stops if provided, or if origin/destination fascia changed
+  const needsIntermediateUpdate = 
+    update.intermediateStops !== undefined ||
+    update.originFascia !== undefined ||
+    update.destinationFascia !== undefined;
+
+  if (needsIntermediateUpdate) {
     // Get current ride values (may have been updated above)
     const currentRide = hasRideUpdates ? await getRideById(rideId) : existing;
     if (!currentRide) return undefined;
 
     await db.delete(intermediateTable).where(eq(intermediateTable.rideId, rideId));
+    
+    // Determine fascia values to use
+    const originFascia = update.originFascia !== undefined ? update.originFascia : currentRide.originFascia;
+    const destinationFascia = update.destinationFascia !== undefined ? update.destinationFascia : currentRide.destinationFascia;
     
     // Insert origin stop as first stop (order 0)
     await db.insert(intermediateTable).values({
@@ -189,12 +214,13 @@ export async function updateRide(
       stopId: currentRide.originStopId,
       arrivalTime: currentRide.departureTime,
       stopOrder: 0,
-      // fascia left null for endpoints unless set later
+      fascia: originFascia ?? null,
     });
     
     // Insert intermediate stops
+    const intermediateStopsToInsert = update.intermediateStops !== undefined ? update.intermediateStops : currentRide.intermediateStops || [];
     let order = 1;
-    for (const s of update.intermediateStops) {
+    for (const s of intermediateStopsToInsert) {
       if (!s.stopId || !s.time) continue;
       await db.insert(intermediateTable).values({
         rideId,
@@ -211,7 +237,7 @@ export async function updateRide(
       stopId: currentRide.destinationStopId,
       arrivalTime: currentRide.arrivalTime,
       stopOrder: order,
-      // fascia left null for endpoints unless set later
+      fascia: destinationFascia ?? null,
     });
   }
 

@@ -31,7 +31,9 @@ async function fetchRides() {
     destinationStopId: string;
     departureTime: string;
     arrivalTime: string;
-    intermediateStops?: Array<{ stopId: string; time: string }>;
+    originFascia?: number | null;
+    destinationFascia?: number | null;
+    intermediateStops?: Array<{ stopId: string; time: string; fascia?: number | null }>;
   }>;
 }
 
@@ -66,7 +68,7 @@ export default async function AdminDashboardPage() {
   const ridesWithLabels = rides.map((r) => {
     const origin = stopIdToStop[r.originStopId];
     const dest = stopIdToStop[r.destinationStopId];
-    const intermediateStopsWithLabels = r.intermediateStops?.map((s: { stopId: string; time: string }) => {
+    const intermediateStopsWithLabels = r.intermediateStops?.map((s: { stopId: string; time: string; fascia?: number | null }) => {
       const stop = stopIdToStop[s.stopId];
       return {
         ...s,

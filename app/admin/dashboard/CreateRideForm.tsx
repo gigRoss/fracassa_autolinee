@@ -26,6 +26,8 @@ export default function CreateRideForm() {
   const [destinationNewName, setDestinationNewName] = useState("");
   const [departureTime, setDepartureTime] = useState("");
   const [arrivalTime, setArrivalTime] = useState("");
+  const [originFascia, setOriginFascia] = useState<number | "">("");
+  const [destinationFascia, setDestinationFascia] = useState<number | "">("");
   const [intermediateStops, setIntermediateStops] = useState<IntermediateStop[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -132,6 +134,8 @@ export default function CreateRideForm() {
           destinationStopId: destId,
           departureTime,
           arrivalTime,
+          originFascia: originFascia === "" ? undefined : Number(originFascia),
+          destinationFascia: destinationFascia === "" ? undefined : Number(destinationFascia),
           intermediateStops: processedIntermediates,
         }),
       });
@@ -151,6 +155,8 @@ export default function CreateRideForm() {
       setDestinationNewName("");
       setDepartureTime("");
       setArrivalTime("");
+      setOriginFascia("");
+      setDestinationFascia("");
       setIntermediateStops([]);
       // Trigger a refresh of server components list via router refresh
       if (typeof window !== "undefined") {
@@ -181,106 +187,77 @@ export default function CreateRideForm() {
           <label className="block text-xs mb-1">Linea*</label>
           <input value={lineName} onChange={(e) => setLineName(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="L1" />
         </div>
-        <div>
-          <label className="block text-xs mb-1">Origine*</label>
-          <select
-            value={originMode === "existing" ? originStopId : "__new__"}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === "__new__") {
-                setOriginMode("new");
-                setOriginStopId("");
-              } else {
-                setOriginMode("existing");
-                setOriginStopId(val);
-              }
-            }}
-            className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
-            style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
-         >
-            <option value="">Seleziona fermata</option>
-            {sortedStops.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.city} - {s.name}
-              </option>
-            ))}
-            <option value="__new__">+ Aggiungi nuova fermata…</option>
-          </select>
-          {originMode === "new" && (
-            <div className="mt-2 space-y-2">
-              <input
-                value={originNewCity}
-                onChange={(e) => setOriginNewCity(e.target.value)}
-                placeholder="Città"
-                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
-              />
-              <input
-                value={originNewName}
-                onChange={(e) => setOriginNewName(e.target.value)}
-                placeholder="Nome fermata"
-                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
-              />
-            </div>
-          )}
-        </div>
-        <div>
-          <label className="block text-xs mb-1">Destinazione*</label>
-          <select
-            value={destinationMode === "existing" ? destinationStopId : "__new__"}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === "__new__") {
-                setDestinationMode("new");
-                setDestinationStopId("");
-              } else {
-                setDestinationMode("existing");
-                setDestinationStopId(val);
-              }
-            }}
-            className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
-            style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
-         >
-            <option value="">Seleziona fermata</option>
-            {sortedStops.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.city} - {s.name}
-              </option>
-            ))}
-            <option value="__new__">+ Aggiungi nuova fermata…</option>
-          </select>
-          {destinationMode === "new" && (
-            <div className="mt-2 space-y-2">
-              <input
-                value={destinationNewCity}
-                onChange={(e) => setDestinationNewCity(e.target.value)}
-                placeholder="Città"
-                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
-              />
-              <input
-                value={destinationNewName}
-                onChange={(e) => setDestinationNewName(e.target.value)}
-                placeholder="Nome fermata"
-                className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
-              />
-            </div>
-          )}
-        </div>
-        <div>
-          <label className="block text-xs mb-1">Partenza (HH:MM)*</label>
-          <input value={departureTime} onChange={(e) => setDepartureTime(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="08:15" />
-        </div>
-        <div>
-          <label className="block text-xs mb-1">Arrivo (HH:MM)*</label>
-          <input value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="08:55" />
-        </div>
-        
       </div>
 
       <div className="pt-2">
-        <div className="text-sm font-medium mb-2">Fermate intermedie</div>
+        <div className="text-sm font-medium mb-2">Fermate della corsa</div>
         <div className="space-y-3">
+          {/* ORIGIN STOP (First) */}
+          <div className="space-y-2 p-3 rounded-md border" style={{ borderColor: "color-mix(in oklab, var(--foreground) 20%, transparent)", background: "color-mix(in oklab, var(--success) 5%, transparent)" }}>
+            <div className="text-xs font-medium text-black/60 dark:text-white/60 mb-1">🚏 Fermata di Partenza (Origine)</div>
+            <select
+              value={originMode === "existing" ? originStopId : "__new__"}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "__new__") {
+                  setOriginMode("new");
+                  setOriginStopId("");
+                } else {
+                  setOriginMode("existing");
+                  setOriginStopId(val);
+                }
+              }}
+              className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+              style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+            >
+              <option value="">Seleziona fermata</option>
+              {sortedStops.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.city} - {s.name}
+                </option>
+              ))}
+              <option value="__new__">+ Aggiungi nuova fermata…</option>
+            </select>
+            {originMode === "new" && (
+              <div className="space-y-2">
+                <input
+                  value={originNewCity}
+                  onChange={(e) => setOriginNewCity(e.target.value)}
+                  placeholder="Città"
+                  className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+                />
+                <input
+                  value={originNewName}
+                  onChange={(e) => setOriginNewName(e.target.value)}
+                  placeholder="Nome fermata"
+                  className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+                />
+              </div>
+            )}
+            <input 
+              value={departureTime} 
+              onChange={(e) => setDepartureTime(e.target.value)} 
+              className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" 
+              style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} 
+              placeholder="Orario partenza (HH:MM)" 
+            />
+            <input 
+              value={originFascia ?? ""} 
+              onChange={(e) => {
+                const v = e.target.value;
+                setOriginFascia(v === "" ? "" : Number(v));
+              }}
+              placeholder="Fascia (es. 1, 2, 3, 4)"
+              className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+              style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+              inputMode="numeric"
+            />
+          </div>
+          
+          {/* INTERMEDIATE STOPS */}
           {intermediateStops.map((s, i) => (
             <div key={i} className="space-y-2 p-3 rounded-md border" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)", background: "color-mix(in oklab, var(--foreground) 3%, transparent)" }}>
+              <div className="text-xs font-medium text-black/60 dark:text-white/60 mb-1">Fermata intermedia #{i + 1}</div>
               <select
                 value={s.isNew ? "__new__" : s.stopId}
                 onChange={(e) => {
@@ -315,7 +292,7 @@ export default function CreateRideForm() {
                   const v = e.target.value;
                   updateIntermediate(i, { fascia: v === "" ? "" : Number(v) });
                 }}
-                placeholder="Fascia (es. 1, 2, 3 ,4)"
+                placeholder="Fascia (es. 1, 2, 3, 4)"
                 className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
                 style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
                 inputMode="numeric"
@@ -343,9 +320,71 @@ export default function CreateRideForm() {
               </button>
             </div>
           ))}
+          
+          {/* DESTINATION STOP (Last) */}
+          <div className="space-y-2 p-3 rounded-md border" style={{ borderColor: "color-mix(in oklab, var(--foreground) 20%, transparent)", background: "color-mix(in oklab, var(--error) 5%, transparent)" }}>
+            <div className="text-xs font-medium text-black/60 dark:text-white/60 mb-1">🏁 Fermata di Arrivo (Destinazione)</div>
+            <select
+              value={destinationMode === "existing" ? destinationStopId : "__new__"}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "__new__") {
+                  setDestinationMode("new");
+                  setDestinationStopId("");
+                } else {
+                  setDestinationMode("existing");
+                  setDestinationStopId(val);
+                }
+              }}
+              className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+              style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+            >
+              <option value="">Seleziona fermata</option>
+              {sortedStops.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.city} - {s.name}
+                </option>
+              ))}
+              <option value="__new__">+ Aggiungi nuova fermata…</option>
+            </select>
+            {destinationMode === "new" && (
+              <div className="space-y-2">
+                <input
+                  value={destinationNewCity}
+                  onChange={(e) => setDestinationNewCity(e.target.value)}
+                  placeholder="Città"
+                  className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+                />
+                <input
+                  value={destinationNewName}
+                  onChange={(e) => setDestinationNewName(e.target.value)}
+                  placeholder="Nome fermata"
+                  className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+                />
+              </div>
+            )}
+            <input 
+              value={arrivalTime} 
+              onChange={(e) => setArrivalTime(e.target.value)} 
+              className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" 
+              style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} 
+              placeholder="Orario arrivo (HH:MM)" 
+            />
+            <input 
+              value={destinationFascia ?? ""} 
+              onChange={(e) => {
+                const v = e.target.value;
+                setDestinationFascia(v === "" ? "" : Number(v));
+              }}
+              placeholder="Fascia (es. 1, 2, 3, 4)"
+              className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20"
+              style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+              inputMode="numeric"
+            />
+          </div>
         </div>
         <div className="mt-3">
-          <button type="button" className="btn w-full" onClick={addIntermediate}>
+          <button type="button" className="btn w-full text-sm" onClick={addIntermediate}>
             + Aggiungi fermata intermedia
           </button>
         </div>

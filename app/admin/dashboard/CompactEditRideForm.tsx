@@ -12,7 +12,9 @@ export type CompactEditRide = {
   arrivalTime: string;
   originLabel: string;
   destinationLabel: string;
-  intermediateStops?: Array<{ stopId: string; time: string; label?: string }>;
+  originFascia?: number | null;
+  destinationFascia?: number | null;
+  intermediateStops?: Array<{ stopId: string; time: string; label?: string; fascia?: number | null }>;
 };
 
 type EditMode = "none" | "basic" | "intermediate";
@@ -39,6 +41,8 @@ export default function CompactEditRideForm({ ride, onDone }: { ride: CompactEdi
             destinationStopId: ride.destinationStopId,
             departureTime: ride.departureTime,
             arrivalTime: ride.arrivalTime,
+            originFascia: ride.originFascia,
+            destinationFascia: ride.destinationFascia,
             intermediateStops: ride.intermediateStops || [],
           }}
           onDone={onDone}
@@ -72,11 +76,17 @@ export default function CompactEditRideForm({ ride, onDone }: { ride: CompactEdi
           </div>
           <div className="col-span-2">
             <div className="text-xs text-black/60 dark:text-white/60">Origine</div>
-            <div className="font-medium">{ride.originLabel}</div>
+            <div className="font-medium">
+              {ride.originLabel}
+              {ride.originFascia && <span className="ml-2 text-xs opacity-60">(Fascia {ride.originFascia})</span>}
+            </div>
           </div>
           <div className="col-span-2">
             <div className="text-xs text-black/60 dark:text-white/60">Destinazione</div>
-            <div className="font-medium">{ride.destinationLabel}</div>
+            <div className="font-medium">
+              {ride.destinationLabel}
+              {ride.destinationFascia && <span className="ml-2 text-xs opacity-60">(Fascia {ride.destinationFascia})</span>}
+            </div>
           </div>
           <div>
             <div className="text-xs text-black/60 dark:text-white/60">Arrivo</div>
@@ -109,6 +119,7 @@ export default function CompactEditRideForm({ ride, onDone }: { ride: CompactEdi
               >
                 <div className="flex-1">
                   {stop.label || stop.stopId}
+                  {stop.fascia && <span className="ml-2 text-xs opacity-60">(Fascia {stop.fascia})</span>}
                 </div>
                 <div className="text-xs text-black/60 dark:text-white/60 font-mono">
                   {stop.time}

@@ -28,6 +28,9 @@ async function fetchRides() {
     destinationStopId: string;
     departureTime: string;
     arrivalTime: string;
+    originFascia?: number | null;
+    destinationFascia?: number | null;
+    intermediateStops?: Array<{ stopId: string; time: string; fascia?: number | null }>;
   }>;
 }
 

@@ -40,7 +40,7 @@ export default function SearchDepartures() {
   const [selectedStop, setSelectedStop] = useState<string>("");
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [stops, setStops] = useState<Array<{ id: string; name: string; city: string }>>([]);
-  const [rides, setRides] = useState<Array<{ slug: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string; intermediateStops?: Array<{ stopId: string; time: string }> }>>([]);
+  const [rides, setRides] = useState<Array<{ slug: string; lineName: string; originStopId: string; destinationStopId: string; departureTime: string; arrivalTime: string; originFascia?: number | null; destinationFascia?: number | null; intermediateStops?: Array<{ stopId: string; time: string; fascia?: number | null }> }>>([]);
   const searchTracked = useRef(false);
 
   // Load stops and rides from public API

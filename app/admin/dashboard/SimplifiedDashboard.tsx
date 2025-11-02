@@ -15,7 +15,9 @@ type DashboardProps = {
     arrivalTime: string;
     originLabel: string;
     destinationLabel: string;
-    intermediateStops?: Array<{ stopId: string; time: string; label?: string }>;
+    originFascia?: number | null;
+    destinationFascia?: number | null;
+    intermediateStops?: Array<{ stopId: string; time: string; label?: string; fascia?: number | null }>;
   }>;
 };
 
@@ -224,6 +226,8 @@ export default function SimplifiedDashboard({ rides }: DashboardProps) {
                   arrivalTime: editingRide.arrivalTime,
                   originLabel: editingRide.originLabel,
                   destinationLabel: editingRide.destinationLabel,
+                  originFascia: editingRide.originFascia,
+                  destinationFascia: editingRide.destinationFascia,
                   intermediateStops: editingRide.intermediateStops || [],
                 }}
                 onDone={() => setEditingRideId(null)}

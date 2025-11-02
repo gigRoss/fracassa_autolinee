@@ -41,6 +41,8 @@ export async function POST(req: NextRequest) {
       destinationStopId: body.destinationStopId,
       departureTime: body.departureTime,
       arrivalTime: body.arrivalTime,
+      originFascia: body.originFascia,
+      destinationFascia: body.destinationFascia,
       intermediateStops: body.intermediateStops ?? [],
     });
 

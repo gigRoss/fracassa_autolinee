@@ -13,6 +13,8 @@ export async function GET() {
       destinationStopId: r.destinationStopId,
       departureTime: r.departureTime,
       arrivalTime: r.arrivalTime,
+      originFascia: r.originFascia,
+      destinationFascia: r.destinationFascia,
       intermediateStops: r.intermediateStops,
     }));
     return NextResponse.json(mapped);
