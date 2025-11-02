@@ -12,7 +12,6 @@ export type EditRide = {
   destinationStopId: string;
   departureTime: string;
   arrivalTime: string;
-  price?: string;
   intermediateStops?: IntermediateStop[];
 };
 
@@ -127,7 +126,18 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
           arrivalTime,
           intermediateStops: intermediateStops
             .filter((s) => s.stopId && s.time)
-            .map((s) => ({ stopId: s.stopId, time: s.time, fascia: s.fascia === "" ? undefined : Number(s.fascia) })),
+            .map((s) => {
+              let fascia: number | undefined = undefined;
+              // Only set fascia if it's a valid positive integer
+              if (s.fascia !== "" && s.fascia !== undefined && s.fascia !== null) {
+                const fasciaNum = typeof s.fascia === 'number' ? s.fascia : Number(s.fascia);
+                // Don't allow 0 or NaN - only positive integers
+                if (!isNaN(fasciaNum) && fasciaNum > 0 && Number.isInteger(fasciaNum)) {
+                  fascia = fasciaNum;
+                }
+              }
+              return { stopId: s.stopId, time: s.time, fascia };
+            }),
         }),
       });
       if (!res.ok) {

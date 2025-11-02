@@ -41,7 +41,6 @@ export async function POST(req: NextRequest) {
       destinationStopId: body.destinationStopId,
       departureTime: body.departureTime,
       arrivalTime: body.arrivalTime,
-      price: body.price,
       intermediateStops: body.intermediateStops ?? [],
     });
 
@@ -52,10 +51,6 @@ export async function POST(req: NextRequest) {
       { field: "departureTime", after: created.departureTime },
       { field: "arrivalTime", after: created.arrivalTime },
     ];
-    
-    if (created.price) {
-      auditChanges.push({ field: "price", after: created.price });
-    }
 
     emitAudit({
       actor: session.sub,

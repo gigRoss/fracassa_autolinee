@@ -22,7 +22,6 @@ export const rides = sqliteTable('rides', {
   destinationStopId: text('destination_stop_id').notNull().references(() => stops.id),
   departureTime: text('departure_time').notNull(), // formato HH:MM
   arrivalTime: text('arrival_time').notNull(), // formato HH:MM
-  price: text('price'), // importo della corsa (es. "2.50")
   archived: integer('archived', { mode: 'boolean' }).default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }),
   updatedAt: integer('updated_at', { mode: 'timestamp' }),

@@ -10,7 +10,6 @@ export type RideWithStops = {
   destinationStopId: string;
   departureTime: string;
   arrivalTime: string;
-  price?: string; // importo della corsa (es. "2.50")
   intermediateStops?: Array<{ stopId: string; time: string; fascia?: number | null }>;
   archived?: boolean;
 };
@@ -50,7 +49,6 @@ export async function listRides(): Promise<RideWithStops[]> {
       destinationStopId: r.destinationStopId,
       departureTime: r.departureTime,
       arrivalTime: r.arrivalTime,
-      price: r.price ?? undefined,
       archived: r.archived ?? false,
       intermediateStops: trueIntermediates,
     };
@@ -71,7 +69,6 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
     destinationStopId: ride.destinationStopId,
     departureTime: ride.departureTime,
     arrivalTime: ride.arrivalTime,
-    price: ride.price ?? null,
     archived: ride.archived ?? false,
     createdAt: nowInItaly(),
     updatedAt: nowInItaly(),
@@ -137,7 +134,6 @@ export async function getRideById(rideId: string): Promise<RideWithStops | undef
     destinationStopId: r.destinationStopId,
     departureTime: r.departureTime,
     arrivalTime: r.arrivalTime,
-    price: r.price ?? undefined,
     archived: r.archived ?? false,
     intermediateStops: trueIntermediates.map((s) => ({ stopId: s.stopId, time: s.arrivalTime, fascia: (s as any).fascia ?? null })),
   };
@@ -154,30 +150,44 @@ export async function updateRide(
   const existing = await getRideById(rideId);
   if (!existing) return undefined;
 
-  // Update main ride
-  await db
-    .update(ridesTable)
-    .set({
-      lineName: update.lineName ?? existing.lineName,
-      originStopId: update.originStopId ?? existing.originStopId,
-      destinationStopId: update.destinationStopId ?? existing.destinationStopId,
-      departureTime: update.departureTime ?? existing.departureTime,
-      arrivalTime: update.arrivalTime ?? existing.arrivalTime,
-      price: update.price !== undefined ? update.price : existing.price,
-      archived: update.archived ?? existing.archived ?? false,
-      updatedAt: nowInItaly(),
-    })
-    .where(eq(ridesTable.id, rideId));
+  // Check if we need to update ride fields (excluding intermediateStops)
+  const hasRideUpdates = 
+    update.lineName !== undefined ||
+    update.originStopId !== undefined ||
+    update.destinationStopId !== undefined ||
+    update.departureTime !== undefined ||
+    update.arrivalTime !== undefined ||
+    update.archived !== undefined;
+
+  // Update main ride only if there are actual ride field changes
+  if (hasRideUpdates) {
+    await db
+      .update(ridesTable)
+      .set({
+        lineName: update.lineName !== undefined ? update.lineName : existing.lineName,
+        originStopId: update.originStopId !== undefined ? update.originStopId : existing.originStopId,
+        destinationStopId: update.destinationStopId !== undefined ? update.destinationStopId : existing.destinationStopId,
+        departureTime: update.departureTime !== undefined ? update.departureTime : existing.departureTime,
+        arrivalTime: update.arrivalTime !== undefined ? update.arrivalTime : existing.arrivalTime,
+        archived: update.archived !== undefined ? update.archived : existing.archived ?? false,
+        updatedAt: nowInItaly(),
+      })
+      .where(eq(ridesTable.id, rideId));
+  }
 
   // Replace intermediate stops if provided
-  if (update.intermediateStops) {
+  if (update.intermediateStops !== undefined) {
+    // Get current ride values (may have been updated above)
+    const currentRide = hasRideUpdates ? await getRideById(rideId) : existing;
+    if (!currentRide) return undefined;
+
     await db.delete(intermediateTable).where(eq(intermediateTable.rideId, rideId));
     
     // Insert origin stop as first stop (order 0)
     await db.insert(intermediateTable).values({
       rideId,
-      stopId: update.originStopId ?? existing.originStopId,
-      arrivalTime: update.departureTime ?? existing.departureTime,
+      stopId: currentRide.originStopId,
+      arrivalTime: currentRide.departureTime,
       stopOrder: 0,
       // fascia left null for endpoints unless set later
     });
@@ -198,8 +208,8 @@ export async function updateRide(
     // Insert destination stop as last stop
     await db.insert(intermediateTable).values({
       rideId,
-      stopId: update.destinationStopId ?? existing.destinationStopId,
-      arrivalTime: update.arrivalTime ?? existing.arrivalTime,
+      stopId: currentRide.destinationStopId,
+      arrivalTime: currentRide.arrivalTime,
       stopOrder: order,
       // fascia left null for endpoints unless set later
     });

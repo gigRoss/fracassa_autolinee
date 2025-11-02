@@ -17,7 +17,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 
   try {
-    const body = (await req.json()) as Partial<Omit<RideWithStops, "id">>;
+    let body: Partial<Omit<RideWithStops, "id">>;
+    try {
+      body = await req.json() as Partial<Omit<RideWithStops, "id">>;
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
+      return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 });
+    }
 
     // Basic validations
     const hhmm = /^\d{2}:\d{2}$/;
@@ -26,6 +32,35 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
     if (body.arrivalTime && !hhmm.test(body.arrivalTime)) {
       return NextResponse.json({ error: "Formato orario arrivo non valido (HH:MM)" }, { status: 400 });
+    }
+    // Validate intermediate stops time format and fascia
+    if (body.intermediateStops !== undefined) {
+      // Allow empty array to clear all intermediate stops
+      if (Array.isArray(body.intermediateStops)) {
+        for (const stop of body.intermediateStops) {
+          if (!stop || typeof stop !== 'object') {
+            return NextResponse.json({ error: "Oggetto fermata intermedia non valido" }, { status: 400 });
+          }
+          if (!stop.stopId || typeof stop.stopId !== 'string') {
+            return NextResponse.json({ error: "stopId della fermata intermedia non valido" }, { status: 400 });
+          }
+          if (!stop.time || typeof stop.time !== 'string') {
+            return NextResponse.json({ error: "time della fermata intermedia non valido" }, { status: 400 });
+          }
+          if (stop.time && !hhmm.test(stop.time)) {
+            return NextResponse.json({ error: `Formato orario fermata intermedia non valido (HH:MM): ${stop.time}` }, { status: 400 });
+          }
+          if (stop.fascia !== undefined && stop.fascia !== null) {
+            const fasciaNum = typeof stop.fascia === 'number' ? stop.fascia : Number(stop.fascia);
+            // Allow only positive integers (fascia > 0), not 0
+            if (isNaN(fasciaNum) || fasciaNum <= 0 || !Number.isInteger(fasciaNum)) {
+              return NextResponse.json({ error: "Fascia non valida: deve essere un numero intero positivo (1, 2, 3, ...)" }, { status: 400 });
+            }
+          }
+        }
+      } else {
+        return NextResponse.json({ error: "intermediateStops deve essere un array" }, { status: 400 });
+      }
     }
 
     const updated = await updateRide(rideId, body);
@@ -44,7 +79,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (body.destinationStopId !== undefined) pushChange("destinationStopId", existing.destinationStopId, updated.destinationStopId);
     if (body.departureTime !== undefined) pushChange("departureTime", existing.departureTime, updated.departureTime);
     if (body.arrivalTime !== undefined) pushChange("arrivalTime", existing.arrivalTime, updated.arrivalTime);
-    if (body.price !== undefined) pushChange("price", existing.price, updated.price);
     if (body.intermediateStops !== undefined) pushChange("intermediateStops", JSON.stringify(existing.intermediateStops ?? []), JSON.stringify(updated.intermediateStops ?? []));
     if (body.archived !== undefined) pushChange("archived", existing.archived ?? false, updated.archived ?? false);
 
@@ -71,7 +105,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
     return res;
   } catch (e) {
-    return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+    console.error("Error updating ride:", e);
+    const errorMessage = e instanceof Error ? e.message : "Bad Request";
+    return NextResponse.json({ error: errorMessage, details: String(e) }, { status: 400 });
   }
 }
 

@@ -188,7 +188,6 @@ export async function GET(request: NextRequest) {
           : null,
         departureTime: routeDepartureTime,
         arrivalTime: routeArrivalTime,
-        price: ride.price,
         intermediateStops: relevantIntermediateStops,
       };
     }));
