@@ -388,7 +388,7 @@ export async function searchRidesBetweenStops(
       (
         SELECT t."IMPORTO"
         FROM "TRATTA_IMPORTO" t
-        WHERE t."FASCIA" = CASE WHEN iA.fascia = iP.fascia THEN 1 ELSE (iA.fascia - iP.fascia) END
+        WHERE t."FASCIA" = CASE WHEN iA.fascia = iP.fascia THEN 1 ELSE (iA.fascia - (iP.fascia - 1)) END
       ) as "importoCents",
       (
         SELECT t."CURRENCY"
