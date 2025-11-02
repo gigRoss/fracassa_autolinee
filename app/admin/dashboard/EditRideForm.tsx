@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Stop, toMinutes } from "@/app/lib/data";
+import Toast from "@/app/components/admin/Toast";
 
 type IntermediateStop = { stopId: string; time: string; fascia?: number | "" };
 
@@ -182,13 +183,32 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <>
       {error && (
-        <div className="text-sm rounded p-2" style={{ color: "var(--error)", background: "color-mix(in oklab, var(--error) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--error) 30%, transparent)" }}>{error}</div>
+        <Toast
+          message={error}
+          type="error"
+          onClose={() => setError(null)}
+          duration={6000}
+        />
       )}
       {success && (
-        <div className="text-sm rounded p-2" style={{ color: "var(--success)", background: "color-mix(in oklab, var(--success) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--success) 30%, transparent)" }}>{success}</div>
+        <Toast
+          message={success}
+          type="success"
+          onClose={() => setSuccess(null)}
+          duration={3000}
+        />
       )}
+      {addingStopError && (
+        <Toast
+          message={addingStopError}
+          type="error"
+          onClose={() => setAddingStopError(null)}
+          duration={5000}
+        />
+      )}
+      <form onSubmit={onSubmit} className="space-y-3">
       <div className="space-y-3">
         <div>
           <label className="block text-xs mb-1">Linea*</label>
@@ -205,7 +225,6 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
         </div>
         {addingOrigin && (
           <div className="mb-3 p-3 space-y-2 rounded-md border" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)", background: "color-mix(in oklab, var(--foreground) 3%, transparent)" }}>
-            {addingStopError && <div className="text-xs text-red-600">{addingStopError}</div>}
             <input value={newCity} onChange={(e) => setNewCity(e.target.value)} placeholder="Città" className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} />
             <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nome fermata" className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} />
             <button type="button" disabled={addingStopSubmitting} onClick={() => addNewStop("origin")} className="btn w-full text-sm disabled:opacity-60">
@@ -340,6 +359,7 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
         </button>
       </div>
     </form>
+    </>
   );
 }
 

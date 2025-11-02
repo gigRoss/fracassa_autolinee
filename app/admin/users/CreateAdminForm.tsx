@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Toast from "@/app/components/admin/Toast";
 
 export default function CreateAdminForm({ onSuccess }: { onSuccess: () => void }) {
   const [email, setEmail] = useState("");
@@ -45,18 +46,24 @@ export default function CreateAdminForm({ onSuccess }: { onSuccess: () => void }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <>
       {error && (
-        <div className="p-3 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded text-sm">
-          {error}
-        </div>
+        <Toast
+          message={error}
+          type="error"
+          onClose={() => setError("")}
+          duration={6000}
+        />
       )}
-      
       {success && (
-        <div className="p-3 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 rounded text-sm">
-          {success}
-        </div>
+        <Toast
+          message={success}
+          type="success"
+          onClose={() => setSuccess("")}
+          duration={3000}
+        />
       )}
+      <form onSubmit={handleSubmit} className="space-y-4">
 
       <div>
         <label className="block text-sm font-medium mb-1">Email</label>
@@ -103,6 +110,7 @@ export default function CreateAdminForm({ onSuccess }: { onSuccess: () => void }
         {loading ? "Creazione..." : "Crea Admin User"}
       </button>
     </form>
+    </>
   );
 }
 

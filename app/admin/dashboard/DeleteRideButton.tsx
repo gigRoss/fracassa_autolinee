@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Toast from "@/app/components/admin/Toast";
 
 type Props = {
   ride: {
@@ -101,10 +102,16 @@ export default function DeleteRideButton({ ride }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <>
       {error && (
-        <div className="text-xs text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded px-2 py-1">{error}</div>
+        <Toast
+          message={error}
+          type="error"
+          onClose={() => setError(null)}
+          duration={6000}
+        />
       )}
+      <div className="flex items-center gap-2">
       {!confirmOpen ? (
         <button
           type="button"
@@ -142,6 +149,7 @@ export default function DeleteRideButton({ ride }: Props) {
         </div>
       )}
     </div>
+    </>
   );
 }
 

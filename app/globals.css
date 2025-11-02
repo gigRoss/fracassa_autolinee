@@ -256,6 +256,17 @@ textarea {
   }
 }
 
+@keyframes slide-in {
+  0% {
+    transform: translateX(-50%) translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
 @keyframes field-appear {
   0% {
     opacity: 0;
@@ -295,6 +306,10 @@ textarea {
 
 .animate-slide-up {
   animation: slide-up-enter var(--transition-slow) var(--easing-decelerate);
+}
+
+.animate-slide-in {
+  animation: slide-in var(--transition-normal) var(--easing-decelerate);
 }
 
 .animate-field-1 {

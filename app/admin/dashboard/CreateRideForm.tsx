@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Stop } from "@/app/lib/data";
+import Toast from "@/app/components/admin/Toast";
 
 type StopMode = "existing" | "new";
 type IntermediateStop = {
@@ -171,17 +172,24 @@ export default function CreateRideForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <>
       {error && (
-        <div className="text-sm rounded p-2" style={{ color: "var(--error)", background: "color-mix(in oklab, var(--error) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--error) 30%, transparent)" }}>
-          {error}
-        </div>
+        <Toast
+          message={error}
+          type="error"
+          onClose={() => setError(null)}
+          duration={6000}
+        />
       )}
       {success && (
-        <div className="text-sm rounded p-2" style={{ color: "var(--success)", background: "color-mix(in oklab, var(--success) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--success) 30%, transparent)" }}>
-          {success}
-        </div>
+        <Toast
+          message={success}
+          type="success"
+          onClose={() => setSuccess(null)}
+          duration={3000}
+        />
       )}
+      <form onSubmit={onSubmit} className="space-y-3">
       <div className="space-y-3">
         <div>
           <label className="block text-xs mb-1">Linea*</label>
@@ -400,6 +408,7 @@ export default function CreateRideForm() {
         </button>
       </div>
     </form>
+    </>
   );
 }
 
