@@ -606,19 +606,20 @@ function SearchResultsContent() {
           top: 4px;
         }
         .frame-322 {
-          width: 393px;
-          height: 851px;
+          width: 100%;
+          height: 100%;
           position: absolute;
           left: 0px;
-          top: 1px;
+          top: 0px;
+          z-index: 1000;
         }
         .rectangle-9 {
-          background: rgba(21, 37, 128, 0.84);
-          width: 393px;
-          height: 855px;
+          background: rgba(21, 37, 128, 1);
+          width: 100%;
+          height: 100%;
           position: absolute;
           left: 0px;
-          top: -4px;
+          top: 0px;
         }
         .frame-139 {
           display: flex;
@@ -630,6 +631,7 @@ function SearchResultsContent() {
           position: absolute;
           left: 25px;
           top: 82px;
+          z-index: 1001;
         }
         .orari-completo {
           display: flex;
@@ -945,6 +947,7 @@ function SearchResultsContent() {
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
+          z-index: 1001;
         }
       `}</style>
   </div>
