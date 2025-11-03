@@ -10,12 +10,23 @@ import type { Stop } from '../../lib/data';
 // Force dynamic rendering since this page depends on search parameters
 export const dynamic = 'force-dynamic';
 
+
+
 /**
  * Search Content Component - Contains the main logic that uses useSearchParams
- */
+*/
 function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  /**
+     * Get the admin login page
+     */
+  const getAdminLoginPage = () => {
+    router.push('/admin/login');
+  }
+  
+
   
   // State for date selection
   const [andataDate, setAndataDate] = useState<Date | null>(null);
@@ -410,12 +421,12 @@ function SearchContent() {
       </div>
 
       {/* Profile Icon */}
-      <div className="frame-23">
+      <div className="frame-23" onClick={() => getAdminLoginPage()}>
         <Image
           src="/mobile/search/material-symbols-person-outline0.svg"
           alt="Profile"
-          width={17}
-          height={17}
+          width={22}
+          height={22}
           className="material-symbols-person-outline"
         />
       </div>
@@ -967,21 +978,19 @@ function SearchContent() {
           overflow: visible;
         }
         .frame-23 {
+          position: absolute;
+          right: 20px; 
+          top: 20px;    
+          width: 22px;
+          height: 22px;
           display: flex;
-          flex-direction: column;
-          gap: 5px;
           align-items: center;
           justify-content: center;
-          width: 17px;
-          height: 11px;
-          position: absolute;
-          left: 354px;
-          top: 806px;
         }
         .material-symbols-person-outline {
           align-self: stretch;
           flex-shrink: 0;
-          height: 17px;
+          height: 22px;
           position: relative;
           overflow: visible;
           aspect-ratio: 1;

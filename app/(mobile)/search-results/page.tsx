@@ -716,7 +716,7 @@ function SearchResultsContent() {
         .frame-138 {
           display: flex;
           flex-direction: row;
-          align-items: flex-start;
+          align-items: center;
           justify-content: space-between;
           width: 186px;
           position: absolute;
@@ -726,7 +726,7 @@ function SearchResultsContent() {
         .frame-137 {
           display: flex;
           flex-direction: column;
-          gap: 5px;
+          gap: 6px;
           align-items: center;
           justify-content: flex-start;
           flex-shrink: 0;
@@ -794,10 +794,10 @@ function SearchResultsContent() {
           align-items: center;
           justify-content: center;
           width: 109px;
-          height: 47px;
+          height: 57px;
           position: absolute;
           left: 207px;
-          top: 67px;
+          top: 77px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
         }
