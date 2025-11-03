@@ -657,7 +657,7 @@ function SearchResultsContent() {
           width: 334px;
           height: 176px;
           position: absolute;
-          left: 0px;
+          left: 3.5px;
           top: 31px;
         }
         .orario {
@@ -887,18 +887,21 @@ function SearchResultsContent() {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 35px;
-          height 35px;
+          width: 50px;
+          height: 50px;
           position: absolute;
           left: 326.86px;
-          top: 35px;
+          top: 18px;
           overflow: visible;
           cursor: pointer;
+          transition: all 0.2s ease;
+          padding: 4px;
+          border-radius: 4px;
         }
         
         .close-icon {
-          width: 29px;
-          height: 29px;
+          width: 15px;
+          height: 15px;
           position: relative;
           overflow: visible;
         }
