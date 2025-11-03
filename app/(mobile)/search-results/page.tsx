@@ -202,6 +202,8 @@ function SearchResultsContent() {
       <div className="frame-322">
         <div className="rectangle-9"></div>
         {/* Back button */}
+        <div className="frame-161">
+
         <div className="frame-back" onClick={handleBackToSearch}>
           <Image
             src="/mobile/search/frame-410.svg"
@@ -209,7 +211,7 @@ function SearchResultsContent() {
             width={23}
             height={18}
             className="back-arrow"
-          />
+            />
         </div>
         {/* Close button */}
         <div className="chiudi-e-dietro clear-search-button" onClick={handleBackToSearchCleared}>
@@ -219,8 +221,9 @@ function SearchResultsContent() {
             width={15}
             height={15}
             className="close-icon"
-          />
+            />
         </div>
+       </div>
       </div>
       
       <div className="frame-139">
@@ -256,7 +259,8 @@ function SearchResultsContent() {
 
           return (
             <div key={ride.id} className={`frame-${index === 0 ? '15' : index === 1 ? '15' : index === 2 ? '39' : index === 3 ? '41' : '42'}`}>
-              <div className="rectangle-72"></div>
+              <div className="rectangle-72">
+
               <div className="orario">
                 <div className="partenza-ore">Partenza ore:</div>
                 <div className="_10-45">{departureTime}</div>
@@ -287,9 +291,10 @@ function SearchResultsContent() {
                   width={14}
                   height={14}
                   className="cart-icon"
-                />
+                  />
                 <div className="acquista">Acquista</div>
               </div>
+             </div>
             </div>
           );
         })}
@@ -650,10 +655,10 @@ function SearchResultsContent() {
           border-color: rgba(0, 0, 0, 0.17);
           border-width: 1px;
           width: 334px;
-          height: 166px;
+          height: 176px;
           position: absolute;
           left: 0px;
-          top: 3px;
+          top: 31px;
         }
         .orario {
           display: flex;
@@ -851,11 +856,11 @@ function SearchResultsContent() {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 30px;
-          height: 30px;
+          width: 50px;
+          height: 50px;
           position: absolute;
-          left: 18px;
-          top: 14px;
+          left: 28px;
+          top: 18px;
           cursor: pointer;
           transition: all 0.2s ease;
           padding: 4px;
@@ -882,18 +887,18 @@ function SearchResultsContent() {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 30px;
-          height: 30px;
+          width: 35px;
+          height 35px;
           position: absolute;
-          left: 355.86px;
-          top: 14px;
+          left: 326.86px;
+          top: 35px;
           overflow: visible;
           cursor: pointer;
         }
         
         .close-icon {
-          width: 15px;
-          height: 15px;
+          width: 29px;
+          height: 29px;
           position: relative;
           overflow: visible;
         }
@@ -926,6 +931,17 @@ function SearchResultsContent() {
         
         .clear-search-button:active {
           transform: scale(0.95);
+        }
+          .frame-161 {
+          width: 100%;
+          height: 91px;
+          left: 0px;
+          top: 0px;
+          position: absolute;
+          background: linear-gradient(to bottom right, #FFA925 20%, #F49401 37%) bottom right / 50% 50% no-repeat, linear-gradient(to bottom left, #FFA925 20%, #F49401 37%) bottom left / 50% 50% no-repeat, linear-gradient(to top left, #FFA925 20%, #F49401 37%) top left / 50% 50% no-repeat, linear-gradient(to top right, #FFA925 20%, #F49401 37%) top right / 50% 50% no-repeat;
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+          border-bottom-right-radius: 20px;
+          border-bottom-left-radius: 20px;
         }
       `}</style>
   </div>
