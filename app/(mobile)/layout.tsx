@@ -8,7 +8,7 @@ export default function MobileLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="max-w-[393px] mx-auto bg-[var(--background)] min-h-screen">
+    <div className="max-w-[393px] mx-auto bg-white min-h-screen">
       {children}
     </div>
   );
