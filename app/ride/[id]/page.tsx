@@ -41,8 +41,8 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
       <div className="rounded-md border border-black/10 dark:border-white/15 divide-y divide-black/10 dark:divide-white/10">
         <div className="p-4 flex items-center justify-between">
           {/*  <div className="font-medium">Partenza</div> */}
-          <div className="text-sm">
-            {origin.name} • {ride.departureTime}
+          <div className="text-sm text-[#9797a4]">
+            {origin.name.toLowerCase()} • {ride.departureTime}
           </div>
         </div>
         {ride.intermediateStops && ride.intermediateStops.length > 0 && (
@@ -53,8 +53,8 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
               return (
                 <div className="p-4 flex items-center justify-between" key={`${s.stopId}-${s.time}-${idx}`}>
                   {/* <div className="font-medium">Fermata intermedia</div> */}
-                  <div className="text-sm">
-                    {via.name} • {s.time}
+                  <div className="text-sm text-[#9797a4]">
+                    {via.name.toLowerCase()} • {s.time}
                   </div>
                 </div>
               );
@@ -63,8 +63,8 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
         )}
         <div className="p-4 flex items-center justify-between">
           {/* <div className="font-medium">Arrivo</div> */}
-          <div className="text-sm">
-            {dest.city} ({dest.name}) • {ride.arrivalTime}
+          <div className="text-sm text-[#9797a4]">
+            {dest.city.toLowerCase()} ({dest.name.toLowerCase()}) • {ride.arrivalTime}
           </div>
         </div>
       </div>
