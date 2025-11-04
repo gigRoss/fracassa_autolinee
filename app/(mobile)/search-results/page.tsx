@@ -11,6 +11,19 @@ import type { Stop } from '../../lib/data';
 export const dynamic = 'force-dynamic';
 
 /**
+ * Capitalize the first letter of each word (title case)
+ * Examples: "LEOFARA" -> "Leofara", "MACCHIA DA SOLE" -> "Macchia Da Sole"
+ */
+function capitalizeWords(str: string): string {
+  if (!str) return str;
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
  * Loading component for search results
  */
 function SearchResultsLoading() {
@@ -181,7 +194,13 @@ function SearchResultsContent() {
           <div className="rectangle-10"></div>
           <div className="frame-17">
             <div className="frame-35">
-              <div className="entypo-magnifying-glass"></div>
+              <Image
+                src="/mobile/search/entypo-magnifying-glass0.svg"
+                alt="Search"
+                width={11}
+                height={11}
+                className="entypo-magnifying-glass"
+              />
               <div className="cerca">Cerca</div>
             </div>
           </div>
@@ -205,28 +224,29 @@ function SearchResultsContent() {
         <div className="frame-161">
 
         <div className="frame-back" onClick={handleBackToSearch}>
-          <Image
-            src="/mobile/search/frame-410.svg"
-            alt="Back"
-            width={23}
-            height={18}
-            className="back-arrow"
+          <div className="back-arrow-wrapper">
+            <Image
+              src="/mobile/search/frame-410.svg"
+              alt="Back"
+              width={18}
+              height={16}
+              className="back-arrow"
             />
+          </div>
         </div>
         {/* Close button */}
         <div className="chiudi-e-dietro clear-search-button" onClick={handleBackToSearchCleared}>
           <Image
             src="/mobile/search/frame-580.svg"
             alt="Close"
-            width={15}
-            height={15}
+            width={16}
+            height={16}
             className="close-icon"
-            />
+          />
         </div>
        </div>
-      </div>
-      
-      <div className="frame-139">
+       
+       <div className="frame-139">
         <div className="orari-completo">
         {/* Loading state */}
         {loading && (
@@ -279,9 +299,9 @@ function SearchResultsContent() {
                   <div className="ellipse-13"></div>
                 </div>
                 <div className="frame-136">
-                  <div className="la-tua-posizione2">{truncateStopName(fromStopName)}</div>
+                  <div className="la-tua-posizione2">{truncateStopName(capitalizeWords(fromStopName))}</div>
                   <div className="_30-min">{duration}</div>
-                  <div className="teramo-p-zza-garibaldi2">{truncateStopName(toStopName)}</div>
+                  <div className="teramo-p-zza-garibaldi2">{truncateStopName(capitalizeWords(toStopName))}</div>
                 </div>
               </div>
               <div className="frame-131" onClick={() => handlePurchase(ride.id)}>
@@ -298,7 +318,17 @@ function SearchResultsContent() {
             </div>
           );
         })}
+        
+        {/* Altro button */}
+        {!loading && !error && availableRides.length > 0 && (
+          <div className="frame-altro">
+            <button className="altro-button" onClick={() => {}}>
+              <div className="altro-text">Altro</div>
+            </button>
+          </div>
+        )}
         </div>
+       </div>
       </div>
     
     <style jsx>{`
@@ -499,7 +529,7 @@ function SearchResultsContent() {
           top: 209px;
         }
         .rectangle-10 {
-          background: #162686;
+          background: #F49401;
           border-radius: 16px;
           border-style: solid;
           border-color: rgba(0, 0, 0, 0.17);
@@ -536,8 +566,6 @@ function SearchResultsContent() {
           height: 11px;
           position: relative;
           overflow: visible;
-          aspect-ratio: 1;
-          background: white;
         }
         .cerca {
           color: #ffffff;
@@ -611,10 +639,10 @@ function SearchResultsContent() {
           position: absolute;
           left: 0px;
           top: 0px;
-          z-index: 1000;
+          z-index: 998;
         }
         .rectangle-9 {
-          background: rgba(21, 37, 128, 1);
+          background: rgba(21, 37, 128, 0.8);
           width: 100%;
           height: 100%;
           position: absolute;
@@ -630,26 +658,32 @@ function SearchResultsContent() {
           width: 341px;
           position: absolute;
           left: 25px;
-          top: 82px;
+          top: 91px;
           bottom: 20px;
-          z-index: 1001;
+          z-index: 997;
           overflow-y: auto;
           overflow-x: hidden;
           max-height: 750px;
         }
         .frame-139::-webkit-scrollbar {
-          width: 6px;
+          width: 2px;
         }
         .frame-139::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
+          background: transparent;
+          border-radius: 0;
         }
         .frame-139::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.3);
-          border-radius: 10px;
+          background: rgba(200, 200, 210, 0.4);
+          border-radius: 0;
+          border: none;
         }
         .frame-139::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.5);
+          background: rgba(200, 200, 210, 0.6);
+        }
+        /* Firefox scrollbar */
+        .frame-139 {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(200, 200, 210, 0.4) transparent;
         }
         .orari-completo {
           display: flex;
@@ -872,33 +906,77 @@ function SearchResultsContent() {
           height: 169px;
           position: relative;
         }
+        .frame-altro {
+          align-self: stretch;
+          flex-shrink: 0;
+          height: auto;
+          position: relative;
+          margin-top: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 20px 0;
+        }
+        .altro-button {
+          background: #F49401;
+          border-radius: 16px;
+          border: 1px solid rgba(0, 0, 0, 0.17);
+          width: 109px;
+          height: 47px;
+          padding: 0;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+        .altro-button:hover {
+          background: #e68501;
+        }
+        .altro-button:active {
+          transform: scale(0.95);
+        }
+        .altro-text {
+          color: #ffffff;
+          text-align: center;
+          font-family: "Inter-SemiBold", sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          position: relative;
+        }
         .frame-back {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 50px;
-          height: 50px;
+          width: auto;
+          height: auto;
           position: absolute;
-          left: 28px;
-          top: 18px;
+          left: 21px;
+          top: 50%;
+          transform: translateY(-50%);
           cursor: pointer;
           transition: all 0.2s ease;
-          padding: 4px;
-          border-radius: 4px;
         }
         
         .frame-back:hover {
-          background: rgba(255, 255, 255, 0.1);
-          transform: scale(1.1);
+          opacity: 0.8;
         }
         
         .frame-back:active {
-          transform: scale(0.95);
+          transform: translateY(-50%) scale(0.95);
+        }
+        
+        .back-arrow-wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         
         .back-arrow {
-          width: 23px;
-          height: 18px;
+          width: 18px;
+          height: 16px;
           position: relative;
           overflow: visible;
         }
@@ -907,21 +985,28 @@ function SearchResultsContent() {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 50px;
-          height: 50px;
+          width: auto;
+          height: auto;
           position: absolute;
-          left: 326.86px;
-          top: 18px;
+          right: 21px;
+          top: 50%;
+          transform: translateY(-50%);
           overflow: visible;
           cursor: pointer;
           transition: all 0.2s ease;
-          padding: 4px;
-          border-radius: 4px;
+        }
+        
+        .chiudi-e-dietro:hover {
+          opacity: 0.8;
+        }
+        
+        .chiudi-e-dietro:active {
+          transform: translateY(-50%) scale(0.95);
         }
         
         .close-icon {
-          width: 15px;
-          height: 15px;
+          width: 16px;
+          height: 16px;
           position: relative;
           overflow: visible;
         }
@@ -946,15 +1031,6 @@ function SearchResultsContent() {
           color: #ff6b6b;
         }
         
-        /* Clear Search Button Styles */
-        .clear-search-button:hover {
-          background: rgba(255, 255, 255, 0.1);
-          transform: scale(1.1);
-        }
-        
-        .clear-search-button:active {
-          transform: scale(0.95);
-        }
           .frame-161 {
           width: 100%;
           height: 91px;
@@ -965,7 +1041,7 @@ function SearchResultsContent() {
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
-          z-index: 1001;
+          z-index: 1000;
         }
       `}</style>
   </div>
