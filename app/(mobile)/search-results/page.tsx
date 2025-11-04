@@ -631,7 +631,25 @@ function SearchResultsContent() {
           position: absolute;
           left: 25px;
           top: 82px;
+          bottom: 20px;
           z-index: 1001;
+          overflow-y: auto;
+          overflow-x: hidden;
+          max-height: 750px;
+        }
+        .frame-139::-webkit-scrollbar {
+          width: 6px;
+        }
+        .frame-139::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .frame-139::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 10px;
+        }
+        .frame-139::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.5);
         }
         .orari-completo {
           display: flex;
@@ -641,7 +659,7 @@ function SearchResultsContent() {
           justify-content: flex-start;
           align-self: stretch;
           flex-shrink: 0;
-          height: 169px;
+          min-height: auto;
           position: relative;
         }
         .frame-15 {
