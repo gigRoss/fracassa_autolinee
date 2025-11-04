@@ -10,7 +10,18 @@ import type { Stop } from '../../lib/data';
 // Force dynamic rendering since this page depends on search parameters
 export const dynamic = 'force-dynamic';
 
-
+/**
+ * Capitalize the first letter of each word (title case)
+ * Examples: "LEOFARA" -> "Leofara", "MACCHIA DA SOLE" -> "Macchia Da Sole"
+ */
+function capitalizeWords(str: string): string {
+  if (!str) return str;
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
 
 /**
  * Search Content Component - Contains the main logic that uses useSearchParams
@@ -320,10 +331,10 @@ function SearchContent() {
             
             {/* Input fields */}
             <div className="frame-114" onClick={() => setIsFromStopModalOpen(true)}>
-              <div className={`cerca ${fromStop ? 'selected' : ''}`}>{fromStop ? `${fromStop.name}` : 'Cerca'}</div>
+              <div className={`cerca ${fromStop ? 'selected' : ''}`}>{fromStop ? capitalizeWords(fromStop.name) : 'Cerca'}</div>
             </div>
             <div className="frame-115" onClick={() => setIsToStopModalOpen(true)}>
-              <div className={`cerca2 ${toStop ? 'selected' : ''}`}>{toStop ? `${toStop.name}` : 'Cerca'}</div>
+              <div className={`cerca2 ${toStop ? 'selected' : ''}`}>{toStop ? capitalizeWords(toStop.name) : 'Cerca'}</div>
             </div>
 
             {/* Route indicators */}
@@ -598,7 +609,7 @@ function SearchContent() {
         }
 
         .cerca.selected {
-          color: #333333;
+          color: #9797a4;
         }
         .frame-115 {
           padding: 10px;
@@ -632,7 +643,7 @@ function SearchContent() {
         }
 
         .cerca2.selected {
-          color: #333333;
+          color: #9797a4;
         }
         .frame-7 {
           width: 15px;

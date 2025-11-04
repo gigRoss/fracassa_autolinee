@@ -8,6 +8,19 @@ interface Stop {
   city: string;
 }
 
+/**
+ * Capitalize the first letter of each word (title case)
+ * Examples: "LEOFARA" -> "Leofara", "MACCHIA DA SOLE" -> "Macchia Da Sole"
+ */
+function capitalizeWords(str: string): string {
+  if (!str) return str;
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 interface StopsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,8 +42,13 @@ export default function StopsModal({
 
   if (!isOpen) return null;
 
+  // Remove duplicates by ID (keep only the first occurrence)
+  const uniqueStops = stops.filter((stop, index, self) =>
+    index === self.findIndex((s) => s.id === stop.id)
+  );
+
   // Filter stops based on search term
-  const filteredStops = stops.filter(stop =>
+  const filteredStops = uniqueStops.filter(stop =>
     stop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     stop.city.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -72,8 +90,10 @@ export default function StopsModal({
                 onClick={() => handleStopClick(stop)}
               >
                 <div className="stops-modal-item-content">
-                  <div className="stops-modal-item-name">{stop.name}</div>
-                  <div className="stops-modal-item-city">{stop.city}</div>
+                  <div className="stops-modal-item-name">{capitalizeWords(stop.name)}</div>
+                  {stop.city && stop.city.toLowerCase() !== stop.name.toLowerCase() && (
+                    <div className="stops-modal-item-city">{capitalizeWords(stop.city)}</div>
+                  )}
                 </div>
                 {selectedStop?.id === stop.id && (
                   <div className="stops-modal-item-check">✓</div>
