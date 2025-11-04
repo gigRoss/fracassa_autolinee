@@ -1037,7 +1037,7 @@ function SearchResultsContent() {
           left: 0px;
           top: 0px;
           position: absolute;
-          background: linear-gradient(to bottom right, #FFA925 20%, #F49401 37%) bottom right / 50% 50% no-repeat, linear-gradient(to bottom left, #FFA925 20%, #F49401 37%) bottom left / 50% 50% no-repeat, linear-gradient(to top left, #FFA925 20%, #F49401 37%) top left / 50% 50% no-repeat, linear-gradient(to top right, #FFA925 20%, #F49401 37%) top right / 50% 50% no-repeat;
+          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
