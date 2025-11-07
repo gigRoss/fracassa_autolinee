@@ -156,9 +156,7 @@ export default function BuyPage() {
             className="frame-37"
           >
             <div className="frame-17">
-              <div className="frame-35">
                 <span className="continua">Continua</span>
-              </div>
             </div>
           </button>
         </div>
