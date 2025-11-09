@@ -72,8 +72,8 @@ export default function BuyPage() {
         <div className="frame-185">
           <img
             className="logo-fracassa-ok-323-page-0001-1"
-            src="/mobile/splash-logo.png"
-            alt="Fracassa Logo"
+            src="/mobile/logo-fracassa-new.png"
+            alt="Fracassa Autolinee"
           />
         </div>
         
@@ -235,15 +235,14 @@ export default function BuyPage() {
         }
         
         .acquista {
-          color: white;
+          color: #ffffff;
           font-size: 20px;
           font-family: Inter, sans-serif;
           font-weight: 400;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          flex: 1;
-          text-align: center;
         }
+        
         
         /* Main Content */
         .frame-192 {
