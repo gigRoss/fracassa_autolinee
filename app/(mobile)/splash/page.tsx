@@ -35,25 +35,42 @@ export default function SplashScreen() {
   }, [router]);
 
   return (
-    <div 
+    <div
       className={`
         relative
         w-full max-w-[393px] mx-auto
         h-screen
         bg-white
+        flex
+        items-center
+        justify-center
         ${isExiting ? 'animate-splash-fade-out' : ''}
       `}
       role="main"
       aria-label="Schermata di avvio"
     >
-      <div className="absolute left-[92px] top-[322px] animate-splash-entry">
+      <div
+        className="animate-splash-entry"
+        style={{
+          width: '184px',
+          padding: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          gap: '10px',
+        }}
+      >
         <Image
           src="/mobile/splash-logo.png"
           alt="Fracassa Autolinee logo"
-          width={209}
-          height={209}
+          width={184}
+          height={117}
           priority
-          className="w-[209px] h-[209px]"
+          style={{
+            width: '100%',
+            height: '117px',
+            objectFit: 'contain',
+          }}
         />
       </div>
       
@@ -64,6 +81,3 @@ export default function SplashScreen() {
     </div>
   );
 }
-
-
-

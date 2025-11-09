@@ -186,7 +186,7 @@ export default function Calendar({
         }
 
         .calendar-nav-btn {
-          background: #f49401;
+          background: var(--mobile-orange-gradient, linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%));
           border: none;
           border-radius: 8px;
           width: 32px;
@@ -198,11 +198,11 @@ export default function Calendar({
           font-size: 18px;
           font-weight: bold;
           cursor: pointer;
-          transition: background-color 0.2s;
+          transition: filter 0.2s;
         }
 
         .calendar-nav-btn:hover:not(:disabled) {
-          background: #e08500;
+          filter: brightness(0.95);
         }
 
         .calendar-nav-btn:disabled {
@@ -272,7 +272,7 @@ export default function Calendar({
         }
 
         .calendar-day.selected {
-          background: #f49401;
+          background: var(--mobile-orange-gradient, linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%));
           color: white;
           font-weight: 600;
         }
@@ -292,7 +292,7 @@ export default function Calendar({
         }
 
         .calendar-close-btn {
-          background: #f49401;
+          background: var(--mobile-orange-gradient, linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%));
           border: none;
           border-radius: 12px;
           padding: 12px 24px;
@@ -301,11 +301,11 @@ export default function Calendar({
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: background-color 0.2s;
+          transition: filter 0.2s;
         }
 
         .calendar-close-btn:hover {
-          background: #e08500;
+          filter: brightness(0.95);
         }
       `}</style>
     </div>

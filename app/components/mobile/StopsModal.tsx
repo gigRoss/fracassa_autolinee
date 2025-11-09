@@ -191,7 +191,7 @@ export default function StopsModal({
 
         .stops-modal-search-input:focus {
           outline: none;
-          border-color: #f49401;
+          border-color: rgba(244, 148, 1, 1);
           background: #ffffff;
         }
 
@@ -248,7 +248,7 @@ export default function StopsModal({
         }
 
         .stops-modal-item-check {
-          color: #f49401;
+          color: rgba(244, 148, 1, 1);
           font-size: 16px;
           font-weight: bold;
         }
@@ -268,7 +268,7 @@ export default function StopsModal({
 
         .stops-modal-cancel-btn {
           width: 100%;
-          background: #f49401;
+          background: var(--mobile-orange-gradient, linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%));
           border: none;
           border-radius: 12px;
           padding: 12px 24px;
@@ -277,11 +277,11 @@ export default function StopsModal({
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: background-color 0.2s;
+          transition: filter 0.2s;
         }
 
         .stops-modal-cancel-btn:hover {
-          background: #e08500;
+          filter: brightness(0.95);
         }
       `}</style>
     </div>

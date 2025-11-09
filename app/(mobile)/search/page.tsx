@@ -56,6 +56,9 @@ function SearchContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const orangeGradient =
+    'linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%)';
+
   // Load stops from API on component mount
   useEffect(() => {
     const loadStops = async () => {
@@ -139,7 +142,7 @@ function SearchContent() {
 
   // Format date for display
   const formatDateDisplay = (date: Date | null) => {
-    if (!date) return '-';
+    if (!date) return '';
     return date.toLocaleDateString('it-IT', {
       day: '2-digit',
       month: '2-digit'
@@ -189,6 +192,9 @@ function SearchContent() {
 
   // Handle search button click
   const handleSearch = () => {
+    if (isLoading) {
+      return;
+    }
     // Build search parameters
     const searchParams = new URLSearchParams();
     
@@ -208,46 +214,6 @@ function SearchContent() {
     // Navigate to search results page
     router.push(`/search-results?${searchParams.toString()}`);
   };
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="search">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <div className="loading-text">Caricamento fermate...</div>
-        </div>
-        <style jsx>{`
-          .loading-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: #ffffff;
-          }
-          .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #f49401;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
-          }
-          .loading-text {
-            font-family: "Inter-Medium", sans-serif;
-            font-size: 14px;
-            color: #666666;
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
-      </div>
-    );
-  }
 
   // Show error state
   if (error) {
@@ -282,7 +248,7 @@ function SearchContent() {
             margin-bottom: 24px;
           }
           .retry-button {
-            background: #f49401;
+            background: ${orangeGradient};
             border: none;
             border-radius: 12px;
             padding: 12px 24px;
@@ -291,10 +257,10 @@ function SearchContent() {
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: filter 0.2s;
           }
           .retry-button:hover {
-            background: #e08500;
+            filter: brightness(0.95);
           }
         `}</style>
       </div>
@@ -305,14 +271,16 @@ function SearchContent() {
     <div className="search">
       {/* Logo Frame */}
       <div className="frame-1">
-        <Image
-          src="/mobile/splash-logo.png"
-          alt="Fracassa Autolinee"
-          width={209}
-          height={209}
-          priority
-          className="_305757967-504591061673203-1893046267709735490-n-1"
-        />
+        <div className="logo-block">
+          <Image
+            src="/mobile/splash-logo.png"
+            alt="Fracassa Autolinee"
+            width={184}
+            height={117}
+            priority
+            className="logo-image"
+          />
+        </div>
       </div>
 
       {/* Bottom line */}
@@ -359,24 +327,20 @@ function SearchContent() {
               />
             </div>
 
-            {/* Route dots */}
-            <div className="frame-12">
+            {/* Route indicators */}
+            <div className="frame-147">
               <div className="ellipse-1"></div>
-              <div className="frame-11">
-                <div className="ellipse-2"></div>
-                <div className="ellipse-3"></div>
-                <div className="ellipse-4"></div>
-                <div className="ellipse-5"></div>
-              </div>
-              <div className="frame-8">
-                <div className="ellipse-12"></div>
-              </div>
+              <div className="ellipse-2"></div>
+              <div className="ellipse-3"></div>
+              <div className="ellipse-4"></div>
+              <div className="ellipse-5"></div>
+              <div className="ellipse-12"></div>
             </div>
           </div>
         </div>
 
         {/* Search Button */}
-        <div className="frame-37" onClick={handleSearch}>
+        <div className={`frame-37 ${isLoading ? 'is-loading' : ''}`} onClick={handleSearch}>
           <div className="frame-17">
             <div className="frame-116">
               <div className="frame-35">
@@ -433,13 +397,17 @@ function SearchContent() {
 
       {/* Profile Icon */}
       <div className="frame-23" onClick={() => getAdminLoginPage()}>
-        <Image
-          src="/mobile/search/material-symbols-person-outline0.svg"
-          alt="Profile"
-          width={22}
-          height={22}
-          className="material-symbols-person-outline"
-        />
+        <svg
+          className="admin-icon"
+          viewBox="0 0 17 17"
+          role="img"
+          aria-label="Profilo amministratore"
+        >
+          <path
+            d="M8.5 8.5C7.33125 8.5 6.33073 8.08385 5.49844 7.25156C4.66615 6.41927 4.25 5.41875 4.25 4.25C4.25 3.08125 4.66615 2.08073 5.49844 1.24844C6.33073 0.416146 7.33125 0 8.5 0C9.66875 0 10.6693 0.416146 11.5016 1.24844C12.3339 2.08073 12.75 3.08125 12.75 4.25C12.75 5.41875 12.3339 6.41927 11.5016 7.25156C10.6693 8.08385 9.66875 8.5 8.5 8.5ZM0 17V14.025C0 13.4229 0.155125 12.8697 0.465375 12.3654C0.775625 11.861 1.18717 11.4757 1.7 11.2094C2.79792 10.6604 3.91354 10.2489 5.04687 9.97475C6.18021 9.70062 7.33125 9.56321 8.5 9.5625C9.66875 9.56179 10.8198 9.69921 11.9531 9.97475C13.0865 10.2503 14.2021 10.6618 15.3 11.2094C15.8135 11.475 16.2254 11.8603 16.5357 12.3654C16.8459 12.8704 17.0007 13.4236 17 14.025V17H0ZM2.125 14.875H14.875V14.025C14.875 13.8302 14.8265 13.6531 14.7294 13.4938C14.6324 13.3344 14.5038 13.2104 14.3437 13.1219C13.3875 12.6438 12.4224 12.2853 11.4484 12.0466C10.4745 11.8079 9.49167 11.6882 8.5 11.6875C7.50833 11.6868 6.52552 11.8065 5.55156 12.0466C4.5776 12.2867 3.6125 12.6452 2.65625 13.1219C2.49687 13.2104 2.36831 13.3344 2.27056 13.4938C2.17281 13.6531 2.12429 13.8302 2.125 14.025V14.875ZM8.5 6.375C9.08437 6.375 9.58481 6.1671 10.0013 5.75131C10.4178 5.33552 10.6257 4.83508 10.625 4.25C10.6243 3.66492 10.4164 3.16483 10.0013 2.74975C9.58623 2.33467 9.08579 2.12642 8.5 2.125C7.91421 2.12358 7.41412 2.33183 6.99975 2.74975C6.58537 3.16767 6.37712 3.66775 6.375 4.25C6.37287 4.83225 6.58112 5.33269 6.99975 5.75131C7.41837 6.16994 7.91846 6.37783 8.5 6.375Z"
+            fill="currentColor"
+          />
+        </svg>
       </div>
 
       {/* Calendar Components */}
@@ -491,27 +459,26 @@ function SearchContent() {
           overflow: hidden;
         }
         .frame-1 {
-          background: #ffffff;
-          border-radius: 61px;
-          padding: 6px 74px 6px 74px;
           display: flex;
-          flex-direction: row;
-          gap: 10px;
-          align-items: center;
-          justify-content: flex-start;
-          width: 357px;
-          height: 222px;
+          justify-content: center;
+          align-items: flex-start;
+          width: 100%;
           position: absolute;
-          left: 18px;
+          left: 0px;
           top: 55px;
         }
-        ._305757967-504591061673203-1893046267709735490-n-1 {
-          flex-shrink: 0;
-          width: 209px;
-          height: 209px;
-          position: relative;
-          object-fit: cover;
-          aspect-ratio: 1;
+        .logo-block {
+          width: 184px;
+          padding: 10px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .logo-image {
+          width: 100%;
+          height: 117px;
+          object-fit: contain;
         }
         .vector-3 {
           width: 90px;
@@ -530,7 +497,7 @@ function SearchContent() {
           width: 334px;
           position: absolute;
           left: 29px;
-          top: 254px;
+          top: 240px;
         }
         .frame-31 {
           align-self: stretch;
@@ -569,7 +536,7 @@ function SearchContent() {
           top: 18px;
         }
         .a {
-          color: #cecfd2;
+          color: #d6d8dc;
           text-align: left;
           font-family: "Inter-Medium", sans-serif;
           font-size: 12px;
@@ -634,7 +601,7 @@ function SearchContent() {
         }
           /* TO DO: check if this is correct and Cerca  */
         .cerca2 {
-          color: rgba(77, 95, 84, 0.41);
+          color: rgba(151, 151, 164, 0.3);
           text-align: left;
           font-family: "Inter-Medium", sans-serif;
           font-size: 14px;
@@ -693,12 +660,17 @@ function SearchContent() {
         .frame-9:active {
           transform: scale(0.95);
         }
-        .frame-12 {
+        .frame-147,
+        .frame-147 * {
+          box-sizing: border-box;
+        }
+        .frame-147 {
           display: flex;
           flex-direction: column;
-          gap: 9px;
+          gap: 5px;
           align-items: center;
           justify-content: flex-start;
+          flex-shrink: 0;
           width: 15px;
           position: absolute;
           left: 16px;
@@ -715,39 +687,9 @@ function SearchContent() {
           height: 15px;
           position: relative;
         }
-        .frame-11 {
-          display: flex;
-          flex-direction: column;
-          gap: 2.44px;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          position: relative;
-        }
-        .ellipse-2 {
-          background: #d9d9d9;
-          border-radius: 50%;
-          flex-shrink: 0;
-          width: 3.67px;
-          height: 3.67px;
-          position: relative;
-        }
-        .ellipse-3 {
-          background: #d9d9d9;
-          border-radius: 50%;
-          flex-shrink: 0;
-          width: 3.67px;
-          height: 3.67px;
-          position: relative;
-        }
-        .ellipse-4 {
-          background: #d9d9d9;
-          border-radius: 50%;
-          flex-shrink: 0;
-          width: 3.67px;
-          height: 3.67px;
-          position: relative;
-        }
+        .ellipse-2,
+        .ellipse-3,
+        .ellipse-4,
         .ellipse-5 {
           background: #d9d9d9;
           border-radius: 50%;
@@ -756,26 +698,19 @@ function SearchContent() {
           height: 3.67px;
           position: relative;
         }
-        .frame-8 {
-          align-self: stretch;
-          flex-shrink: 0;
-          height: 15px;
-          position: relative;
-        }
         .ellipse-12 {
           background: rgba(244, 1, 1, 0.41);
           border-radius: 50%;
           border-style: solid;
           border-color: #f40101;
           border-width: 2.73px;
-          width: 15px;
+          align-self: stretch;
+          flex-shrink: 0;
           height: 15px;
-          position: absolute;
-          left: 0px;
-          top: 0px;
+          position: relative;
         }
         .frame-37 {
-          background: #f49401;
+          background: ${orangeGradient};
           border-radius: 16px;
           border-style: solid;
           border-color: rgba(0, 0, 0, 0.17);
@@ -794,11 +729,17 @@ function SearchContent() {
           top: 209px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
-          transition: background-color 0.2s;
+          transition: filter 0.2s;
+        }
+
+        .frame-37.is-loading {
+          opacity: 0.6;
+          pointer-events: none;
+          cursor: wait;
         }
 
         .frame-37:hover {
-          background: #e08501;
+          filter: brightness(0.95);
         }
         .frame-17 {
           display: flex;
@@ -990,21 +931,25 @@ function SearchContent() {
         }
         .frame-23 {
           position: absolute;
-          right: 20px; 
-          top: 20px;    
-          width: 22px;
-          height: 22px;
+          right: 24px;
+          bottom: 32px;
+          width: 28px;
+          height: 28px;
           display: flex;
           align-items: center;
           justify-content: center;
         }
-        .material-symbols-person-outline {
-          align-self: stretch;
-          flex-shrink: 0;
-          height: 22px;
-          position: relative;
-          overflow: visible;
-          aspect-ratio: 1;
+        .admin-icon {
+          width: 18px;
+          height: 18px;
+          color: rgba(139, 139, 152, 0.28);
+          transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .frame-23:active .admin-icon,
+        .frame-23:focus-visible .admin-icon {
+          color: #f49401;
+          transform: scale(0.95);
         }
       `}</style>
     </div>
@@ -1034,7 +979,7 @@ function SearchLoading() {
           width: 40px;
           height: 40px;
           border: 4px solid #f3f3f3;
-          border-top: 4px solid #f49401;
+          border-top: 4px solid rgba(255, 169, 37, 1);
           border-radius: 50%;
           animation: spin 1s linear infinite;
           margin-bottom: 16px;

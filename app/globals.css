@@ -68,6 +68,7 @@
   --mobile-brand-orange: #F49401;
   --mobile-overlay-blue: rgba(22, 38, 133, 0.41);
   --mobile-border-light: rgba(0, 0, 0, 0.14);
+  --mobile-orange-gradient: linear-gradient(135deg, rgba(255, 169, 37, 1) 0%, rgba(250, 159, 19, 1) 57%, rgba(244, 148, 1, 1) 75%);
   
   /* Mobile spacing (4px base unit) */
   --space-1: 4px;
