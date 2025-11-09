@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface UserData {
   nome: string;
@@ -38,24 +39,30 @@ export default function BuyPage() {
 
   return (
     <div className="buy">
-      {/* Status Bar Frame */}
-      <div className="frame-234">
-        <button onClick={handleBack} className="back-button">
-          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="vector-back">
-            <path d="M1 7L17 7M1 7L7 1M1 7L7 13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-        <div className="frame-252">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="2" width="12" height="12" rx="2" stroke="white" strokeWidth="1.5"/>
-          </svg>
-        </div>
-      </div>
-
       {/* Header Frame */}
       <div className="frame-244">
         <div className="frame-161">
+          <div className="frame-back" onClick={handleBack}>
+            <div className="back-arrow-wrapper">
+              <Image
+                src="/mobile/search/frame-410.svg"
+                alt="Indietro"
+                width={18}
+                height={16}
+                className="back-arrow"
+              />
+            </div>
+          </div>
           <div className="acquista">ACQUISTA</div>
+          <div className="close-button" onClick={() => router.push('/search')}>
+            <Image
+              src="/mobile/search/frame-580.svg"
+              alt="Chiudi"
+              width={16}
+              height={16}
+              className="close-icon"
+            />
+          </div>
         </div>
       </div>
 
@@ -168,47 +175,10 @@ export default function BuyPage() {
           margin: 0 auto;
         }
         
-        /* Status Bar */
-        .frame-234 {
-          width: 350.17px;
-          height: 57px;
-          left: 21px;
-          top: 18px;
-          position: absolute;
-          z-index: 10;
-        }
-        
-        .back-button {
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-          position: absolute;
-          left: 0;
-          top: 33px;
-          width: 18px;
-          height: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .vector-back {
-          transform: rotate(180deg);
-        }
-        
-        .frame-252 {
-          width: 16px;
-          height: 16px;
-          position: absolute;
-          right: 0;
-          top: 33px;
-        }
-        
         /* Header */
         .frame-244 {
           width: 100%;
-          height: 86px;
+          height: 91px;
           left: 0px;
           top: 0px;
           position: absolute;
@@ -223,19 +193,56 @@ export default function BuyPage() {
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 21px;
+        }
+        
+        .frame-back,
+        .close-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .frame-back:hover,
+        .close-button:hover {
+          opacity: 0.8;
+        }
+        
+        .frame-back:active,
+        .close-button:active {
+          transform: scale(0.95);
+        }
+        
+        .back-arrow {
+          width: 18px;
+          height: 16px;
+        }
+        
+        .back-arrow-wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .close-icon {
+          width: 16px;
+          height: 16px;
         }
         
         .acquista {
-          position: absolute;
-          left: 50%;
-          top: 48px;
-          transform: translateX(-50%);
           color: white;
           font-size: 20px;
           font-family: Inter, sans-serif;
           font-weight: 400;
           text-transform: uppercase;
           letter-spacing: 0.5px;
+          flex: 1;
+          text-align: center;
         }
         
         /* Main Content */
@@ -402,47 +409,54 @@ export default function BuyPage() {
         
         /* Continue Button */
         .frame-37 {
-          width: 109px;
-          height: 47px;
-          padding: 15px 27px;
-          background: #F49401;
-          border: 1px solid rgba(0, 0, 0, 0.17);
+          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
           border-radius: 16px;
+          border: 1px solid rgba(0, 0, 0, 0.17);
+          padding: 15px 27px;
           display: flex;
           flex-direction: column;
-          justify-content: center;
+          gap: 10px;
           align-items: center;
+          justify-content: center;
+          width: 109px;
+          height: 47px;
+          margin: 32px auto 0;
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           cursor: pointer;
-          transition: background-color 0.2s;
-          box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.25);
+          transition: filter 0.2s, transform 0.2s;
         }
         
         .frame-37:hover {
-          background: #e68501;
+          filter: brightness(0.95);
         }
         
         .frame-37:active {
-          transform: scale(0.98);
+          transform: scale(0.97);
         }
         
         .frame-17 {
           display: flex;
-          justify-content: flex-start;
-          align-items: center;
+          flex-direction: row;
           gap: 1px;
+          align-items: center;
+          justify-content: flex-start;
         }
         
         .frame-35 {
-          width: 55px;
-          height: 17px;
-          position: relative;
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+          justify-content: center;
         }
         
         .continua {
-          color: white;
+          color: #ffffff;
           font-size: 14px;
-          font-family: Inter, sans-serif;
+          font-family: "Inter-Medium", sans-serif;
           font-weight: 600;
+          text-transform: none;
+          letter-spacing: 0.5px;
           white-space: nowrap;
         }
       `}</style>

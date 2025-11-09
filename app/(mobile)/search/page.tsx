@@ -847,7 +847,7 @@ function SearchContent() {
           position: relative;
         }
         .div {
-          color: #333333;
+          color: rgba(151, 151, 164, 0.8);
           text-align: center;
           font-family: "Inter-Medium", sans-serif;
           font-size: 12px;

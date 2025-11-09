@@ -27,35 +27,7 @@ function capitalizeWords(str: string): string {
  * Loading component for search results
  */
 function SearchResultsLoading() {
-  return (
-    <div className="find-i">
-      <div className="loading-message">
-        <div className="loading-text">Caricamento...</div>
-      </div>
-      <style jsx>{`
-        .find-i {
-          background: #ffffff;
-          height: 852px;
-          position: relative;
-          overflow: hidden;
-        }
-        .loading-message {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 100%;
-          padding: 40px 20px;
-          text-align: center;
-        }
-        .loading-text {
-          color: #162686;
-          font-family: "Inter-Medium", sans-serif;
-          font-size: 16px;
-          font-weight: 500;
-        }
-      `}</style>
-    </div>
-  );
+  return null;
 }
 
 /**
@@ -77,6 +49,7 @@ function SearchResultsContent() {
   
   // State for ride data
   const [availableRides, setAvailableRides] = useState<any[]>([]);
+  const [visibleRideCount, setVisibleRideCount] = useState(3);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -119,6 +92,13 @@ function SearchResultsContent() {
       setLoading(false);
     }
   };
+
+  // Reset visible rides when results change
+  useEffect(() => {
+    if (!loading) {
+      setVisibleRideCount(3);
+    }
+  }, [availableRides, loading]);
 
   // Handle ride purchase
   const handlePurchase = (rideId: string) => {
@@ -248,13 +228,6 @@ function SearchResultsContent() {
        
        <div className="frame-139">
         <div className="orari-completo">
-        {/* Loading state */}
-        {loading && (
-          <div className="loading-message">
-            <div className="loading-text">Caricamento corse...</div>
-          </div>
-        )}
-        
         {/* Error state */}
         {error && (
           <div className="error-message">
@@ -270,7 +243,7 @@ function SearchResultsContent() {
         )}
         
         {/* Render available rides */}
-        {!loading && availableRides.map((ride, index) => {
+        {!loading && availableRides.slice(0, visibleRideCount).map((ride, index) => {
           const departureTime = ride.departureTime;
           const price = ride.price || '€2,50';
           const duration = ride.duration || formatDuration(ride.departureTime || '10:45', ride.arrivalTime || '11:15');
@@ -320,9 +293,16 @@ function SearchResultsContent() {
         })}
         
         {/* Altro button */}
-        {!loading && !error && availableRides.length > 0 && (
+        {!loading && !error && availableRides.length > visibleRideCount && (
           <div className="frame-altro">
-            <button className="altro-button" onClick={() => {}}>
+            <button
+              className="altro-button"
+              onClick={() =>
+                setVisibleRideCount((prev) =>
+                  Math.min(prev + 3, availableRides.length)
+                )
+              }
+            >
               <div className="altro-text">Altro</div>
             </button>
           </div>
@@ -663,7 +643,7 @@ function SearchResultsContent() {
           z-index: 997;
           overflow-y: auto;
           overflow-x: hidden;
-          max-height: 750px;
+          padding-bottom: 40px;
         }
         .frame-139::-webkit-scrollbar {
           width: 2px;
@@ -1031,7 +1011,7 @@ function SearchResultsContent() {
           color: #ff6b6b;
         }
         
-          .frame-161 {
+        .frame-161 {
           width: 100%;
           height: 91px;
           left: 0px;
@@ -1053,7 +1033,7 @@ function SearchResultsContent() {
  */
 export default function SearchResultsPage() {
   return (
-    <Suspense fallback={<SearchResultsLoading />}>
+    <Suspense fallback={null}>
       <SearchResultsContent />
     </Suspense>
   );
