@@ -42,8 +42,10 @@ export default function SplashScreen() {
         h-screen
         bg-white
         flex
+        flex-col
         items-center
         justify-center
+        gap-10
         ${isExiting ? 'animate-splash-fade-out' : ''}
       `}
       role="main"
@@ -73,11 +75,73 @@ export default function SplashScreen() {
           }}
         />
       </div>
+
+      <div className="loading-dots" aria-hidden="true">
+        <span className="loading-dot" />
+        <span className="loading-dot" />
+        <span className="loading-dot" />
+        <span className="loading-dot" />
+      </div>
       
       {/* Accessibility: Announce loading state to screen readers */}
       <div className="sr-only" role="status" aria-live="polite">
         Caricamento dell&apos;applicazione Fracassa Autolinee
       </div>
+
+      <style jsx>{`
+        .loading-dots {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          justify-content: center;
+          margin-top: 32px;
+        }
+
+        .loading-dot {
+          display: inline-block;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background-color: #162686;
+          opacity: 0.4;
+          transform: scale(0.6);
+          animation: splash-dot-pulse 1.2s ease-in-out infinite;
+        }
+
+        .loading-dot:nth-child(2) {
+          animation-delay: 0.15s;
+        }
+
+        .loading-dot:nth-child(3) {
+          animation-delay: 0.3s;
+        }
+
+        .loading-dot:nth-child(4) {
+          animation-delay: 0.45s;
+        }
+
+        @keyframes splash-dot-pulse {
+          0%,
+          100% {
+            transform: scale(0.6);
+            opacity: 0.4;
+          }
+          40% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          60% {
+            transform: scale(0.6);
+            opacity: 0.4;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .loading-dot {
+            animation: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }
