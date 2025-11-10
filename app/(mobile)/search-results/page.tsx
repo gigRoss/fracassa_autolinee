@@ -23,6 +23,52 @@ function capitalizeWords(str: string): string {
     .join(' ');
 }
 
+function formatRideDuration(
+  duration: string | number | null | undefined,
+  fallbackDeparture?: string,
+  fallbackArrival?: string
+) {
+  const normalizeMinutes = (totalMinutes: number) => {
+    if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) return '';
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours <= 0) {
+      return `${minutes} min`;
+    }
+    return `${hours} h ${minutes.toString().padStart(2, '0')} min`;
+  };
+
+  if (typeof duration === 'string') {
+    const timeParts = duration.split(':').map((part) => Number(part));
+    if (timeParts.length === 3 && timeParts.every((value) => Number.isFinite(value))) {
+      const [hours, minutes, seconds] = timeParts;
+      const totalMinutes = hours * 60 + minutes + Math.round(seconds / 60);
+      return normalizeMinutes(totalMinutes);
+    }
+    if (timeParts.length === 2 && timeParts.every((value) => Number.isFinite(value))) {
+      const [hours, minutes] = timeParts;
+      const totalMinutes = hours * 60 + minutes;
+      return normalizeMinutes(totalMinutes);
+    }
+    const numericDuration = Number(duration);
+    if (Number.isFinite(numericDuration)) {
+      const totalMinutes = Math.round(numericDuration / 60);
+      return normalizeMinutes(totalMinutes);
+    }
+  }
+
+  if (typeof duration === 'number' && Number.isFinite(duration)) {
+    const totalMinutes = Math.round(duration / 60);
+    return normalizeMinutes(totalMinutes);
+  }
+
+  if (fallbackDeparture && fallbackArrival) {
+    return formatDuration(fallbackDeparture, fallbackArrival);
+  }
+
+  return '';
+}
+
 /**
  * Loading component for search results
  */
@@ -260,7 +306,11 @@ function SearchResultsContent() {
         {!loading && availableRides.slice(0, visibleRideCount).map((ride, index) => {
           const departureTime = ride.departureTime;
           const price = ride.price || '€2,50';
-          const duration = ride.duration || formatDuration(ride.departureTime || '10:45', ride.arrivalTime || '11:15');
+          const duration = formatRideDuration(
+            ride.duration,
+            ride.departureTime || '10:45',
+            ride.arrivalTime || '11:15'
+          );
           const fromStopName = ride.originStop?.name || 'La tua posizione';
           const toStopName = ride.destinationStop?.name || 'Teramo P.zza Garibaldi';
 
