@@ -2,8 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
 // Initialize Stripe with secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-10-29.clover',
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+if (!stripeSecretKey) {
+  throw new Error(
+    'Stripe secret key missing. Please set STRIPE_SECRET_KEY in your environment variables.'
+  );
+}
+
+const stripe = new Stripe(stripeSecretKey, {
+  apiVersion: '2024-06-20',
 });
 
 // Rate limiting map (simple in-memory implementation)
