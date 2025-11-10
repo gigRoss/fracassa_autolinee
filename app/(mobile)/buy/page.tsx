@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 interface UserData {
   nome: string;
@@ -17,8 +17,32 @@ export default function BuyPage() {
   });
   const [passeggeri, setPasseggeri] = useState('1');
   const [showPasseggeriDropdown, setShowPasseggeriDropdown] = useState(false);
+  const passeggeriDropdownRef = useRef<HTMLDivElement>(null);
 
   const passeggeriOptions = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+
+  useEffect(() => {
+    if (!showPasseggeriDropdown) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        passeggeriDropdownRef.current &&
+        !passeggeriDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowPasseggeriDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showPasseggeriDropdown]);
 
   const handleUserDataSubmit = () => {
     // Handle form submission logic here
@@ -84,7 +108,7 @@ export default function BuyPage() {
               />
             </div>
 
-            <div className="frame-84">
+            <div className="frame-84" ref={passeggeriDropdownRef}>
               <div className="frame-493">
                 <div className="frame-213" onClick={() => setShowPasseggeriDropdown(!showPasseggeriDropdown)}>
                   <input
