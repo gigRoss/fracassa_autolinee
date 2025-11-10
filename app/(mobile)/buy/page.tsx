@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-
 interface UserData {
   nome: string;
   cognome: string;
@@ -39,36 +37,23 @@ export default function BuyPage() {
 
   return (
     <div className="buy">
-      {/* Header Frame */}
-      <div className="frame-244">
+      <header className="frame-256">
         <div className="frame-161">
-          <div className="frame-back" onClick={handleBack}>
-            <div className="back-arrow-wrapper">
-              <Image
-                src="/mobile/search/frame-410.svg"
-                alt="Indietro"
-                width={18}
-                height={16}
-                className="back-arrow"
-              />
-            </div>
-          </div>
-          <div className="acquista">ACQUISTA</div>
-          <div className="close-button" onClick={() => router.push('/search')}>
-            <Image
-              src="/mobile/search/frame-580.svg"
-              alt="Chiudi"
-              width={16}
-              height={16}
-              className="close-icon"
-            />
+          <div className="frame-253">
+            <button className="frame-back" onClick={handleBack} aria-label="Torna indietro">
+              <div className="back-arrow-wrapper">
+                <img className="back-arrow" src="/mobile/search/frame-410.svg" alt="" />
+              </div>
+            </button>
+            <div className="acquista">ACQUISTA</div>
+            <button className="close-button" onClick={() => router.push('/search')} aria-label="Chiudi">
+              <img className="close-icon" src="/mobile/search/frame-580.svg" alt="" />
+            </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content Frame */}
       <div className="frame-192">
-        {/* Logo Frame */}
         <div className="frame-185">
           <img
             className="logo-fracassa-ok-323-page-0001-1"
@@ -76,11 +61,9 @@ export default function BuyPage() {
             alt="Fracassa Autolinee"
           />
         </div>
-        
-        {/* Form Frame */}
+
         <div className="frame-171">
           <div className="frame-170">
-            {/* Nome Field */}
             <div className="frame-49">
               <input
                 type="text"
@@ -91,8 +74,7 @@ export default function BuyPage() {
               />
             </div>
 
-            {/* Cognome Field */}
-            <div className="frame-49">
+            <div className="frame-492">
               <input
                 type="text"
                 placeholder="Cognome"
@@ -102,7 +84,6 @@ export default function BuyPage() {
               />
             </div>
 
-            {/* Passeggeri/e Field - Dropdown */}
             <div className="frame-84">
               <div className="frame-493">
                 <div className="frame-213" onClick={() => setShowPasseggeriDropdown(!showPasseggeriDropdown)}>
@@ -113,11 +94,7 @@ export default function BuyPage() {
                     readOnly
                     className="passeggeri-e"
                   />
-                  <div className="vector-5">
-                    <svg width="12.5" height="8" viewBox="0 0 12.5 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M1 1L6.25 6L11.5 1" stroke="#ACACB6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
+                  <img className="vector-5" src="/mobile/search/vector-50.svg" alt="" aria-hidden="true" />
                 </div>
                 {showPasseggeriDropdown && (
                   <div className="dropdown-menu">
@@ -138,7 +115,6 @@ export default function BuyPage() {
               </div>
             </div>
 
-            {/* Email Field */}
             <div className="frame-49">
               <input
                 type="email"
@@ -150,7 +126,6 @@ export default function BuyPage() {
             </div>
           </div>
 
-          {/* Continue Button */}
           <button 
             onClick={handleUserDataSubmit}
             className="frame-37"
@@ -166,37 +141,45 @@ export default function BuyPage() {
 
       <style jsx>{`
         .buy {
+          display: flex;
           width: 100%;
           max-width: 393px;
-          min-height: 100dvh;
+          min-height: 852px;
           position: relative;
-          background: white;
+          background: #ffffff;
           overflow: hidden;
           margin: 0 auto;
+          box-sizing: border-box;
         }
         
-        /* Header */
-        .frame-244 {
-          width: 100%;
+        .frame-256 {
+          width: 393px;
           height: 91px;
-          left: 0px;
-          top: 0px;
           position: absolute;
-          z-index: 5;
+          left: 0;
+          top: 0;
+          display: flex;
+          justify-content: center;
         }
         
         .frame-161 {
           width: 100%;
           height: 100%;
           position: relative;
-          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
-          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
+          padding: 16px 23px 20px;
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
+        }
+        
+        .frame-253 {
+          position: absolute;
+          inset: 0;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 21px;
+          padding: 0 23px;
         }
         
         .frame-back,
@@ -204,8 +187,13 @@ export default function BuyPage() {
           display: flex;
           align-items: center;
           justify-content: center;
+          width: auto;
+          height: auto;
           cursor: pointer;
-          transition: all 0.2s ease;
+          border: none;
+          background: transparent;
+          padding: 0;
+          transition: opacity 0.2s ease, transform 0.2s ease;
         }
         
         .frame-back:hover,
@@ -218,15 +206,20 @@ export default function BuyPage() {
           transform: scale(0.95);
         }
         
-        .back-arrow {
-          width: 18px;
-          height: 16px;
-        }
-        
         .back-arrow-wrapper {
           display: flex;
           align-items: center;
           justify-content: center;
+        }
+        
+        .back-arrow,
+        .close-icon {
+          display: block;
+        }
+        
+        .back-arrow {
+          width: 20px;
+          height: 16px;
         }
         
         .close-icon {
@@ -239,22 +232,20 @@ export default function BuyPage() {
           font-size: 20px;
           font-family: Inter, sans-serif;
           font-weight: 400;
-          text-transform: uppercase;
           letter-spacing: 0.5px;
+          text-transform: uppercase;
         }
         
-        
-        /* Main Content */
         .frame-192 {
-          width: calc(100% - 58px);
+          position: absolute;
           left: 29px;
           top: 125px;
-          position: absolute;
+          width: 335px;
           display: flex;
           flex-direction: column;
-          justify-content: flex-start;
-          align-items: center;
           gap: 42px;
+          align-items: center;
+          justify-content: flex-start;
         }
         
         .frame-185 {
@@ -262,9 +253,8 @@ export default function BuyPage() {
           padding: 10px;
           display: flex;
           flex-direction: column;
-          justify-content: flex-start;
-          align-items: flex-start;
           gap: 10px;
+          align-items: flex-start;
         }
         
         .logo-fracassa-ok-323-page-0001-1 {
@@ -277,34 +267,41 @@ export default function BuyPage() {
           width: 100%;
           display: flex;
           flex-direction: column;
-          justify-content: flex-start;
-          align-items: center;
           gap: 32px;
+          align-items: center;
         }
         
         .frame-170 {
           width: 100%;
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          align-items: stretch;
           gap: 17px;
+          align-items: stretch;
         }
         
-        .frame-49 {
+        .frame-49,
+        .frame-492 {
           width: 100%;
           height: 45px;
           position: relative;
+          border-radius: 16px;
+          border: 1px solid rgba(0, 0, 0, 0.17);
+          background: #fffeff;
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        }
+        
+        .frame-492 {
+          display: flex;
         }
         
         .input-field {
           width: 100%;
           height: 100%;
           padding: 14px 16px;
-          background: #FFFEFE;
-          border: 1px solid rgba(0, 0, 0, 0.17);
+          background: transparent;
+          border: none;
           border-radius: 16px;
-          color: rgba(151, 151, 164, 0.80);
+          color: rgba(151, 151, 164, 0.8);
           font-size: 14px;
           font-family: Inter, sans-serif;
           font-weight: 500;
@@ -312,14 +309,13 @@ export default function BuyPage() {
         }
         
         .input-field::placeholder {
-          color: rgba(151, 151, 164, 0.80);
+          color: rgba(151, 151, 164, 0.8);
         }
         
         .input-field:focus {
-          border-color: #F49401;
+          color: #232336;
         }
         
-        /* Passeggeri Dropdown */
         .frame-84 {
           width: 159px;
           height: 45px;
@@ -335,15 +331,16 @@ export default function BuyPage() {
         .frame-213 {
           width: 100%;
           height: 100%;
-          padding: 14px 16px;
-          background: #FFFEFE;
+          padding: 14px 40px 14px 16px;
+          background: #fffeff;
           border: 1px solid rgba(0, 0, 0, 0.17);
           border-radius: 16px;
           display: flex;
-          justify-content: space-between;
           align-items: center;
           gap: 10px;
           cursor: pointer;
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+          position: relative;
         }
         
         .passeggeri-e {
@@ -351,7 +348,7 @@ export default function BuyPage() {
           background: transparent;
           border: none;
           outline: none;
-          color: rgba(151, 151, 164, 0.80);
+          color: rgba(151, 151, 164, 0.8);
           font-size: 14px;
           font-family: Inter, sans-serif;
           font-weight: 500;
@@ -359,13 +356,16 @@ export default function BuyPage() {
         }
         
         .passeggeri-e::placeholder {
-          color: rgba(151, 151, 164, 0.80);
+          color: rgba(151, 151, 164, 0.8);
         }
         
         .vector-5 {
           width: 12.5px;
           height: 8px;
-          flex-shrink: 0;
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
         }
         
         .dropdown-menu {
@@ -373,12 +373,12 @@ export default function BuyPage() {
           top: calc(100% + 4px);
           left: 0;
           right: 0;
-          background: white;
+          background: #ffffff;
           border: 1px solid rgba(0, 0, 0, 0.17);
           border-radius: 16px;
-          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
           z-index: 20;
-          max-height: 200px;
+          max-height: 220px;
           overflow-y: auto;
         }
         
@@ -387,13 +387,14 @@ export default function BuyPage() {
           font-size: 14px;
           font-family: Inter, sans-serif;
           font-weight: 500;
-          color: rgba(151, 151, 164, 0.80);
+          color: rgba(151, 151, 164, 0.8);
           cursor: pointer;
-          transition: background-color 0.2s;
+          transition: background-color 0.2s ease;
         }
         
         .dropdown-item:hover {
-          background-color: rgba(244, 148, 1, 0.1);
+          background-color: rgba(244, 148, 1, 0.08);
+          color: #232336;
         }
         
         .dropdown-item:first-child {
@@ -406,9 +407,8 @@ export default function BuyPage() {
           border-bottom-right-radius: 16px;
         }
         
-        /* Continue Button */
         .frame-37 {
-          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
+          background: #f49401;
           border-radius: 16px;
           border: 1px solid rgba(0, 0, 0, 0.17);
           padding: 15px 27px;
@@ -419,10 +419,9 @@ export default function BuyPage() {
           justify-content: center;
           width: 109px;
           height: 47px;
-          margin: 32px auto 0;
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           cursor: pointer;
-          transition: filter 0.2s, transform 0.2s;
+          transition: filter 0.2s ease, transform 0.2s ease;
         }
         
         .frame-37:hover {
@@ -430,7 +429,7 @@ export default function BuyPage() {
         }
         
         .frame-37:active {
-          transform: scale(0.97);
+          transform: translateY(1px);
         }
         
         .frame-17 {
@@ -443,8 +442,6 @@ export default function BuyPage() {
         
         .frame-35 {
           display: flex;
-          flex-direction: row;
-          gap: 8px;
           align-items: center;
           justify-content: center;
         }
@@ -452,12 +449,11 @@ export default function BuyPage() {
         .continua {
           color: #ffffff;
           font-size: 14px;
-          font-family: "Inter-Medium", sans-serif;
+          font-family: "Inter-SemiBold", sans-serif;
           font-weight: 600;
-          text-transform: none;
           letter-spacing: 0.5px;
-          white-space: nowrap;
         }
+        
       `}</style>
     </div>
   );
