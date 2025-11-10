@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 interface UserData {
   nome: string;
@@ -18,6 +18,17 @@ export default function BuyPage() {
   const [passeggeri, setPasseggeri] = useState('1');
   const [showPasseggeriDropdown, setShowPasseggeriDropdown] = useState(false);
   const passeggeriDropdownRef = useRef<HTMLDivElement>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const isFormValid =
+    userData.nome.trim().length > 0 &&
+    userData.cognome.trim().length > 0 &&
+    userData.email.trim().length > 0 &&
+    isValidEmail(userData.email) &&
+    passeggeri.trim().length > 0;
 
   const passeggeriOptions = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
@@ -44,13 +55,22 @@ export default function BuyPage() {
     };
   }, [showPasseggeriDropdown]);
 
-  const handleUserDataSubmit = () => {
-    // Handle form submission logic here
+  const handleUserDataSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!isFormValid) {
+      setErrorMessage(
+        'Per continuare è necessario compilare tutti i campi obbligatori con dati validi.'
+      );
+      return;
+    }
+
     const completeFormData = {
       ...userData,
       passeggeri: passeggeri,
     };
     console.log('Form submitted:', completeFormData);
+    setErrorMessage(null);
     // TODO: Process payment and redirect to confirmation
     router.push('/buy/payment'); // o la pagina successiva appropriata
   };
@@ -86,15 +106,22 @@ export default function BuyPage() {
           />
         </div>
 
-        <div className="frame-171">
+        <form className="frame-171" onSubmit={handleUserDataSubmit} noValidate>
           <div className="frame-170">
             <div className="frame-49">
               <input
                 type="text"
                 placeholder="Nome"
                 value={userData.nome}
-                onChange={(e) => setUserData({ ...userData, nome: e.target.value })}
+                onChange={(e) => {
+                  setUserData({ ...userData, nome: e.target.value });
+                  if (errorMessage) {
+                    setErrorMessage(null);
+                  }
+                }}
                 className="input-field"
+                required
+                aria-required="true"
               />
             </div>
 
@@ -103,8 +130,15 @@ export default function BuyPage() {
                 type="text"
                 placeholder="Cognome"
                 value={userData.cognome}
-                onChange={(e) => setUserData({ ...userData, cognome: e.target.value })}
+                onChange={(e) => {
+                  setUserData({ ...userData, cognome: e.target.value });
+                  if (errorMessage) {
+                    setErrorMessage(null);
+                  }
+                }}
                 className="input-field"
+                required
+                aria-required="true"
               />
             </div>
 
@@ -117,6 +151,8 @@ export default function BuyPage() {
                     value={`${passeggeri} ${passeggeri === '1' ? 'passeggero' : 'passeggeri'}`}
                     readOnly
                     className="passeggeri-e"
+                    aria-required="true"
+                    aria-invalid={passeggeri.trim().length === 0}
                   />
                   <img className="vector-5" src="/mobile/search/vector-50.svg" alt="" aria-hidden="true" />
                 </div>
@@ -129,6 +165,9 @@ export default function BuyPage() {
                         onClick={() => {
                           setPasseggeri(option);
                           setShowPasseggeriDropdown(false);
+                          if (errorMessage) {
+                            setErrorMessage(null);
+                          }
                         }}
                       >
                         {option} {option === '1' ? 'passeggero' : 'passeggeri'}
@@ -144,21 +183,37 @@ export default function BuyPage() {
                 type="email"
                 placeholder="Email"
                 value={userData.email}
-                onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                onChange={(e) => {
+                  setUserData({ ...userData, email: e.target.value });
+                  if (errorMessage) {
+                    setErrorMessage(null);
+                  }
+                }}
                 className="input-field"
+                required
+                aria-required="true"
+                aria-invalid={userData.email.trim().length > 0 && !isValidEmail(userData.email)}
               />
+              {userData.email.trim().length > 0 && !isValidEmail(userData.email) && (
+                <p className="input-hint" role="status">
+                  Inserisci un indirizzo email valido
+                </p>
+              )}
             </div>
           </div>
 
+          {errorMessage && <p className="error-message" role="alert">{errorMessage}</p>}
+
           <button 
-            onClick={handleUserDataSubmit}
+            type="submit"
             className="frame-37"
+            disabled={!isFormValid}
           >
             <div className="frame-17">
                 <span className="continua">Continua</span>
             </div>
           </button>
-        </div>
+        </form>
       </div>
 
       <style jsx>{`
@@ -452,6 +507,30 @@ export default function BuyPage() {
         
         .frame-37:active {
           transform: translateY(1px);
+        }
+
+        .frame-37:disabled {
+          background: rgba(244, 148, 1, 0.5);
+          cursor: not-allowed;
+          filter: none;
+          transform: none;
+          box-shadow: none;
+        }
+
+        .input-hint {
+          color: #d32f2f;
+          font-size: 12px;
+          font-family: Inter, sans-serif;
+          margin-top: 6px;
+          padding: 0 8px;
+        }
+
+        .error-message {
+          color: #d32f2f;
+          font-size: 12px;
+          font-family: Inter, sans-serif;
+          text-align: center;
+          padding: 0 8px;
         }
         
         .frame-17 {
