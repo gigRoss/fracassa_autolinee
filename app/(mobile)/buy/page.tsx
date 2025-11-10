@@ -313,7 +313,7 @@ export default function BuyPage() {
         }
         
         .input-field:focus {
-          color: #232336;
+          color: rgba(151, 151, 164, 0.8);
         }
         
         .frame-84 {
