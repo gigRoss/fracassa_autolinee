@@ -55,7 +55,7 @@ export default function BuyPage() {
     };
   }, [showPasseggeriDropdown]);
 
-  const handleUserDataSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleUserDataSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!isFormValid) {
@@ -69,10 +69,54 @@ export default function BuyPage() {
       ...userData,
       passeggeri: passeggeri,
     };
-    console.log('Form submitted:', completeFormData);
-    setErrorMessage(null);
-    // TODO: Process payment and redirect to confirmation
-    router.push('/buy/payment'); // o la pagina successiva appropriata
+
+    // Save user data to sessionStorage
+    sessionStorage.setItem('userData', JSON.stringify(completeFormData));
+
+    // Get ride ID from URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const rideId = searchParams.get('rideId');
+
+    if (!rideId) {
+      setErrorMessage('Dati corsa mancanti');
+      return;
+    }
+
+    // Fetch ride data from API
+    try {
+      const fromStopId = searchParams.get('from');
+      const toStopId = searchParams.get('to');
+      
+      if (!fromStopId || !toStopId) {
+        setErrorMessage('Dati percorso mancanti');
+        return;
+      }
+
+      const response = await fetch(`/api/search?origin=${encodeURIComponent(fromStopId)}&destination=${encodeURIComponent(toStopId)}&useIntermediate=true`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch ride data');
+      }
+      
+      const data = await response.json();
+      const ride = data.results?.find((r: any) => r.id === rideId);
+      
+      if (!ride) {
+        setErrorMessage('Corsa non trovata');
+        return;
+      }
+
+      // Save ride data to sessionStorage
+      sessionStorage.setItem('rideData', JSON.stringify(ride));
+
+      setErrorMessage(null);
+      
+      // Navigate to confirmation page
+      router.push(`/buy/confirm?rideId=${rideId}`);
+    } catch (error) {
+      console.error('Error fetching ride data:', error);
+      setErrorMessage('Errore nel caricamento dei dati della corsa');
+    }
   };
 
   const handleBack = () => {

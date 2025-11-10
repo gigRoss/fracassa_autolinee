@@ -148,8 +148,13 @@ function SearchResultsContent() {
 
   // Handle ride purchase
   const handlePurchase = (rideId: string) => {
-    // Navigate to buy page with ride ID
-    router.push(`/buy?rideId=${encodeURIComponent(rideId)}`);
+    // Navigate to buy page with ride ID and stop IDs
+    const params = new URLSearchParams();
+    params.set('rideId', rideId);
+    if (fromStopId) params.set('from', fromStopId);
+    if (toStopId) params.set('to', toStopId);
+    
+    router.push(`/buy?${params.toString()}`);
   };
 
   // Handle back navigation with preserved search parameters
