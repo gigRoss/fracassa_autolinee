@@ -23,6 +23,52 @@ function capitalizeWords(str: string): string {
     .join(' ');
 }
 
+function formatRideDuration(
+  duration: string | number | null | undefined,
+  fallbackDeparture?: string,
+  fallbackArrival?: string
+) {
+  const normalizeMinutes = (totalMinutes: number) => {
+    if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) return '';
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours <= 0) {
+      return `${minutes} min`;
+    }
+    return `${hours} h ${minutes.toString().padStart(2, '0')} min`;
+  };
+
+  if (typeof duration === 'string') {
+    const timeParts = duration.split(':').map((part) => Number(part));
+    if (timeParts.length === 3 && timeParts.every((value) => Number.isFinite(value))) {
+      const [hours, minutes, seconds] = timeParts;
+      const totalMinutes = hours * 60 + minutes + Math.round(seconds / 60);
+      return normalizeMinutes(totalMinutes);
+    }
+    if (timeParts.length === 2 && timeParts.every((value) => Number.isFinite(value))) {
+      const [hours, minutes] = timeParts;
+      const totalMinutes = hours * 60 + minutes;
+      return normalizeMinutes(totalMinutes);
+    }
+    const numericDuration = Number(duration);
+    if (Number.isFinite(numericDuration)) {
+      const totalMinutes = Math.round(numericDuration / 60);
+      return normalizeMinutes(totalMinutes);
+    }
+  }
+
+  if (typeof duration === 'number' && Number.isFinite(duration)) {
+    const totalMinutes = Math.round(duration / 60);
+    return normalizeMinutes(totalMinutes);
+  }
+
+  if (fallbackDeparture && fallbackArrival) {
+    return formatDuration(fallbackDeparture, fallbackArrival);
+  }
+
+  return '';
+}
+
 /**
  * Loading component for search results
  */
@@ -142,6 +188,20 @@ function SearchResultsContent() {
 
   return (   
     <div className="find-i">
+      {/* Search background with logo */}
+      <div className="frame-1">
+        <div className="logo-block">
+          <Image
+            src="/mobile/splash-logo.png"
+            alt="Fracassa Autolinee"
+            width={184}
+            height={117}
+            priority
+            className="logo-image"
+          />
+        </div>
+      </div>
+
       {/* Header with search form */}
       <div className="frame-38">
         <div className="frame-31">
@@ -226,7 +286,7 @@ function SearchResultsContent() {
         </div>
        </div>
        
-       <div className="frame-139">
+      <div className="frame-139 results-scroll">
         <div className="orari-completo">
         {/* Error state */}
         {error && (
@@ -246,7 +306,11 @@ function SearchResultsContent() {
         {!loading && availableRides.slice(0, visibleRideCount).map((ride, index) => {
           const departureTime = ride.departureTime;
           const price = ride.price || '€2,50';
-          const duration = ride.duration || formatDuration(ride.departureTime || '10:45', ride.arrivalTime || '11:15');
+          const duration = formatRideDuration(
+            ride.duration,
+            ride.departureTime || '10:45',
+            ride.arrivalTime || '11:15'
+          );
           const fromStopName = ride.originStop?.name || 'La tua posizione';
           const toStopName = ride.destinationStop?.name || 'Teramo P.zza Garibaldi';
 
@@ -318,9 +382,32 @@ function SearchResultsContent() {
         }
         .find-i {
           background: #ffffff;
-          height: 852px;
+          min-height: 100dvh;
           position: relative;
           overflow: hidden;
+        }
+        .frame-1 {
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          width: 100%;
+          position: absolute;
+          left: 0px;
+          top: 55px;
+          z-index: 10;
+        }
+        .logo-block {
+          width: 184px;
+          padding: 10px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .logo-image {
+          width: 100%;
+          height: 117px;
+          object-fit: contain;
         }
         .frame-38 {
           width: 334px;
@@ -622,7 +709,9 @@ function SearchResultsContent() {
           z-index: 998;
         }
         .rectangle-9 {
-          background: rgba(21, 37, 128, 0.8);
+          background: rgba(21, 37, 128, 0.84);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
           width: 100%;
           height: 100%;
           position: absolute;
@@ -635,35 +724,18 @@ function SearchResultsContent() {
           gap: 20px;
           align-items: flex-start;
           justify-content: flex-start;
-          width: 341px;
           position: absolute;
           left: 25px;
+          right: 25px;
+          width: auto;
           top: 91px;
           bottom: 20px;
           z-index: 997;
           overflow-y: auto;
           overflow-x: hidden;
+          padding-right: 28px;
+          padding-left: 4px;
           padding-bottom: 40px;
-        }
-        .frame-139::-webkit-scrollbar {
-          width: 2px;
-        }
-        .frame-139::-webkit-scrollbar-track {
-          background: transparent;
-          border-radius: 0;
-        }
-        .frame-139::-webkit-scrollbar-thumb {
-          background: rgba(200, 200, 210, 0.4);
-          border-radius: 0;
-          border: none;
-        }
-        .frame-139::-webkit-scrollbar-thumb:hover {
-          background: rgba(200, 200, 210, 0.6);
-        }
-        /* Firefox scrollbar */
-        .frame-139 {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(200, 200, 210, 0.4) transparent;
         }
         .orari-completo {
           display: flex;
@@ -1022,6 +1094,14 @@ function SearchResultsContent() {
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
           z-index: 1000;
+        }
+      `}</style>
+      <style jsx global>{`
+        .results-scroll {
+          scrollbar-width: none;
+        }
+        .results-scroll::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
   </div>
