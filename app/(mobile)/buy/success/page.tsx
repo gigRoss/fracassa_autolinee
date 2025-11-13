@@ -4,14 +4,52 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
+interface TicketInfo {
+  ticketNumber: string;
+  passengerName: string;
+  passengerSurname: string;
+  departureDate: string;
+  departureTime: string;
+  passengerCount: number;
+}
+
 function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [ticket, setTicket] = useState<TicketInfo | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const id = searchParams.get('session_id');
     setSessionId(id);
+    
+    // Fetch ticket information
+    const fetchTicket = async () => {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Wait a bit for the webhook to process (in real scenario, use polling or websockets)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // For now, we'll just show the session ID
+        // In the future, you can fetch the ticket from the API using the session ID
+        // const response = await fetch(`/api/tickets/by-session?sessionId=${id}`);
+        // if (response.ok) {
+        //   const data = await response.json();
+        //   setTicket(data.ticket);
+        // }
+      } catch (error) {
+        console.error('Error fetching ticket:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTicket();
     
     // Clear session storage
     sessionStorage.removeItem('userData');
@@ -60,7 +98,38 @@ function SuccessContent() {
             </p>
           </div>
 
-          {sessionId && (
+          {ticket && (
+            <div className="ticket-info-card">
+              <div className="ticket-header">
+                <span className="ticket-icon">🎫</span>
+                <span className="ticket-title">Biglietto Generato</span>
+              </div>
+              <div className="ticket-number-container">
+                <span className="ticket-label">Numero Biglietto:</span>
+                <span className="ticket-number">{ticket.ticketNumber}</span>
+              </div>
+              <div className="ticket-details">
+                <div className="ticket-detail-row">
+                  <span className="detail-label">Passeggero:</span>
+                  <span className="detail-value">{ticket.passengerName} {ticket.passengerSurname}</span>
+                </div>
+                <div className="ticket-detail-row">
+                  <span className="detail-label">Data partenza:</span>
+                  <span className="detail-value">{ticket.departureDate}</span>
+                </div>
+                <div className="ticket-detail-row">
+                  <span className="detail-label">Orario:</span>
+                  <span className="detail-value">{ticket.departureTime}</span>
+                </div>
+                <div className="ticket-detail-row">
+                  <span className="detail-label">Passeggeri:</span>
+                  <span className="detail-value">{ticket.passengerCount}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {sessionId && !ticket && !loading && (
             <div className="session-id-container">
               <span className="session-label">ID Transazione:</span>
               <span className="session-value">{sessionId.slice(0, 20)}...</span>
@@ -83,12 +152,12 @@ function SuccessContent() {
               </ul>
             </div>
           </div>
-
           <button className="frame-37" onClick={handleGoHome}>
             <div className="frame-17">
               <span className="continua">Torna alla Home</span>
             </div>
           </button>
+
         </div>
       </div>
 
@@ -174,7 +243,7 @@ function SuccessContent() {
         
         .content-section {
           width: 100%;
-          display: flex;
+          display: relative;
           flex-direction: column;
           gap: 24px;
           align-items: center;
@@ -257,6 +326,90 @@ function SuccessContent() {
           font-family: "Courier New", monospace;
           font-weight: 600;
           word-break: break-all;
+        }
+
+        .ticket-info-card {
+          background: linear-gradient(135deg, rgba(255,169,37,0.05) 0%, rgba(250,159,19,0.05) 57%, rgba(244,148,1,0.05) 75%);
+          border-radius: 16px;
+          border: 2px solid #f49401;
+          box-shadow: 0px 4px 8px rgba(244, 148, 1, 0.2);
+          padding: 20px;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .ticket-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(244, 148, 1, 0.2);
+        }
+
+        .ticket-icon {
+          font-size: 24px;
+        }
+
+        .ticket-title {
+          color: #f49401;
+          font-size: 18px;
+          font-family: Inter, sans-serif;
+          font-weight: 700;
+        }
+
+        .ticket-number-container {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          padding: 12px;
+          background: #ffffff;
+          border-radius: 8px;
+          text-align: center;
+        }
+
+        .ticket-label {
+          color: #9797a4;
+          font-size: 12px;
+          font-family: Inter, sans-serif;
+          font-weight: 500;
+          text-transform: uppercase;
+        }
+
+        .ticket-number {
+          color: #232336;
+          font-size: 18px;
+          font-family: "Courier New", monospace;
+          font-weight: 700;
+          letter-spacing: 1px;
+        }
+
+        .ticket-details {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .ticket-detail-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 0;
+        }
+
+        .detail-label {
+          color: #9797a4;
+          font-size: 13px;
+          font-family: Inter, sans-serif;
+          font-weight: 500;
+        }
+
+        .detail-value {
+          color: #232336;
+          font-size: 14px;
+          font-family: Inter, sans-serif;
+          font-weight: 600;
         }
         
         .info-card {

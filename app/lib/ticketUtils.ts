@@ -1,0 +1,213 @@
+/**
+ * Ticket Utility Functions
+ * Story 7.1.4 - Ticket Generation and Unique Number Assignment
+ * 
+ * Format: YYYYMMDD-CCC-HH-I
+ * - YYYYMMDD: purchase date
+ * - CCC: ride code (3 alphanumeric chars)
+ * - HH: departure hour (2 digits)
+ * - I: incremental index for same day/ride/hour
+ */
+
+import { getDb } from './db';
+import { tickets } from './schema';
+import { eq, and, like } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
+
+/**
+ * Generate a 3-character alphanumeric code from a ride ID
+ * This creates a compact, readable representation
+ */
+export function generateRideCode(rideId: string): string {
+  // Take first 3 characters of ride ID, or pad if shorter
+  let code = rideId.substring(0, 3).toUpperCase();
+  
+  // Replace non-alphanumeric characters with numbers
+  code = code.replace(/[^A-Z0-9]/g, '0');
+  
+  // Pad with zeros if needed
+  while (code.length < 3) {
+    code += '0';
+  }
+  
+  return code;
+}
+
+/**
+ * Format date as YYYYMMDD
+ */
+export function formatDateForTicket(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+}
+
+/**
+ * Extract hour from time string (HH:MM format)
+ */
+export function extractHour(timeString: string): string {
+  const hour = timeString.split(':')[0];
+  return hour.padStart(2, '0');
+}
+
+/**
+ * Generate ticket number with atomic increment
+ * Format: YYYYMMDD-CCC-HH-I
+ * 
+ * This function must be called within a database transaction to ensure atomicity
+ */
+export async function generateTicketNumber(
+  rideId: string,
+  departureTime: string,
+  purchaseDate: Date = new Date()
+): Promise<string> {
+  const db = getDb();
+  const dateStr = formatDateForTicket(purchaseDate);
+  const rideCode = generateRideCode(rideId);
+  const hour = extractHour(departureTime);
+  
+  // Create the prefix for searching existing tickets
+  const prefix = `${dateStr}-${rideCode}-${hour}-`;
+  
+  // Find all tickets with the same prefix (same day, ride, hour)
+  const existingTickets = await db
+    .select({ ticketNumber: tickets.ticketNumber })
+    .from(tickets)
+    .where(like(tickets.ticketNumber, `${prefix}%`));
+  
+  // Find the highest index
+  let maxIndex = 0;
+  for (const ticket of existingTickets) {
+    const parts = ticket.ticketNumber.split('-');
+    if (parts.length === 4) {
+      const index = parseInt(parts[3], 10);
+      if (!isNaN(index) && index > maxIndex) {
+        maxIndex = index;
+      }
+    }
+  }
+  
+  // Increment for new ticket
+  const newIndex = maxIndex + 1;
+  
+  return `${prefix}${newIndex}`;
+}
+
+/**
+ * Create ticket data for database insertion
+ */
+export interface CreateTicketData {
+  passengerName: string;
+  passengerSurname: string;
+  passengerEmail: string;
+  rideId: string;
+  departureDate: string; // YYYY-MM-DD
+  departureTime: string; // HH:MM
+  originStopId: string;
+  destinationStopId: string;
+  amountPaid: number; // in cents
+  passengerCount: number;
+  stripePaymentIntentId?: string;
+  stripeSessionId?: string;
+  paymentStatus: 'pending' | 'completed' | 'failed';
+}
+
+/**
+ * Create a new ticket with unique ticket number
+ * This function handles the atomic ticket generation
+ */
+export async function createTicket(data: CreateTicketData) {
+  const db = getDb();
+  const ticketId = randomUUID();
+  const purchaseTimestamp = new Date();
+  
+  // Generate unique ticket number
+  const ticketNumber = await generateTicketNumber(
+    data.rideId,
+    data.departureTime,
+    purchaseTimestamp
+  );
+  
+  // Insert ticket into database
+  const ticket = await db.insert(tickets).values({
+    id: ticketId,
+    ticketNumber,
+    passengerName: data.passengerName,
+    passengerSurname: data.passengerSurname,
+    passengerEmail: data.passengerEmail,
+    rideId: data.rideId,
+    departureDate: data.departureDate,
+    departureTime: data.departureTime,
+    originStopId: data.originStopId,
+    destinationStopId: data.destinationStopId,
+    purchaseTimestamp,
+    paymentStatus: data.paymentStatus,
+    stripePaymentIntentId: data.stripePaymentIntentId,
+    stripeSessionId: data.stripeSessionId,
+    amountPaid: data.amountPaid,
+    passengerCount: data.passengerCount,
+    createdAt: purchaseTimestamp,
+    updatedAt: purchaseTimestamp,
+  }).returning();
+  
+  return ticket[0];
+}
+
+/**
+ * Get ticket by ticket number
+ */
+export async function getTicketByNumber(ticketNumber: string) {
+  const db = getDb();
+  const result = await db
+    .select()
+    .from(tickets)
+    .where(eq(tickets.ticketNumber, ticketNumber))
+    .limit(1);
+  
+  return result[0];
+}
+
+/**
+ * Get tickets by email
+ */
+export async function getTicketsByEmail(email: string) {
+  const db = getDb();
+  return db
+    .select()
+    .from(tickets)
+    .where(eq(tickets.passengerEmail, email))
+    .orderBy(tickets.purchaseTimestamp);
+}
+
+/**
+ * Get ticket by Stripe session ID
+ */
+export async function getTicketBySessionId(sessionId: string) {
+  const db = getDb();
+  const result = await db
+    .select()
+    .from(tickets)
+    .where(eq(tickets.stripeSessionId, sessionId))
+    .limit(1);
+  
+  return result[0];
+}
+
+/**
+ * Update ticket payment status
+ */
+export async function updateTicketPaymentStatus(
+  ticketId: string,
+  status: 'pending' | 'completed' | 'failed'
+) {
+  const db = getDb();
+  return db
+    .update(tickets)
+    .set({
+      paymentStatus: status,
+      updatedAt: new Date(),
+    })
+    .where(eq(tickets.id, ticketId));
+}
+

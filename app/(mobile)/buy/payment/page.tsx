@@ -65,6 +65,7 @@ export default function PaymentPage() {
           rideId: rideData.id,
           userData: userData,
           amount: rideData.price,
+          rideData: rideData, // Include full ride data for ticket creation
         }),
       });
 

@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { rideId, userData, amount } = body;
+    const { rideId, userData, amount, rideData } = body;
 
     // Validate required fields
     if (!rideId || !userData || !amount) {
@@ -115,6 +115,27 @@ export async function POST(request: NextRequest) {
     const passengers = parseInt(userData.passeggeri) || 1;
     const totalAmount = amountInCents * passengers;
 
+    // Prepare metadata for ticket creation (Stripe metadata has max 500 chars per value)
+    // We'll include ride data for ticket generation
+    const metadata: Record<string, string> = {
+      rideId,
+      userName: `${userData.nome} ${userData.cognome}`,
+      userEmail: userData.email,
+      passengers: passengers.toString(),
+      passengerName: userData.nome,
+      passengerSurname: userData.cognome,
+    };
+
+    // Add ride data if provided
+    if (rideData) {
+      metadata.departureTime = rideData.departureTime || '';
+      metadata.arrivalTime = rideData.arrivalTime || '';
+      metadata.originStopId = rideData.originStop?.id || '';
+      metadata.originStopName = rideData.originStop?.name || '';
+      metadata.destinationStopId = rideData.destinationStop?.id || '';
+      metadata.destinationStopName = rideData.destinationStop?.name || '';
+    }
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -135,12 +156,7 @@ export async function POST(request: NextRequest) {
       success_url: `${request.headers.get('origin')}/buy/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${request.headers.get('origin')}/buy/cancel`,
       customer_email: userData.email,
-      metadata: {
-        rideId,
-        userName: `${userData.nome} ${userData.cognome}`,
-        userEmail: userData.email,
-        passengers: passengers.toString(),
-      },
+      metadata,
     });
 
     // Log transaction for audit (without sensitive data)

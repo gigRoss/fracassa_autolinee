@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { createTicket, CreateTicketData } from '@/app/lib/ticketUtils';
 
 // Initialize Stripe with secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -52,11 +53,58 @@ export async function POST(request: NextRequest) {
           timestamp: new Date().toISOString(),
         });
 
-        // TODO: In the future, you might want to:
-        // 1. Generate and send ticket to customer email
-        // 2. Update database with ticket information
-        // 3. Send confirmation email
-        // 4. Update ride availability
+        // Generate ticket after successful payment
+        try {
+          // Extract metadata
+          const metadata = session.metadata;
+          
+          if (!metadata || !metadata.rideId || !metadata.passengerName || 
+              !metadata.passengerSurname || !metadata.userEmail || 
+              !metadata.departureTime || !metadata.originStopId || 
+              !metadata.destinationStopId) {
+            console.error('[WEBHOOK] Missing metadata for ticket generation:', metadata);
+            break;
+          }
+
+          // Calculate departure date (today by default, could be enhanced to include selected date)
+          const today = new Date();
+          const departureDate = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+
+          // Prepare ticket data
+          const ticketData: CreateTicketData = {
+            passengerName: metadata.passengerName,
+            passengerSurname: metadata.passengerSurname,
+            passengerEmail: metadata.userEmail,
+            rideId: metadata.rideId,
+            departureDate: departureDate,
+            departureTime: metadata.departureTime,
+            originStopId: metadata.originStopId,
+            destinationStopId: metadata.destinationStopId,
+            amountPaid: session.amount_total || 0,
+            passengerCount: parseInt(metadata.passengers || '1'),
+            stripeSessionId: session.id,
+            stripePaymentIntentId: session.payment_intent as string || undefined,
+            paymentStatus: 'completed',
+          };
+
+          // Create ticket
+          const ticket = await createTicket(ticketData);
+
+          console.log('[WEBHOOK] Ticket created successfully:', {
+            ticketId: ticket.id,
+            ticketNumber: ticket.ticketNumber,
+            sessionId: session.id,
+            timestamp: new Date().toISOString(),
+          });
+
+          // TODO: Future enhancements:
+          // 1. Send ticket via email
+          // 2. Send confirmation email
+          // 3. Update ride availability
+        } catch (error) {
+          console.error('[WEBHOOK] Error creating ticket:', error);
+          // Don't fail the webhook - log the error and handle manually if needed
+        }
         
         break;
       }

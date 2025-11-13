@@ -120,6 +120,34 @@ export const festivita = sqliteTable('festivita', {
   date: text('date').primaryKey(), // formato YYYY-MM-DD
   name: text('name').notNull(),
 });
+// TICKETS TABLE
+// ============================================================================
+export const tickets = sqliteTable('tickets', {
+  id: text('id').primaryKey(),
+  ticketNumber: text('ticket_number').notNull().unique(), // formato YYYYMMDD-CCC-HH-I
+  passengerName: text('passenger_name').notNull(),
+  passengerSurname: text('passenger_surname').notNull(),
+  passengerEmail: text('passenger_email').notNull(),
+  rideId: text('ride_id').notNull().references(() => rides.id),
+  departureDate: text('departure_date').notNull(), // formato YYYY-MM-DD
+  departureTime: text('departure_time').notNull(), // formato HH:MM
+  originStopId: text('origin_stop_id').notNull().references(() => stops.id),
+  destinationStopId: text('destination_stop_id').notNull().references(() => stops.id),
+  purchaseTimestamp: integer('purchase_timestamp', { mode: 'timestamp' }).notNull(),
+  paymentStatus: text('payment_status').notNull(), // 'pending', 'completed', 'failed'
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  stripeSessionId: text('stripe_session_id'),
+  amountPaid: integer('amount_paid').notNull(), // in cents
+  passengerCount: integer('passenger_count').notNull().default(1),
+  createdAt: integer('created_at', { mode: 'timestamp' }),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }),
+}, (table) => ({
+  ticketNumberIdx: index('idx_tickets_ticket_number').on(table.ticketNumber),
+  rideIdx: index('idx_tickets_ride').on(table.rideId),
+  dateIdx: index('idx_tickets_date').on(table.departureDate),
+  emailIdx: index('idx_tickets_email').on(table.passengerEmail),
+  purchaseIdx: index('idx_tickets_purchase').on(table.purchaseTimestamp),
+}));
 
 // ============================================================================
 // RELATIONS
@@ -156,6 +184,23 @@ export const intermediateStopsRelations = relations(intermediateStops, ({ one })
   }),
 }));
 
+export const ticketsRelations = relations(tickets, ({ one }) => ({
+  ride: one(rides, {
+    fields: [tickets.rideId],
+    references: [rides.id],
+  }),
+  originStop: one(stops, {
+    fields: [tickets.originStopId],
+    references: [stops.id],
+    relationName: 'ticketOrigin',
+  }),
+  destinationStop: one(stops, {
+    fields: [tickets.destinationStopId],
+    references: [stops.id],
+    relationName: 'ticketDestination',
+  }),
+}));
+
 // ============================================================================
 // TYPESCRIPT TYPES
 // ============================================================================
@@ -183,5 +228,7 @@ export type NewUserSession = typeof userSessions.$inferInsert;
 
 export type Festivita = typeof festivita.$inferSelect;
 export type NewFestivita = typeof festivita.$inferInsert;
+export type Ticket = typeof tickets.$inferSelect;
+export type NewTicket = typeof tickets.$inferInsert;
 
 
