@@ -114,6 +114,14 @@ export const userSessions = sqliteTable('user_sessions', {
 }));
 
 // ============================================================================
+// FESTIVITA TABLE
+// ============================================================================
+export const festivita = sqliteTable('festivita', {
+  date: text('date').primaryKey(), // formato YYYY-MM-DD
+  name: text('name').notNull(),
+});
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -172,5 +180,8 @@ export type NewAnalyticsEvent = typeof analyticsEvents.$inferInsert;
 
 export type UserSession = typeof userSessions.$inferSelect;
 export type NewUserSession = typeof userSessions.$inferInsert;
+
+export type Festivita = typeof festivita.$inferSelect;
+export type NewFestivita = typeof festivita.$inferInsert;
 
 
