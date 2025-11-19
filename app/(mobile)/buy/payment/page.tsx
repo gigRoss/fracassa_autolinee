@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+// Force dynamic rendering since this page depends on search parameters
+export const dynamic = 'force-dynamic';
+
 interface UserData {
   nome: string;
   cognome: string;

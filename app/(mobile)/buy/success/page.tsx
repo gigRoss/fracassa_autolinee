@@ -4,6 +4,9 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
+// Force dynamic rendering since this page depends on search parameters
+export const dynamic = 'force-dynamic';
+
 interface TicketInfo {
   ticketNumber: string;
   passengerName: string;

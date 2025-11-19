@@ -3,6 +3,9 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+// Force dynamic rendering since this page depends on search parameters
+export const dynamic = 'force-dynamic';
+
 export default function CancelPage() {
   const router = useRouter();
 
