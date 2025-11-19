@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
@@ -25,7 +25,7 @@ interface UserData {
   passeggeri: string;
 }
 
-export default function ConfirmPage() {
+function ConfirmPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [rideData, setRideData] = useState<RideData | null>(null);
@@ -732,6 +732,41 @@ export default function ConfirmPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function ConfirmPage() {
+  return (
+    <Suspense fallback={
+      <div className="confirm-page">
+        <div className="loading-container">
+          <p>Caricamento...</p>
+        </div>
+        <style jsx>{`
+          .confirm-page {
+            display: flex;
+            width: 100%;
+            max-width: 393px;
+            min-height: 852px;
+            position: relative;
+            background: #ffffff;
+            overflow: hidden;
+            margin: 0 auto;
+            box-sizing: border-box;
+          }
+          
+          .loading-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+          }
+        `}</style>
+      </div>
+    }>
+      <ConfirmPageContent />
+    </Suspense>
   );
 }
 
