@@ -168,6 +168,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
     const ticketNumber = searchParams.get('ticketNumber');
+    const sessionId = searchParams.get('sessionId');
 
     if (email) {
       // Get tickets by email
@@ -194,9 +195,25 @@ export async function GET(request: NextRequest) {
         success: true,
         ticket,
       });
+    } else if (sessionId) {
+      // Get ticket by Stripe session ID
+      const { getTicketBySessionId } = await import('@/app/lib/ticketUtils');
+      const ticket = await getTicketBySessionId(sessionId);
+
+      if (!ticket) {
+        return NextResponse.json(
+          { error: 'Biglietto non trovato' },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        ticket,
+      });
     } else {
       return NextResponse.json(
-        { error: 'Parametro email o ticketNumber richiesto' },
+        { error: 'Parametro email, ticketNumber o sessionId richiesto' },
         { status: 400 }
       );
     }
