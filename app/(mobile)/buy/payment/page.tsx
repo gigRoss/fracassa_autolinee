@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 // Force dynamic rendering since this page depends on search parameters
@@ -18,7 +18,7 @@ interface RideData {
   price: string;
 }
 
-export default function PaymentPage() {
+function PaymentPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -472,6 +472,41 @@ export default function PaymentPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={
+      <div className="payment-page">
+        <div className="loading-container">
+          <p>Caricamento...</p>
+        </div>
+        <style jsx>{`
+          .payment-page {
+            display: flex;
+            width: 100%;
+            max-width: 393px;
+            min-height: 852px;
+            position: relative;
+            background: #ffffff;
+            overflow: hidden;
+            margin: 0 auto;
+            box-sizing: border-box;
+          }
+          
+          .loading-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+          }
+        `}</style>
+      </div>
+    }>
+      <PaymentPageContent />
+    </Suspense>
   );
 }
 
