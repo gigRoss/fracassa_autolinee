@@ -163,6 +163,7 @@ function SearchResultsContent() {
     params.set('rideId', rideId);
     if (fromStopId) params.set('from', fromStopId);
     if (toStopId) params.set('to', toStopId);
+    if (andataDate) params.set('date', andataDate);
     
     router.push(`/buy?${params.toString()}`);
   };

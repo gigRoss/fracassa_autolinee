@@ -86,6 +86,7 @@ export default function BuyPage() {
     try {
       const fromStopId = searchParams.get('from');
       const toStopId = searchParams.get('to');
+      const dateParam = searchParams.get('date');
       
       if (!fromStopId || !toStopId) {
         setErrorMessage('Dati percorso mancanti');
@@ -106,8 +107,14 @@ export default function BuyPage() {
         return;
       }
 
+      // Add date to ride data if available
+      const rideDataWithDate = {
+        ...ride,
+        date: dateParam || null
+      };
+
       // Save ride data to sessionStorage
-      sessionStorage.setItem('rideData', JSON.stringify(ride));
+      sessionStorage.setItem('rideData', JSON.stringify(rideDataWithDate));
 
       setErrorMessage(null);
       

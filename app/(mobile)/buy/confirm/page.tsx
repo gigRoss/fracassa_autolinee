@@ -16,6 +16,7 @@ interface RideData {
   arrivalTime: string;
   price: string;
   duration?: string;
+  date?: string | null;
 }
 
 interface UserData {
@@ -32,6 +33,22 @@ function ConfirmPageContent() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Format date for display
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return null;
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('it-IT', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch {
+      return null;
+    }
+  };
 
   useEffect(() => {
     // Get ride ID from URL
@@ -311,6 +328,14 @@ function ConfirmPageContent() {
                   </div>
                 </div>
               </div>
+
+              {/* Date display */}
+              {rideData.date && formatDate(rideData.date) && (
+                <div className="date-row">
+                  <span className="date-label">Data</span>
+                  <span className="date-value">{formatDate(rideData.date)}</span>
+                </div>
+              )}
 
               <div className="time-price-row">
                 <div className="info-box">
@@ -622,6 +647,30 @@ function ConfirmPageContent() {
           font-size: 12px;
           font-family: Inter, sans-serif;
           font-weight: 400;
+        }
+        
+        .date-row {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 10px 0;
+          border-top: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        
+        .date-label {
+          color: #b9bbbc;
+          font-size: 12px;
+          font-family: Inter, sans-serif;
+          font-weight: 500;
+          text-transform: capitalize;
+        }
+        
+        .date-value {
+          color: #232336;
+          font-size: 14px;
+          font-family: Inter, sans-serif;
+          font-weight: 600;
+          text-transform: capitalize;
         }
         
         .time-price-row {
