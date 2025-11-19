@@ -44,6 +44,11 @@ function SearchContent() {
   const [ritornoDate, setRitornoDate] = useState<Date | null>(null);
   const [isAndataCalendarOpen, setIsAndataCalendarOpen] = useState(false);
   const [isRitornoCalendarOpen, setIsRitornoCalendarOpen] = useState(false);
+  const [showAndataError, setShowAndataError] = useState(false);
+  
+  // State for validation errors
+  const [showFromStopError, setShowFromStopError] = useState(false);
+  const [showToStopError, setShowToStopError] = useState(false);
 
   // State for stops selection
   const [stops, setStops] = useState<Stop[]>([]);
@@ -152,6 +157,7 @@ function SearchContent() {
   // Handle date selection
   const handleAndataDateSelect = (date: Date) => {
     setAndataDate(date);
+    setShowAndataError(false); // Clear error when date is selected
     // If ritorno date is before andata date, clear it
     if (ritornoDate && ritornoDate < date) {
       setRitornoDate(null);
@@ -170,6 +176,7 @@ function SearchContent() {
   // Handle stop selection
   const handleFromStopSelect = (stop: Stop) => {
     setFromStop(stop);
+    setShowFromStopError(false); // Clear error when stop is selected
     // If same stop is selected for destination, clear it
     if (toStop && toStop.id === stop.id) {
       setToStop(null);
@@ -178,6 +185,7 @@ function SearchContent() {
 
   const handleToStopSelect = (stop: Stop) => {
     setToStop(stop);
+    setShowToStopError(false); // Clear error when stop is selected
   };
 
   // Handle swapping stops
@@ -195,6 +203,30 @@ function SearchContent() {
     if (isLoading) {
       return;
     }
+    
+    // Validate required fields
+    let hasError = false;
+    
+    if (!fromStop) {
+      setShowFromStopError(true);
+      hasError = true;
+    }
+    
+    if (!toStop) {
+      setShowToStopError(true);
+      hasError = true;
+    }
+    
+    if (!andataDate) {
+      setShowAndataError(true);
+      hasError = true;
+    }
+    
+    // If any validation failed, stop here
+    if (hasError) {
+      return;
+    }
+    
     // Build search parameters
     const searchParams = new URLSearchParams();
     
@@ -291,18 +323,22 @@ function SearchContent() {
         <div className="frame-31">
           <div className="frame-10">
             {/* Main search container */}
-            <div className="rectangle-7"></div>
+            <div className={`rectangle-7 ${showFromStopError || showToStopError ? 'has-error' : ''}`}></div>
             
             {/* Labels */}
-            <div className="da">Da</div>
-            <div className="a">A</div>
+            <div className={`da ${showFromStopError ? 'label-error' : ''}`}>Da</div>
+            <div className={`a ${showToStopError ? 'label-error' : ''}`}>A</div>
             
             {/* Input fields */}
-            <div className="frame-114" onClick={() => setIsFromStopModalOpen(true)}>
-              <div className={`cerca ${fromStop ? 'selected' : ''}`}>{fromStop ? capitalizeWords(fromStop.name) : 'Cerca'}</div>
+            <div className={`frame-114 ${showFromStopError ? 'field-error' : ''}`} onClick={() => setIsFromStopModalOpen(true)}>
+              <div className={`cerca ${fromStop ? 'selected' : ''}`}>
+                {fromStop ? capitalizeWords(fromStop.name) : (showFromStopError ? 'Seleziona una fermata' : 'Cerca')}
+              </div>
             </div>
-            <div className="frame-115" onClick={() => setIsToStopModalOpen(true)}>
-              <div className={`cerca2 ${toStop ? 'selected' : ''}`}>{toStop ? capitalizeWords(toStop.name) : 'Cerca'}</div>
+            <div className={`frame-115 ${showToStopError ? 'field-error' : ''}`} onClick={() => setIsToStopModalOpen(true)}>
+              <div className={`cerca2 ${toStop ? 'selected' : ''}`}>
+                {toStop ? capitalizeWords(toStop.name) : (showToStopError ? 'Seleziona una fermata' : 'Cerca')}
+              </div>
             </div>
 
             {/* Route indicators */}
@@ -358,7 +394,7 @@ function SearchContent() {
         </div>
 
         {/* Date Pickers */}
-        <div className="frame-30" onClick={() => setIsAndataCalendarOpen(true)}>
+        <div className={`frame-30 ${showAndataError ? 'has-error' : ''}`} onClick={() => setIsAndataCalendarOpen(true)}>
           <div className="frame-109">
             <div className="frame-48">
               <div className="andata">Andata</div>
@@ -375,6 +411,13 @@ function SearchContent() {
             </div>
           </div>
         </div>
+
+        {/* Error message for Andata date */}
+        {showAndataError && (
+          <div className="andata-error">
+            Seleziona una data di andata
+          </div>
+        )}
 
         <div className="frame-32" onClick={() => setIsRitornoCalendarOpen(true)}>
           <div className="frame-111">
@@ -524,6 +567,11 @@ function SearchContent() {
           left: 0px;
           top: 0px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          transition: border-color 0.2s, border-width 0.2s;
+        }
+        .rectangle-7.has-error {
+          border-color: #f40101;
+          border-width: 2px;
         }
         .da {
           color: #d6d8dc;
@@ -534,6 +582,10 @@ function SearchContent() {
           position: absolute;
           left: 46px;
           top: 18px;
+          transition: color 0.2s;
+        }
+        .da.label-error {
+          color: #f40101;
         }
         .a {
           color: #d6d8dc;
@@ -544,6 +596,10 @@ function SearchContent() {
           position: absolute;
           left: 46px;
           top: 71px;
+          transition: color 0.2s;
+        }
+        .a.label-error {
+          color: #f40101;
         }
         .frame-114 {
           padding: 10px;
@@ -565,6 +621,12 @@ function SearchContent() {
 
         .frame-114:hover {
           background: rgba(244, 148, 1, 0.1);
+        }
+        .frame-114.field-error {
+          background: rgba(244, 1, 1, 0.05);
+        }
+        .frame-114.field-error .cerca {
+          color: #f40101;
         }
         .cerca {
           color: rgba(151, 151, 164, 0.3);
@@ -598,6 +660,12 @@ function SearchContent() {
 
         .frame-115:hover {
           background: rgba(244, 148, 1, 0.1);
+        }
+        .frame-115.field-error {
+          background: rgba(244, 1, 1, 0.05);
+        }
+        .frame-115.field-error .cerca2 {
+          color: #f40101;
         }
           /* TO DO: check if this is correct and Cerca  */
         .cerca2 {
@@ -806,6 +874,31 @@ function SearchContent() {
 
         .frame-30:hover {
           background: rgba(255, 254, 254, 0.8);
+        }
+        .frame-30.has-error {
+          border-color: #f40101;
+          border-width: 2px;
+        }
+        .andata-error {
+          color: #f40101;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 11px;
+          font-weight: 500;
+          position: absolute;
+          left: 0px;
+          top: 192px;
+          padding-left: 8px;
+          animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-5px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         .frame-109 {
           display: flex;
