@@ -298,68 +298,8 @@ function ConfirmPageContent() {
         </div>
 
         <div className="content-section">
-          {/* Ride Details Section */}
-          <div className="section-container">
-            <h2 className="section-title">Dettagli Corsa</h2>
-            
-            <div className="ride-details-card">
-              <div className="route-info">
-                <div className="route-dots">
-                  <div className="dot-start"></div>
-                  <div className="dots-middle">
-                    <div className="dot-small"></div>
-                    <div className="dot-small"></div>
-                    <div className="dot-small"></div>
-                  </div>
-                  <div className="dot-end"></div>
-                </div>
-                
-                <div className="route-text">
-                  <div className="stop-info">
-                    <span className="stop-label">Da</span>
-                    <span className="stop-name">{rideData.originStop.name}</span>
-                    <span className="stop-city">{rideData.originStop.city}</span>
-                  </div>
-                  
-                  <div className="stop-info">
-                    <span className="stop-label">A</span>
-                    <span className="stop-name">{rideData.destinationStop.name}</span>
-                    <span className="stop-city">{rideData.destinationStop.city}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Date display */}
-              {rideData.date && formatDate(rideData.date) && (
-                <div className="date-row">
-                  <span className="date-label">Data</span>
-                  <span className="date-value">{formatDate(rideData.date)}</span>
-                </div>
-              )}
-
-              <div className="time-price-row">
-                <div className="info-box">
-                  <span className="info-label">Partenza</span>
-                  <span className="info-value">{rideData.departureTime}</span>
-                </div>
-                
-                <div className="info-box">
-                  <span className="info-label">Arrivo</span>
-                  <span className="info-value">{rideData.arrivalTime}</span>
-                </div>
-                
-                <div className="info-box price-box">
-                  <span className="info-label">Prezzo</span>
-                  <span className="info-value price-value">{rideData.price}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* User Data Section */}
           <div className="section-container">
-            <h2 className="section-title">Dati Passeggero</h2>
-            
             <div className="user-details-card">
               <div className="user-info-row">
                 <span className="user-label">Nome:</span>
@@ -379,6 +319,46 @@ function ConfirmPageContent() {
               <div className="user-info-row">
                 <span className="user-label">Passeggeri:</span>
                 <span className="user-value">{userData.passeggeri}</span>
+              </div>
+              
+              <div className="user-info-row">
+                <span className="user-label">Partenza:</span>
+                <span className="user-value">
+                  {(() => {
+                    // Prendi solo la prima parte prima della virgola se presente
+                    const name = rideData.originStop.name.split(',')[0].trim();
+                    // Formatta con prima lettera maiuscola e resto minuscolo
+                    return name.split(' ').map(word => 
+                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                    ).join(' ');
+                  })()}
+                </span>
+              </div>
+              
+              <div className="user-info-row">
+                <span className="user-label">Arrivo:</span>
+                <span className="user-value">
+                  {(() => {
+                    // Prendi solo la prima parte prima della virgola se presente
+                    const name = rideData.destinationStop.name.split(',')[0].trim();
+                    // Formatta con prima lettera maiuscola e resto minuscolo
+                    return name.split(' ').map(word => 
+                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                    ).join(' ');
+                  })()}
+                </span>
+              </div>
+              
+              <div className="user-info-row">
+                <span className="user-label">Orario di partenza:</span>
+                <span className="user-value">
+                  {rideData.date ? `${rideData.date} ${rideData.departureTime}` : rideData.departureTime}
+                </span>
+              </div>
+              
+              <div className="user-info-row">
+                <span className="user-label">Prezzo:</span>
+                <span className="user-value price-value">{rideData.price}</span>
               </div>
             </div>
           </div>
@@ -502,32 +482,33 @@ function ConfirmPageContent() {
         
         .frame-192 {
           position: absolute;
-          left: 29px;
+          left: 22px;
           top: 125px;
-          right: 29px;
+          right: 22px;
           bottom: 30px;
           width: auto;
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 32px;
           align-items: center;
-          overflow-y: auto;
+          overflow: hidden;
           padding-bottom: 20px;
         }
         
         .frame-185 {
-          width: 150px;
-          padding: 8px;
+          width: 184px;
+          padding: 10px;
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 10px;
           align-items: flex-start;
         }
         
         .logo-fracassa-ok-323-page-0001-1 {
           width: 100%;
-          height: 95px;
-          object-fit: contain;
+          height: 117px;
+          object-fit: cover;
+          aspect-ratio: 164/117;
         }
         
         .content-section {
@@ -554,7 +535,6 @@ function ConfirmPageContent() {
           padding-left: 4px;
         }
         
-        .ride-details-card,
         .user-details-card {
           background: #fffeff;
           border-radius: 16px;
@@ -563,154 +543,13 @@ function ConfirmPageContent() {
           padding: 16px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
-        }
-        
-        .route-info {
-          display: flex;
-          gap: 16px;
-          align-items: stretch;
-        }
-        
-        .route-dots {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          align-items: center;
-          padding-top: 4px;
-        }
-        
-        .dot-start {
-          width: 15px;
-          height: 15px;
-          border-radius: 50%;
-          background: rgba(22, 208, 32, 0.37);
-          border: 2.73px solid #16d020;
-          flex-shrink: 0;
-        }
-        
-        .dots-middle {
-          display: flex;
-          flex-direction: column;
-          gap: 2.44px;
-          align-items: center;
-          flex: 1;
-          justify-content: center;
-        }
-        
-        .dot-small {
-          width: 3.67px;
-          height: 3.67px;
-          border-radius: 50%;
-          background: #d9d9d9;
-        }
-        
-        .dot-end {
-          width: 15px;
-          height: 15px;
-          border-radius: 50%;
-          background: rgba(244, 1, 1, 0.37);
-          border: 2.73px solid #f40101;
-          flex-shrink: 0;
-        }
-        
-        .route-text {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          gap: 16px;
-        }
-        
-        .stop-info {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-        
-        .stop-label {
-          color: #b9bbbc;
-          font-size: 12px;
-          font-family: Inter, sans-serif;
-          font-weight: 500;
-        }
-        
-        .stop-name {
-          color: #232336;
-          font-size: 14px;
-          font-family: Inter, sans-serif;
-          font-weight: 600;
-        }
-        
-        .stop-city {
-          color: #9797a4;
-          font-size: 12px;
-          font-family: Inter, sans-serif;
-          font-weight: 400;
-        }
-        
-        .date-row {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          padding: 10px 0;
-          border-top: 1px solid rgba(0, 0, 0, 0.08);
-        }
-        
-        .date-label {
-          color: #b9bbbc;
-          font-size: 12px;
-          font-family: Inter, sans-serif;
-          font-weight: 500;
-          text-transform: capitalize;
-        }
-        
-        .date-value {
-          color: #232336;
-          font-size: 14px;
-          font-family: Inter, sans-serif;
-          font-weight: 600;
-          text-transform: capitalize;
-        }
-        
-        .time-price-row {
-          display: flex;
           gap: 12px;
-          justify-content: space-between;
-        }
-        
-        .info-box {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          flex: 1;
-        }
-        
-        .info-label {
-          color: #b9bbbc;
-          font-size: 12px;
-          font-family: Inter, sans-serif;
-          font-weight: 500;
-        }
-        
-        .info-value {
-          color: #232336;
-          font-size: 14px;
-          font-family: Inter, sans-serif;
-          font-weight: 700;
-        }
-        
-        .price-box {
-          flex: 1.2;
         }
         
         .price-value {
           color: #f49401;
-          font-size: 16px;
-        }
-        
-        .user-details-card {
-          gap: 12px;
+          font-size: 14px;
+          font-weight: 700;
         }
         
         .user-info-row {
