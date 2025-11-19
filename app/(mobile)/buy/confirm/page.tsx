@@ -17,6 +17,7 @@ interface RideData {
   price: string;
   duration?: string;
   date?: string | null;
+  ticketNumber?: string;
 }
 
 interface UserData {
@@ -45,6 +46,55 @@ function ConfirmPageContent() {
         month: 'long',
         year: 'numeric'
       });
+    } catch {
+      return null;
+    }
+  };
+
+  // Format date as GG-MM-YYYY (DD-MM-YYYY)
+  // The date comes from the search page as ISO string (e.g., "2025-12-25T00:00:00.000Z")
+  // We need to extract the date part (YYYY-MM-DD) and convert it to DD-MM-YYYY
+  const formatDateDDMMYYYY = (dateStr: string | null | undefined) => {
+    if (!dateStr) return null;
+    try {
+      // Extract date part from ISO string (YYYY-MM-DDTHH:mm:ss.sssZ) or YYYY-MM-DD format
+      let datePart = '';
+      
+      if (dateStr.includes('T')) {
+        // ISO format: extract date part before 'T'
+        datePart = dateStr.split('T')[0];
+      } else if (dateStr.includes('-')) {
+        // YYYY-MM-DD format
+        datePart = dateStr.split(' ')[0]; // In case there's time after space
+      } else {
+        // Try to parse as Date and format
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+          return null;
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${day}-${month}-${year}`;
+      }
+      
+      // Parse YYYY-MM-DD format
+      const parts = datePart.split('-');
+      if (parts.length !== 3) {
+        return null;
+      }
+      
+      const year = parts[0];
+      const month = parts[1];
+      const day = parts[2];
+      
+      // Validate that all parts are numeric
+      if (isNaN(Number(year)) || isNaN(Number(month)) || isNaN(Number(day))) {
+        return null;
+      }
+      
+      // Return in DD-MM-YYYY format
+      return `${day}-${month}-${year}`;
     } catch {
       return null;
     }
@@ -351,10 +401,22 @@ function ConfirmPageContent() {
               
               <div className="user-info-row">
                 <span className="user-label">Orario di partenza:</span>
+                <span className="user-value">{rideData.departureTime}</span>
+              </div>
+              
+              <div className="user-info-row">
+                <span className="user-label">Data:</span>
                 <span className="user-value">
-                  {rideData.date ? `${rideData.date} ${rideData.departureTime}` : rideData.departureTime}
+                  {formatDateDDMMYYYY(rideData.date) || '-'}
                 </span>
               </div>
+              
+              {rideData.ticketNumber && (
+                <div className="user-info-row">
+                  <span className="user-label">Codice biglietto:</span>
+                  <span className="user-value">{rideData.ticketNumber}</span>
+                </div>
+              )}
               
               <div className="user-info-row">
                 <span className="user-label">Prezzo:</span>
@@ -485,14 +547,15 @@ function ConfirmPageContent() {
           left: 22px;
           top: 125px;
           right: 22px;
-          bottom: 30px;
+          bottom: 0px;
           width: auto;
           display: flex;
           flex-direction: column;
           gap: 32px;
           align-items: center;
-          overflow: hidden;
-          padding-bottom: 20px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding-bottom: 30px;
         }
         
         .frame-185 {
