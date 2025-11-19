@@ -110,7 +110,8 @@ export default function BuyPage() {
       // Add date to ride data if available
       const rideDataWithDate = {
         ...ride,
-        date: dateParam || null
+        // Only include date if it's a valid non-empty string
+        ...(dateParam && dateParam.trim() !== '' ? { date: dateParam } : {}),
       };
 
       // Save ride data to sessionStorage

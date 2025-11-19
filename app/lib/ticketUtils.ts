@@ -3,7 +3,7 @@
  * Story 7.1.4 - Ticket Generation and Unique Number Assignment
  * 
  * Format: YYYYMMDD-CCC-HH-I
- * - YYYYMMDD: purchase date
+ * - YYYYMMDD: departure date (chosen by user)
  * - CCC: ride code (3 alphanumeric chars)
  * - HH: departure hour (2 digits)
  * - I: incremental index for same day/ride/hour
@@ -60,10 +60,38 @@ export function extractHour(timeString: string): string {
 export async function generateTicketNumber(
   rideId: string,
   departureTime: string,
-  purchaseDate: Date = new Date()
+  departureDate: string // YYYY-MM-DD format
 ): Promise<string> {
   const db = getDb();
-  const dateStr = formatDateForTicket(purchaseDate);
+  
+  // Validate departure date format
+  if (!departureDate || departureDate.trim() === '') {
+    throw new Error('Departure date is required for ticket number generation');
+  }
+  
+  // Parse the departure date string (YYYY-MM-DD) as local date
+  // Split and parse to avoid timezone issues
+  const dateParts = departureDate.split('-');
+  if (dateParts.length !== 3) {
+    throw new Error(`Invalid departure date format: ${departureDate}. Expected YYYY-MM-DD format.`);
+  }
+  
+  const year = parseInt(dateParts[0], 10);
+  const month = parseInt(dateParts[1], 10);
+  const day = parseInt(dateParts[2], 10);
+  
+  // Create date in local timezone (month is 0-indexed in JavaScript)
+  const departureDateObj = new Date(year, month - 1, day);
+  
+  // Check if date is valid
+  if (isNaN(departureDateObj.getTime()) || 
+      departureDateObj.getFullYear() !== year ||
+      departureDateObj.getMonth() !== month - 1 ||
+      departureDateObj.getDate() !== day) {
+    throw new Error(`Invalid departure date format: ${departureDate}. Expected YYYY-MM-DD format.`);
+  }
+  
+  const dateStr = formatDateForTicket(departureDateObj);
   const rideCode = generateRideCode(rideId);
   const hour = extractHour(departureTime);
   
@@ -122,12 +150,22 @@ export async function createTicket(data: CreateTicketData) {
   const ticketId = randomUUID();
   const purchaseTimestamp = new Date();
   
-  // Generate unique ticket number
+  // Log ticket creation attempt
+  console.log('[TICKET] Creating ticket with data:', {
+    rideId: data.rideId,
+    departureDate: data.departureDate,
+    departureTime: data.departureTime,
+    passengerEmail: data.passengerEmail,
+  });
+  
+  // Generate unique ticket number using the departure date chosen by the user
   const ticketNumber = await generateTicketNumber(
     data.rideId,
     data.departureTime,
-    purchaseTimestamp
+    data.departureDate // Use the departure date instead of purchase date
   );
+  
+  console.log('[TICKET] Generated ticket number:', ticketNumber);
   
   // Insert ticket into database
   const ticket = await db.insert(tickets).values({

@@ -66,9 +66,17 @@ export async function POST(request: NextRequest) {
             break;
           }
 
-          // Calculate departure date (today by default, could be enhanced to include selected date)
-          const today = new Date();
-          const departureDate = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+          // Use departure date chosen by user, or fall back to today if not provided
+          let departureDate: string;
+          if (metadata.departureDate && metadata.departureDate.trim() !== '' && metadata.departureDate !== 'null' && metadata.departureDate !== 'undefined') {
+            departureDate = metadata.departureDate;
+            console.log('[WEBHOOK] Using user-selected departure date:', departureDate);
+          } else {
+            // Fallback to today's date in YYYY-MM-DD format
+            const today = new Date();
+            departureDate = today.toISOString().split('T')[0];
+            console.log('[WEBHOOK] No departure date in metadata, using today:', departureDate);
+          }
 
           // Prepare ticket data
           const ticketData: CreateTicketData = {

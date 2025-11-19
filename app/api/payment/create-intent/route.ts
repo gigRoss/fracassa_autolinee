@@ -134,6 +134,11 @@ export async function POST(request: NextRequest) {
       metadata.originStopName = rideData.originStop?.name || '';
       metadata.destinationStopId = rideData.destinationStop?.id || '';
       metadata.destinationStopName = rideData.destinationStop?.name || '';
+      // Include departure date chosen by the user (YYYY-MM-DD format)
+      // Only include if it's a valid non-empty date
+      if (rideData.date && rideData.date !== 'null' && rideData.date !== 'undefined' && rideData.date.trim() !== '') {
+        metadata.departureDate = rideData.date;
+      }
     }
 
     // Create Stripe Checkout Session
@@ -165,6 +170,7 @@ export async function POST(request: NextRequest) {
       rideId,
       amount: totalAmount,
       passengers,
+      departureDate: metadata.departureDate || 'not provided',
       timestamp: new Date().toISOString(),
       ip,
     });
