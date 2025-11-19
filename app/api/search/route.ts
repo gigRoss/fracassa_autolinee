@@ -29,7 +29,23 @@ export async function GET(request: NextRequest) {
     const [rides, stops] = await Promise.all([listRides(), listStops()]);
 
     // Filter only visible (non-archived) rides
-    const visibleRides = rides.filter((r) => !r.archived);
+    let visibleRides = rides.filter((r) => !r.archived);
+
+    // Check if the date is a Saturday and filter rides accordingly
+    if (date) {
+      try {
+        const selectedDate = new Date(date);
+        const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
+        
+        // If it's Saturday (6), filter out rides where available_saturday is false
+        if (dayOfWeek === 6) {
+          visibleRides = visibleRides.filter((r) => r.availableSaturday === true);
+        }
+      } catch (err) {
+        console.error('Error parsing date:', err);
+        // Continue without date filtering if date is invalid
+      }
+    }
 
     // Helper function to find stop by name or ID
     const findStop = (query: string) => {

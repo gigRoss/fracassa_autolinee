@@ -23,6 +23,7 @@ export const rides = sqliteTable('rides', {
   departureTime: text('departure_time').notNull(), // formato HH:MM
   arrivalTime: text('arrival_time').notNull(), // formato HH:MM
   archived: integer('archived', { mode: 'boolean' }).default(false),
+  availableSaturday: integer('available_saturday', { mode: 'boolean' }).default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }),
   updatedAt: integer('updated_at', { mode: 'timestamp' }),
 }, (table) => ({

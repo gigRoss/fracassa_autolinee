@@ -114,7 +114,7 @@ function SearchResultsContent() {
     } else {
       setLoading(false);
     }
-  }, [fromStopId, toStopId]);
+  }, [fromStopId, toStopId, andataDate]);
 
   // Fetch ride data from API
   const fetchRideData = async (origin: string, destination: string) => {
@@ -122,7 +122,17 @@ function SearchResultsContent() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/search?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&useIntermediate=true`);
+      const url = new URL('/api/search', window.location.origin);
+      url.searchParams.set('origin', origin);
+      url.searchParams.set('destination', destination);
+      url.searchParams.set('useIntermediate', 'true');
+      
+      // Pass the andata date if available
+      if (andataDate) {
+        url.searchParams.set('date', andataDate);
+      }
+      
+      const response = await fetch(url.toString());
       
       if (!response.ok) {
         throw new Error('Failed to fetch ride data');
