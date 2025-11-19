@@ -4,41 +4,23 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-export default function AdminLoginPage() {
+export default function AdminLogin2Page() {
   const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<'autista' | 'amministrazione' | null>(null);
+  const [selectedRole, setSelectedRole] = useState<'autista' | 'amministrazione'>('amministrazione');
 
   const handleContinue = () => {
-    if (!selectedRole) return;
-    
-    // Redirect to login form page for both roles
-    router.push(`/admin/login-form?role=${selectedRole}`);
-  };
-
-  const handleClose = () => {
-    router.push('/');
+    if (selectedRole === 'amministrazione') {
+      router.push('/admin/login');
+    } else {
+      // TODO: Implementare la pagina di login per autista
+      router.push('/admin/login'); // Per ora reindirizza allo stesso login
+    }
   };
 
   return (
     <div className="admin-amministrazione">
       <img className="vector-3" src="/mobile/search/vector-30.svg" alt="" />
       
-      <header className="frame-256">
-        <div className="frame-161">
-          <div className="frame-253">
-            <div className="frame-back" style={{ visibility: 'hidden' }}>
-              <div className="back-arrow-wrapper">
-                <Image className="back-arrow" src="/mobile/search/frame-410.svg" alt="" width={20} height={16} />
-              </div>
-            </div>
-            <div className="acquista">ADMIN</div>
-            <button className="close-button" onClick={handleClose} aria-label="Chiudi">
-              <Image className="close-icon" src="/mobile/search/frame-580.svg" alt="" width={16} height={16} />
-            </button>
-          </div>
-        </div>
-      </header>
-
       <div className="frame-156">
         <div className="frame-155">
           <div className="frame-62">
@@ -60,14 +42,29 @@ export default function AdminLoginPage() {
             </button>
           </div>
         </div>
-        <button 
-          type="button" 
-          className="frame-37" 
-          onClick={handleContinue}
-          disabled={!selectedRole}
-        >
+        <button type="button" className="frame-37" onClick={handleContinue}>
           <div className="avanti">Avanti</div>
         </button>
+      </div>
+
+      <div className="frame-258">
+        <Image className="vector" src="/mobile/search/frame-410.svg" alt="" width={18} height={14} />
+        <Image className="frame-252" src="/mobile/search/frame-580.svg" alt="" width={16} height={16} />
+      </div>
+
+      <div className="frame-257">
+        <div className="admin">ADMIN</div>
+      </div>
+
+      <div className="frame-161"></div>
+
+      <div className="frame-260">
+        <div className="admin2">ADMIN</div>
+      </div>
+
+      <div className="frame-253">
+        <Image className="vector3" src="/mobile/search/frame-410.svg" alt="" width={20} height={16} />
+        <Image className="frame-2523" src="/mobile/search/frame-580.svg" alt="" width={16} height={16} />
       </div>
 
       <style jsx>{`
@@ -84,9 +81,6 @@ export default function AdminLoginPage() {
           width: 100%;
           max-width: 393px;
           margin: 0 auto;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
         }
 
         .vector-3 {
@@ -98,90 +92,6 @@ export default function AdminLoginPage() {
           overflow: visible;
         }
 
-        .frame-256 {
-          width: 393px;
-          height: 91px;
-          position: absolute;
-          left: 0;
-          top: 0;
-          display: flex;
-          justify-content: center;
-        }
-        
-        .frame-161 {
-          width: 100%;
-          height: 100%;
-          position: relative;
-          border-bottom-right-radius: 20px;
-          border-bottom-left-radius: 20px;
-          padding: 16px 23px 20px;
-          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
-        }
-        
-        .frame-253 {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 23px;
-        }
-        
-        .frame-back,
-        .close-button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: auto;
-          height: auto;
-          cursor: pointer;
-          border: none;
-          background: transparent;
-          padding: 0;
-          transition: opacity 0.2s ease, transform 0.2s ease;
-        }
-        
-        .frame-back:hover,
-        .close-button:hover {
-          opacity: 0.8;
-        }
-        
-        .frame-back:active,
-        .close-button:active {
-          transform: scale(0.95);
-        }
-        
-        .back-arrow-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .back-arrow,
-        .close-icon {
-          display: block;
-        }
-        
-        .back-arrow {
-          width: 20px;
-          height: 16px;
-        }
-        
-        .close-icon {
-          width: 16px;
-          height: 16px;
-        }
-        
-        .acquista {
-          color: #ffffff;
-          font-size: 20px;
-          font-family: Inter, sans-serif;
-          font-weight: 400;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-        }
-
         .frame-156 {
           display: flex;
           flex-direction: column;
@@ -190,9 +100,8 @@ export default function AdminLoginPage() {
           justify-content: flex-start;
           width: 339px;
           position: absolute;
-          left: 50%;
+          left: 30px;
           top: 185px;
-          transform: translateX(-50%);
         }
 
         .frame-155 {
@@ -221,7 +130,9 @@ export default function AdminLoginPage() {
         .frame-49 {
           background: #ffffff;
           border-radius: 16px;
-          border: 1px solid rgba(0, 0, 0, 0.17);
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
           padding: 14px 9px 14px 9px;
           display: flex;
           flex-direction: row;
@@ -233,13 +144,13 @@ export default function AdminLoginPage() {
           position: relative;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
+          border: none;
           width: 100%;
           transition: background-color 0.2s;
         }
 
         .frame-49.selected {
           background: #f49401;
-          border: 1px solid rgba(0, 0, 0, 0.17);
         }
 
         .frame-49.selected .autista {
@@ -248,7 +159,6 @@ export default function AdminLoginPage() {
 
         .frame-49:not(.selected) {
           background: #ffffff;
-          border: 1px solid rgba(0, 0, 0, 0.17);
         }
 
         .frame-49:not(.selected) .autista {
@@ -278,9 +188,11 @@ export default function AdminLoginPage() {
         }
 
         .frame-492 {
-          background: #ffffff;
+          background: #f49401;
           border-radius: 16px;
-          border: 1px solid rgba(0, 0, 0, 0.17);
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
           padding: 14px 9px 14px 9px;
           display: flex;
           flex-direction: row;
@@ -292,13 +204,13 @@ export default function AdminLoginPage() {
           position: relative;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
+          border: none;
           width: 100%;
           transition: background-color 0.2s;
         }
 
         .frame-492.selected {
           background: #f49401;
-          border: 1px solid rgba(0, 0, 0, 0.17);
         }
 
         .frame-492.selected .amministrazione {
@@ -307,7 +219,6 @@ export default function AdminLoginPage() {
 
         .frame-492:not(.selected) {
           background: #ffffff;
-          border: 1px solid rgba(0, 0, 0, 0.17);
         }
 
         .frame-492:not(.selected) .amministrazione {
@@ -315,7 +226,7 @@ export default function AdminLoginPage() {
         }
 
         .amministrazione {
-          color: rgba(0, 0, 0, 0.8);
+          color: #ffffff;
           text-align: left;
           font-family: "Inter-Medium", sans-serif;
           font-size: 14px;
@@ -344,17 +255,12 @@ export default function AdminLoginPage() {
           transition: background-color 0.2s, transform 0.2s;
         }
 
-        .frame-37:hover:not(:disabled) {
+        .frame-37:hover {
           background: #e68501;
         }
 
-        .frame-37:active:not(:disabled) {
+        .frame-37:active {
           transform: scale(0.95);
-        }
-
-        .frame-37:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
         }
 
         .avanti {
@@ -366,7 +272,159 @@ export default function AdminLoginPage() {
           position: relative;
         }
 
+        .frame-258 {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          width: 348px;
+          position: absolute;
+          left: 21px;
+          top: 60px;
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .vector {
+          flex-shrink: 0;
+          width: 18px;
+          height: 14px;
+          position: relative;
+          overflow: visible;
+        }
+
+        .frame-252 {
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+          position: relative;
+          overflow: visible;
+        }
+
+        .frame-254 {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          width: 348px;
+          position: absolute;
+          left: 21px;
+          top: 60px;
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .vector2 {
+          flex-shrink: 0;
+          width: 18px;
+          height: 14px;
+          position: relative;
+          overflow: visible;
+        }
+
+        .frame-2522 {
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+          position: relative;
+          overflow: visible;
+        }
+
+        .frame-257 {
+          width: 243px;
+          height: 24px;
+          position: absolute;
+          left: 75px;
+          top: 48px;
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .admin {
+          color: #ffffff;
+          text-align: center;
+          font-family: "Inter-Regular", sans-serif;
+          font-size: 20px;
+          font-weight: 400;
+          position: absolute;
+          left: calc(50% - 46.5px);
+          top: 0px;
+          width: 67px;
+        }
+
+        .frame-161 {
+          background: radial-gradient(
+            closest-side,
+            rgba(255, 169, 37, 1) 39.13757801055908%,
+            rgba(244, 148, 1, 1) 74.92230534553528%
+          );
+          border-radius: 0px 0px 20px 20px;
+          padding: 0px 124px 0px 124px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          width: 394px;
+          height: 83px;
+          position: absolute;
+          left: 0px;
+          top: 0px;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        }
+
+        .frame-260 {
+          width: 64px;
+          height: 24px;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          top: 56px;
+        }
+
+        .admin2 {
+          color: #ffffff;
+          text-align: center;
+          font-family: "Inter-Regular", sans-serif;
+          font-size: 20px;
+          font-weight: 400;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          top: 0px;
+          width: 67px;
+        }
+
+        .frame-253 {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          width: 348px;
+          position: absolute;
+          left: 23px;
+          top: 52px;
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .vector3 {
+          flex-shrink: 0;
+          width: 20px;
+          height: 16px;
+          position: relative;
+          overflow: visible;
+        }
+
+        .frame-2523 {
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+          position: relative;
+          overflow: visible;
+        }
       `}</style>
     </div>
   );
 }
+

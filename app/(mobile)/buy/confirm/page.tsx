@@ -100,6 +100,35 @@ function ConfirmPageContent() {
     }
   };
 
+  // Calculate total price based on number of passengers
+  const calculateTotalPrice = (priceStr: string, numPassengers: string): string => {
+    try {
+      // Extract numeric value from price string (e.g., "€2,50" or "€25,00" -> 2.50 or 25.00)
+      // Remove € symbol and replace comma with dot for decimal parsing
+      const cleanedPrice = priceStr.replace(/€/g, '').replace(/,/g, '.').trim();
+      const basePrice = parseFloat(cleanedPrice);
+      
+      if (isNaN(basePrice)) {
+        return priceStr; // Return original if parsing fails
+      }
+      
+      // Get number of passengers
+      const passengers = parseInt(numPassengers, 10);
+      if (isNaN(passengers) || passengers < 1) {
+        return priceStr; // Return original if invalid
+      }
+      
+      // Calculate total
+      const totalPrice = basePrice * passengers;
+      
+      // Format back to €X,XX format
+      const formattedPrice = totalPrice.toFixed(2).replace('.', ',');
+      return `€${formattedPrice}`;
+    } catch {
+      return priceStr; // Return original on any error
+    }
+  };
+
   useEffect(() => {
     // Get ride ID from URL
     const rideId = searchParams.get('rideId');
@@ -420,7 +449,9 @@ function ConfirmPageContent() {
               
               <div className="user-info-row">
                 <span className="user-label">Prezzo:</span>
-                <span className="user-value price-value">{rideData.price}</span>
+                <span className="user-value price-value">
+                  {calculateTotalPrice(rideData.price, userData.passeggeri)}
+                </span>
               </div>
             </div>
           </div>
@@ -556,6 +587,12 @@ function ConfirmPageContent() {
           overflow-y: auto;
           overflow-x: hidden;
           padding-bottom: 30px;
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .frame-192::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, Opera */
         }
         
         .frame-185 {
