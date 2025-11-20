@@ -16,11 +16,13 @@ export type EditRide = {
   originFascia?: number | null;
   destinationFascia?: number | null;
   intermediateStops?: IntermediateStop[];
+  availableSaturday?: boolean;
 };
 
 export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?: () => void }) {
   const [stopsList, setStopsList] = useState<Stop[]>([]);
   const [lineName, setLineName] = useState(ride.lineName);
+  const [availableSaturday, setAvailableSaturday] = useState(ride.availableSaturday ?? false);
   const [originStopId, setOriginStopId] = useState(ride.originStopId);
   const [destinationStopId, setDestinationStopId] = useState(ride.destinationStopId);
   const [departureTime, setDepartureTime] = useState(ride.departureTime);
@@ -142,6 +144,7 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lineName,
+          availableSaturday,
           originStopId,
           destinationStopId,
           departureTime,
@@ -213,6 +216,18 @@ export default function EditRideForm({ ride, onDone }: { ride: EditRide; onDone?
         <div>
           <label className="block text-xs mb-1">Linea*</label>
           <input value={lineName} onChange={(e) => setLineName(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="L1" />
+        </div>
+        <div>
+          <label className="flex items-center gap-2 text-xs cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={availableSaturday} 
+              onChange={(e) => setAvailableSaturday(e.target.checked)}
+              className="w-4 h-4 rounded border"
+              style={{ borderColor: "color-mix(in oklab, var(--foreground) 20%, transparent)" }}
+            />
+            <span>Disponibile il sabato</span>
+          </label>
         </div>
       </div>
 

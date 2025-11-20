@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-
 interface UserData {
   nome: string;
   cognome: string;
@@ -12,6 +10,7 @@ interface UserData {
 
 export default function BuyPage() {
   const router = useRouter();
+  const [nomeCognome, setNomeCognome] = useState('');
   const [userData, setUserData] = useState<UserData>({
     nome: '',
     cognome: '',
@@ -19,18 +18,133 @@ export default function BuyPage() {
   });
   const [passeggeri, setPasseggeri] = useState('1');
   const [showPasseggeriDropdown, setShowPasseggeriDropdown] = useState(false);
+  const passeggeriDropdownRef = useRef<HTMLDivElement>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  // Split nome e cognome from the single field
+  const splitNomeCognome = (fullName: string) => {
+    const trimmed = fullName.trim();
+    if (!trimmed) return { nome: '', cognome: '' };
+    const parts = trimmed.split(/\s+/);
+    if (parts.length === 1) {
+      return { nome: parts[0], cognome: '' };
+    }
+    return {
+      nome: parts[0],
+      cognome: parts.slice(1).join(' '),
+    };
+  };
+
+  const isFormValid =
+    nomeCognome.trim().length > 0 &&
+    userData.email.trim().length > 0 &&
+    isValidEmail(userData.email) &&
+    passeggeri.trim().length > 0;
 
   const passeggeriOptions = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
-  const handleUserDataSubmit = () => {
-    // Handle form submission logic here
+  useEffect(() => {
+    if (!showPasseggeriDropdown) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        passeggeriDropdownRef.current &&
+        !passeggeriDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowPasseggeriDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showPasseggeriDropdown]);
+
+  const handleUserDataSubmit = async (event?: FormEvent<HTMLFormElement> | React.MouseEvent) => {
+    if (event) {
+      event.preventDefault();
+    }
+
+    if (!isFormValid) {
+      setErrorMessage(
+        'Per continuare è necessario compilare tutti i campi obbligatori con dati validi.'
+      );
+      return;
+    }
+
+    // Split nome e cognome from the single field
+    const { nome, cognome } = splitNomeCognome(nomeCognome);
     const completeFormData = {
-      ...userData,
+      nome,
+      cognome,
+      email: userData.email,
       passeggeri: passeggeri,
     };
-    console.log('Form submitted:', completeFormData);
-    // TODO: Process payment and redirect to confirmation
-    router.push('/buy/payment'); // o la pagina successiva appropriata
+
+    // Save user data to sessionStorage
+    sessionStorage.setItem('userData', JSON.stringify(completeFormData));
+
+    // Get ride ID from URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const rideId = searchParams.get('rideId');
+
+    if (!rideId) {
+      setErrorMessage('Dati corsa mancanti');
+      return;
+    }
+
+    // Fetch ride data from API
+    try {
+      const fromStopId = searchParams.get('from');
+      const toStopId = searchParams.get('to');
+      const dateParam = searchParams.get('date');
+      
+      if (!fromStopId || !toStopId) {
+        setErrorMessage('Dati percorso mancanti');
+        return;
+      }
+
+      const response = await fetch(`/api/search?origin=${encodeURIComponent(fromStopId)}&destination=${encodeURIComponent(toStopId)}&useIntermediate=true`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch ride data');
+      }
+      
+      const data = await response.json();
+      const ride = data.results?.find((r: any) => r.id === rideId);
+      
+      if (!ride) {
+        setErrorMessage('Corsa non trovata');
+        return;
+      }
+
+      // Add date to ride data if available
+      const rideDataWithDate = {
+        ...ride,
+        // Only include date if it's a valid non-empty string
+        ...(dateParam && dateParam.trim() !== '' ? { date: dateParam } : {}),
+      };
+
+      // Save ride data to sessionStorage
+      sessionStorage.setItem('rideData', JSON.stringify(rideDataWithDate));
+
+      setErrorMessage(null);
+      
+      // Navigate to confirmation page
+      router.push(`/buy/confirm?rideId=${rideId}`);
+    } catch (error) {
+      console.error('Error fetching ride data:', error);
+      setErrorMessage('Errore nel caricamento dei dati della corsa');
+    }
   };
 
   const handleBack = () => {
@@ -39,36 +153,9 @@ export default function BuyPage() {
 
   return (
     <div className="buy">
-      {/* Header Frame */}
-      <div className="frame-244">
-        <div className="frame-161">
-          <div className="frame-back" onClick={handleBack}>
-            <div className="back-arrow-wrapper">
-              <Image
-                src="/mobile/search/frame-410.svg"
-                alt="Indietro"
-                width={18}
-                height={16}
-                className="back-arrow"
-              />
-            </div>
-          </div>
-          <div className="acquista">ACQUISTA</div>
-          <div className="close-button" onClick={() => router.push('/search')}>
-            <Image
-              src="/mobile/search/frame-580.svg"
-              alt="Chiudi"
-              width={16}
-              height={16}
-              className="close-icon"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Frame */}
-      <div className="frame-192">
-        {/* Logo Frame */}
+      <img className="vector-3" src="/mobile/search/vector-30.svg" alt="" />
+      
+      <div className="frame-267">
         <div className="frame-185">
           <img
             className="logo-fracassa-ok-323-page-0001-1"
@@ -76,157 +163,417 @@ export default function BuyPage() {
             alt="Fracassa Autolinee"
           />
         </div>
-        
-        {/* Form Frame */}
-        <div className="frame-171">
-          <div className="frame-170">
-            {/* Nome Field */}
-            <div className="frame-49">
-              <input
-                type="text"
-                placeholder="Nome"
-                value={userData.nome}
-                onChange={(e) => setUserData({ ...userData, nome: e.target.value })}
-                className="input-field"
-              />
-            </div>
 
-            {/* Cognome Field */}
-            <div className="frame-49">
-              <input
-                type="text"
-                placeholder="Cognome"
-                value={userData.cognome}
-                onChange={(e) => setUserData({ ...userData, cognome: e.target.value })}
-                className="input-field"
-              />
-            </div>
+        <div className="frame-266">
+          <form className="frame-265" onSubmit={handleUserDataSubmit} noValidate>
+            <div className="frame-264">
+              <div className="frame-49">
+                <input
+                  type="text"
+                  placeholder="Nome e Cognome"
+                  value={nomeCognome}
+                  onChange={(e) => {
+                    setNomeCognome(e.target.value);
+                    if (errorMessage) {
+                      setErrorMessage(null);
+                    }
+                  }}
+                  className="input-field nome-e-cognome"
+                  required
+                  aria-required="true"
+                />
+              </div>
 
-            {/* Passeggeri/e Field - Dropdown */}
-            <div className="frame-84">
-              <div className="frame-493">
-                <div className="frame-213" onClick={() => setShowPasseggeriDropdown(!showPasseggeriDropdown)}>
-                  <input
-                    type="text"
-                    placeholder="Passeggeri/e"
-                    value={`${passeggeri} ${passeggeri === '1' ? 'passeggero' : 'passeggeri'}`}
-                    readOnly
-                    className="passeggeri-e"
-                  />
-                  <div className="vector-5">
-                    <svg width="12.5" height="8" viewBox="0 0 12.5 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M1 1L6.25 6L11.5 1" stroke="#ACACB6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                </div>
-                {showPasseggeriDropdown && (
-                  <div className="dropdown-menu">
-                    {passeggeriOptions.map((option) => (
-                      <div
-                        key={option}
-                        className="dropdown-item"
-                        onClick={() => {
-                          setPasseggeri(option);
-                          setShowPasseggeriDropdown(false);
-                        }}
-                      >
-                        {option} {option === '1' ? 'passeggero' : 'passeggeri'}
-                      </div>
-                    ))}
-                  </div>
+              <div className="frame-257">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={userData.email}
+                  onChange={(e) => {
+                    setUserData({ ...userData, email: e.target.value });
+                    if (errorMessage) {
+                      setErrorMessage(null);
+                    }
+                  }}
+                  className="input-field email"
+                  required
+                  aria-required="true"
+                  aria-invalid={userData.email.trim().length > 0 && !isValidEmail(userData.email)}
+                />
+                {userData.email.trim().length > 0 && !isValidEmail(userData.email) && (
+                  <p className="input-hint" role="status">
+                    Inserisci un indirizzo email valido
+                  </p>
                 )}
               </div>
             </div>
 
-            {/* Email Field */}
-            <div className="frame-49">
-              <input
-                type="email"
-                placeholder="Email"
-                value={userData.email}
-                onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-                className="input-field"
-              />
+            <div className="frame-258" ref={passeggeriDropdownRef}>
+              <div className="passeggeri-wrapper" onClick={() => setShowPasseggeriDropdown(!showPasseggeriDropdown)}>
+                <span className="passeggeri-e">
+                  {passeggeri} {passeggeri === '1' ? 'passeggero' : 'passeggeri'}
+                </span>
+                <img className="vector-5" src="/mobile/search/vector-50.svg" alt="" aria-hidden="true" />
+              </div>
+              {showPasseggeriDropdown && (
+                <div className="dropdown-menu">
+                  {passeggeriOptions.map((option) => (
+                    <div
+                      key={option}
+                      className="dropdown-item"
+                      onClick={() => {
+                        setPasseggeri(option);
+                        setShowPasseggeriDropdown(false);
+                        if (errorMessage) {
+                          setErrorMessage(null);
+                        }
+                      }}
+                    >
+                      {option} {option === '1' ? 'passeggero' : 'passeggeri'}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
 
-          {/* Continue Button */}
-          <button 
-            onClick={handleUserDataSubmit}
-            className="frame-37"
-          >
-            <div className="frame-17">
+            {errorMessage && <p className="error-message" role="alert">{errorMessage}</p>}
+          </form>
+
+          <div className="frame-37">
+            <button 
+              type="button"
+              onClick={handleUserDataSubmit}
+              disabled={!isFormValid}
+              className="frame-17"
+            >
               <div className="frame-35">
                 <span className="continua">Continua</span>
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
       </div>
 
+      <header className="frame-256">
+        <div className="frame-161">
+          <div className="frame-253">
+            <button className="frame-back" onClick={handleBack} aria-label="Torna indietro">
+              <div className="back-arrow-wrapper">
+                <img className="back-arrow" src="/mobile/search/frame-410.svg" alt="" />
+              </div>
+            </button>
+            <div className="acquista">ACQUISTA</div>
+            <button className="close-button" onClick={() => router.push('/search')} aria-label="Chiudi">
+              <img className="close-icon" src="/mobile/search/frame-580.svg" alt="" />
+            </button>
+          </div>
+        </div>
+      </header>
+
       <style jsx>{`
+        .buy,
+        .buy * {
+          box-sizing: border-box;
+        }
+        
         .buy {
+          background: #ffffff;
+          height: 852px;
+          position: relative;
+          overflow: hidden;
           width: 100%;
           max-width: 393px;
-          min-height: 100dvh;
-          position: relative;
-          background: white;
-          overflow: hidden;
           margin: 0 auto;
         }
         
-        /* Header */
-        .frame-244 {
-          width: 100%;
-          height: 91px;
-          left: 0px;
-          top: 0px;
+        .vector-3 {
+          width: 90px;
+          height: 0px;
           position: absolute;
-          z-index: 5;
+          left: 152px;
+          top: 844px;
+          overflow: visible;
+        }
+        
+        .frame-267 {
+          display: flex;
+          flex-direction: column;
+          gap: 42px;
+          align-items: center;
+          justify-content: flex-start;
+          width: 342px;
+          position: absolute;
+          left: 22px;
+          top: 125px;
+        }
+        
+        .frame-185 {
+          padding: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          flex-shrink: 0;
+          width: 184px;
+          position: relative;
+        }
+        
+        .logo-fracassa-ok-323-page-0001-1 {
+          align-self: stretch;
+          flex-shrink: 0;
+          height: 117px;
+          position: relative;
+          object-fit: cover;
+          aspect-ratio: 164/117;
+          width: 100%;
+        }
+        
+        .frame-266 {
+          display: flex;
+          flex-direction: column;
+          gap: 42px;
+          align-items: center;
+          justify-content: flex-start;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
+        }
+        
+        .frame-265 {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
+        }
+        
+        .frame-264 {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
+        }
+        
+        .frame-49 {
+          background: #fffefe;
+          border-radius: 16px;
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
+          padding: 14px 20px 14px 20px;
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          align-items: center;
+          justify-content: flex-start;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          height: 45px;
+        }
+        
+        .frame-257 {
+          background: #fffefe;
+          border-radius: 16px;
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
+          padding: 14px 20px 14px 20px;
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          align-items: center;
+          justify-content: flex-start;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          height: 45px;
+        }
+        
+        .frame-258 {
+          background: #fffefe;
+          border-radius: 16px;
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
+          padding: 14px 21px 14px 21px;
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          align-items: center;
+          justify-content: flex-start;
+          flex-shrink: 0;
+          position: relative;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          cursor: pointer;
+          height: 45px;
+        }
+        
+        .passeggeri-wrapper {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+          gap: 12px;
+        }
+        
+        .nome-e-cognome,
+        .email {
+          color: rgba(151, 151, 164, 0.8);
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          position: relative;
+          background: transparent;
+          border: none;
+          outline: none;
+          width: 100%;
+          flex: 1;
+        }
+        
+        .nome-e-cognome::placeholder,
+        .email::placeholder {
+          color: rgba(151, 151, 164, 0.8);
+        }
+        
+        .passeggeri-e {
+          color: rgba(151, 151, 164, 0.8);
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          position: relative;
+          flex: 1;
+          margin-right: 8px;
+        }
+        
+        .vector-5 {
+          width: 12.5px;
+          height: 8px;
+          position: relative;
+          overflow: visible;
+          flex-shrink: 0;
+        }
+        
+        .frame-37 {
+          background: #F49401;
+          border-radius: 16px;
+          border: 1px solid rgba(0, 0, 0, 0.17);
+          width: 109px;
+          height: 47px;
+          padding: 0;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          cursor: pointer;
+          transition: background-color 0.2s, transform 0.2s;
+          flex-shrink: 0;
+          position: relative;
+        }
+        
+        .frame-37:hover {
+          background: #e68501;
+        }
+        
+        .frame-37:active {
+          transform: scale(0.95);
+        }
+        
+        .frame-37:has(button:disabled) {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        
+        .frame-17 {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          background: transparent;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+        }
+        
+        .frame-17:disabled {
+          cursor: not-allowed;
+        }
+        
+        .frame-35 {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .continua {
+          color: #ffffff;
+          text-align: center;
+          font-family: "Inter-SemiBold", sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          position: relative;
+        }
+        
+        .frame-256 {
+          width: 393px;
+          height: 91px;
+          position: absolute;
+          left: 0;
+          top: 0;
+          display: flex;
+          justify-content: center;
         }
         
         .frame-161 {
           width: 100%;
           height: 100%;
           position: relative;
-          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
-          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
+          padding: 16px 23px 20px;
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
+        }
+        
+        .frame-253 {
+          position: absolute;
+          inset: 0;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 21px;
-        }
-        
-        .frame-back,
-        .close-button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-        
-        .frame-back:hover,
-        .close-button:hover {
-          opacity: 0.8;
-        }
-        
-        .frame-back:active,
-        .close-button:active {
-          transform: scale(0.95);
-        }
-        
-        .back-arrow {
-          width: 18px;
-          height: 16px;
+          padding: 0 23px;
         }
         
         .back-arrow-wrapper {
           display: flex;
           align-items: center;
           justify-content: center;
+        }
+        
+        .back-arrow,
+        .close-icon {
+          display: block;
+        }
+        
+        .back-arrow {
+          width: 20px;
+          height: 16px;
         }
         
         .close-icon {
@@ -239,133 +586,32 @@ export default function BuyPage() {
           font-size: 20px;
           font-family: Inter, sans-serif;
           font-weight: 400;
-          text-transform: uppercase;
           letter-spacing: 0.5px;
+          text-transform: uppercase;
         }
         
-        
-        /* Main Content */
-        .frame-192 {
-          width: calc(100% - 58px);
-          left: 29px;
-          top: 125px;
-          position: absolute;
+        .frame-back,
+        .close-button {
           display: flex;
-          flex-direction: column;
-          justify-content: flex-start;
           align-items: center;
-          gap: 42px;
-        }
-        
-        .frame-185 {
-          width: 184px;
-          padding: 10px;
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-start;
-          align-items: flex-start;
-          gap: 10px;
-        }
-        
-        .logo-fracassa-ok-323-page-0001-1 {
-          width: 100%;
-          height: 117px;
-          object-fit: contain;
-        }
-        
-        .frame-171 {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-start;
-          align-items: center;
-          gap: 32px;
-        }
-        
-        .frame-170 {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
           justify-content: center;
-          align-items: stretch;
-          gap: 17px;
-        }
-        
-        .frame-49 {
-          width: 100%;
-          height: 45px;
-          position: relative;
-        }
-        
-        .input-field {
-          width: 100%;
-          height: 100%;
-          padding: 14px 16px;
-          background: #FFFEFE;
-          border: 1px solid rgba(0, 0, 0, 0.17);
-          border-radius: 16px;
-          color: rgba(151, 151, 164, 0.80);
-          font-size: 14px;
-          font-family: Inter, sans-serif;
-          font-weight: 500;
-          outline: none;
-        }
-        
-        .input-field::placeholder {
-          color: rgba(151, 151, 164, 0.80);
-        }
-        
-        .input-field:focus {
-          border-color: #F49401;
-        }
-        
-        /* Passeggeri Dropdown */
-        .frame-84 {
-          width: 159px;
-          height: 45px;
-          position: relative;
-        }
-        
-        .frame-493 {
-          width: 100%;
-          height: 100%;
-          position: relative;
-        }
-        
-        .frame-213 {
-          width: 100%;
-          height: 100%;
-          padding: 14px 16px;
-          background: #FFFEFE;
-          border: 1px solid rgba(0, 0, 0, 0.17);
-          border-radius: 16px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 10px;
+          width: auto;
+          height: auto;
           cursor: pointer;
-        }
-        
-        .passeggeri-e {
-          flex: 1;
-          background: transparent;
           border: none;
-          outline: none;
-          color: rgba(151, 151, 164, 0.80);
-          font-size: 14px;
-          font-family: Inter, sans-serif;
-          font-weight: 500;
-          cursor: pointer;
+          background: transparent;
+          padding: 0;
+          transition: opacity 0.2s ease, transform 0.2s ease;
         }
         
-        .passeggeri-e::placeholder {
-          color: rgba(151, 151, 164, 0.80);
+        .frame-back:hover,
+        .close-button:hover {
+          opacity: 0.8;
         }
         
-        .vector-5 {
-          width: 12.5px;
-          height: 8px;
-          flex-shrink: 0;
+        .frame-back:active,
+        .close-button:active {
+          transform: scale(0.95);
         }
         
         .dropdown-menu {
@@ -373,12 +619,12 @@ export default function BuyPage() {
           top: calc(100% + 4px);
           left: 0;
           right: 0;
-          background: white;
+          background: #ffffff;
           border: 1px solid rgba(0, 0, 0, 0.17);
           border-radius: 16px;
-          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
           z-index: 20;
-          max-height: 200px;
+          max-height: 220px;
           overflow-y: auto;
         }
         
@@ -387,13 +633,14 @@ export default function BuyPage() {
           font-size: 14px;
           font-family: Inter, sans-serif;
           font-weight: 500;
-          color: rgba(151, 151, 164, 0.80);
+          color: rgba(151, 151, 164, 0.8);
           cursor: pointer;
-          transition: background-color 0.2s;
+          transition: background-color 0.2s ease;
         }
         
         .dropdown-item:hover {
-          background-color: rgba(244, 148, 1, 0.1);
+          background-color: rgba(244, 148, 1, 0.08);
+          color: #232336;
         }
         
         .dropdown-item:first-child {
@@ -406,57 +653,20 @@ export default function BuyPage() {
           border-bottom-right-radius: 16px;
         }
         
-        /* Continue Button */
-        .frame-37 {
-          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
-          border-radius: 16px;
-          border: 1px solid rgba(0, 0, 0, 0.17);
-          padding: 15px 27px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          align-items: center;
-          justify-content: center;
-          width: 109px;
-          height: 47px;
-          margin: 32px auto 0;
-          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-          cursor: pointer;
-          transition: filter 0.2s, transform 0.2s;
+        .input-hint {
+          color: #d32f2f;
+          font-size: 12px;
+          font-family: Inter, sans-serif;
+          margin-top: 6px;
+          padding: 0 8px;
         }
         
-        .frame-37:hover {
-          filter: brightness(0.95);
-        }
-        
-        .frame-37:active {
-          transform: scale(0.97);
-        }
-        
-        .frame-17 {
-          display: flex;
-          flex-direction: row;
-          gap: 1px;
-          align-items: center;
-          justify-content: flex-start;
-        }
-        
-        .frame-35 {
-          display: flex;
-          flex-direction: row;
-          gap: 8px;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .continua {
-          color: #ffffff;
-          font-size: 14px;
-          font-family: "Inter-Medium", sans-serif;
-          font-weight: 600;
-          text-transform: none;
-          letter-spacing: 0.5px;
-          white-space: nowrap;
+        .error-message {
+          color: #d32f2f;
+          font-size: 12px;
+          font-family: Inter, sans-serif;
+          text-align: center;
+          padding: 0 8px;
         }
       `}</style>
     </div>

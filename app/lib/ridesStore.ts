@@ -14,6 +14,7 @@ export type RideWithStops = {
   destinationFascia?: number | null;
   intermediateStops?: Array<{ stopId: string; time: string; fascia?: number | null }>;
   archived?: boolean;
+  availableSaturday?: boolean;
 };
 
 /**
@@ -59,6 +60,7 @@ export async function listRides(): Promise<RideWithStops[]> {
       originFascia: originStop?.fascia ?? null,
       destinationFascia: destinationStop?.fascia ?? null,
       archived: r.archived ?? false,
+      availableSaturday: r.availableSaturday ?? false,
       intermediateStops: trueIntermediates,
     };
   });
@@ -79,6 +81,7 @@ export async function createRide(ride: Omit<RideWithStops, "id">): Promise<RideW
     departureTime: ride.departureTime,
     arrivalTime: ride.arrivalTime,
     archived: ride.archived ?? false,
+    availableSaturday: ride.availableSaturday ?? false,
     createdAt: nowInItaly(),
     updatedAt: nowInItaly(),
   });
@@ -151,6 +154,7 @@ export async function getRideById(rideId: string): Promise<RideWithStops | undef
     originFascia: (originStop as any)?.fascia ?? null,
     destinationFascia: (destinationStop as any)?.fascia ?? null,
     archived: r.archived ?? false,
+    availableSaturday: r.availableSaturday ?? false,
     intermediateStops: trueIntermediates.map((s) => ({ stopId: s.stopId, time: s.arrivalTime, fascia: (s as any).fascia ?? null })),
   };
 }
@@ -173,7 +177,8 @@ export async function updateRide(
     update.destinationStopId !== undefined ||
     update.departureTime !== undefined ||
     update.arrivalTime !== undefined ||
-    update.archived !== undefined;
+    update.archived !== undefined ||
+    update.availableSaturday !== undefined;
 
   // Update main ride only if there are actual ride field changes
   if (hasRideUpdates) {
@@ -186,6 +191,7 @@ export async function updateRide(
         departureTime: update.departureTime !== undefined ? update.departureTime : existing.departureTime,
         arrivalTime: update.arrivalTime !== undefined ? update.arrivalTime : existing.arrivalTime,
         archived: update.archived !== undefined ? update.archived : existing.archived ?? false,
+        availableSaturday: update.availableSaturday !== undefined ? update.availableSaturday : existing.availableSaturday ?? false,
         updatedAt: nowInItaly(),
       })
       .where(eq(ridesTable.id, rideId));

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface CalendarProps {
   isOpen: boolean;
@@ -20,6 +20,39 @@ export default function Calendar({
   maxDate
 }: CalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(selectedDate || new Date());
+  const [holidayDates, setHolidayDates] = useState<string[]>([]);
+  const hasLoadedFestivitiesRef = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen || hasLoadedFestivitiesRef.current) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    async function fetchFestivita() {
+      try {
+        const response = await fetch('/api/festivita', { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Festività request failed with status ${response.status}`);
+        }
+
+        const data: { festivita?: { date: string }[] } = await response.json();
+        if (!isCancelled) {
+          setHolidayDates(data.festivita?.map((item) => item.date) ?? []);
+          hasLoadedFestivitiesRef.current = true;
+        }
+      } catch (error) {
+        console.error('Errore durante il recupero delle festività:', error);
+      }
+    }
+
+    fetchFestivita();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -45,8 +78,13 @@ export default function Calendar({
   const handleDateClick = (day: number) => {
     const clickedDate = new Date(year, month, day);
     
-    // Check if date is valid (not in the past, within max date)
-    if (clickedDate < minDate || (maxDate && clickedDate > maxDate)) {
+    // Check if date is valid (not in the past, within max date, not Sunday or holiday)
+    if (
+      clickedDate < minDate ||
+      (maxDate && clickedDate > maxDate) ||
+      clickedDate.getDay() === 0 ||
+      isHoliday(clickedDate)
+    ) {
       return;
     }
 
@@ -62,13 +100,16 @@ export default function Calendar({
     setCurrentMonth(new Date(year, month + 1, 1));
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('it-IT', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+  const formatAsDateKey = (date: Date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   };
+
+  const holidaySet = new Set(holidayDates);
+
+  const isHoliday = (date: Date) => holidaySet.has(formatAsDateKey(date));
 
   const isDateSelected = (day: number) => {
     if (!selectedDate) return false;
@@ -78,7 +119,13 @@ export default function Calendar({
 
   const isDateDisabled = (day: number) => {
     const dateToCheck = new Date(year, month, day);
-    return dateToCheck < minDate || (maxDate && dateToCheck > maxDate);
+    const isSunday = dateToCheck.getDay() === 0; // Sunday is day 0
+    return (
+      dateToCheck < minDate ||
+      (maxDate && dateToCheck > maxDate) ||
+      isSunday ||
+      isHoliday(dateToCheck)
+    );
   };
 
   const isToday = (day: number) => {
@@ -113,7 +160,7 @@ export default function Calendar({
         {/* Day names */}
         <div className="calendar-days-header">
           {dayNames.map((day) => (
-            <div key={day} className="calendar-day-name">
+            <div key={day} className={`calendar-day-name ${day === 'Dom' ? 'disabled' : ''}`}>
               {day}
             </div>
           ))}
@@ -232,6 +279,10 @@ export default function Calendar({
           font-weight: 500;
           color: #666666;
           padding: 8px 0;
+        }
+
+        .calendar-day-name.disabled {
+          color: #d9d9d9;
         }
 
         .calendar-grid {

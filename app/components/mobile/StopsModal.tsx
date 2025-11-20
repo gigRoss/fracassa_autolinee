@@ -236,7 +236,7 @@ export default function StopsModal({
           font-family: "Inter-SemiBold", sans-serif;
           font-size: 14px;
           font-weight: 600;
-          color: #333333;
+          color: #9797a4;
           margin-bottom: 2px;
         }
 
@@ -244,7 +244,7 @@ export default function StopsModal({
           font-family: "Inter-Medium", sans-serif;
           font-size: 12px;
           font-weight: 500;
-          color: #666666;
+          color: rgba(151, 151, 164, 0.8);
         }
 
         .stops-modal-item-check {

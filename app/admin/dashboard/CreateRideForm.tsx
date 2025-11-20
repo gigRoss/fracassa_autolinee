@@ -16,6 +16,7 @@ type IntermediateStop = {
 
 export default function CreateRideForm() {
   const [lineName, setLineName] = useState("");
+  const [availableSaturday, setAvailableSaturday] = useState(false);
   const [stopsList, setStopsList] = useState<Stop[]>([]);
   const [originMode, setOriginMode] = useState<StopMode>("existing");
   const [originStopId, setOriginStopId] = useState("");
@@ -131,6 +132,7 @@ export default function CreateRideForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lineName,
+          availableSaturday,
           originStopId: originId,
           destinationStopId: destId,
           departureTime,
@@ -146,6 +148,7 @@ export default function CreateRideForm() {
       }
       setSuccess("Corsa creata con successo");
       setLineName("");
+      setAvailableSaturday(false);
       setOriginMode("existing");
       setOriginStopId("");
       setOriginNewCity("");
@@ -194,6 +197,18 @@ export default function CreateRideForm() {
         <div>
           <label className="block text-xs mb-1">Linea*</label>
           <input value={lineName} onChange={(e) => setLineName(e.target.value)} className="w-full h-10 px-3 rounded-md border bg-white/80 dark:bg-black/20" style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }} placeholder="L1" />
+        </div>
+        <div>
+          <label className="flex items-center gap-2 text-xs cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={availableSaturday} 
+              onChange={(e) => setAvailableSaturday(e.target.checked)}
+              className="w-4 h-4 rounded border"
+              style={{ borderColor: "color-mix(in oklab, var(--foreground) 20%, transparent)" }}
+            />
+            <span>Disponibile il sabato</span>
+          </label>
         </div>
       </div>
 
