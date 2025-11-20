@@ -101,12 +101,22 @@ function LoginFormContent() {
 
       <div className="frame-154">
         <form onSubmit={handleLogin} className="login-form">
-          {/* Hidden email input - email should be passed from previous page or stored */}
-          <input
-            type="hidden"
-            name="email"
-            value={email}
-          />
+          <div className="frame-45">
+            <div className="frame-49">
+              <input
+                type="email"
+                className="email-input"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError(null);
+                }}
+                required
+                autoComplete="email"
+              />
+            </div>
+          </div>
           <div className="frame-45">
             <div className="frame-49">
               <input
@@ -129,7 +139,7 @@ function LoginFormContent() {
           <button 
             type="submit" 
             className="frame-37" 
-            disabled={loading || !password}
+            disabled={loading || !password || !email}
           >
             <div className="frame-17">
               <div className="frame-35">
@@ -301,6 +311,7 @@ function LoginFormContent() {
           height: 45px;
         }
 
+        .email-input,
         .password-input {
           color: rgba(0, 0, 0, 0.8);
           text-align: left;
@@ -316,6 +327,7 @@ function LoginFormContent() {
           padding: 0;
         }
 
+        .email-input::placeholder,
         .password-input::placeholder {
           color: rgba(0, 0, 0, 0.35);
         }
