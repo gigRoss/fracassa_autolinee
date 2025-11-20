@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
-export default function AdminLoginFormPage() {
+function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
@@ -392,6 +392,26 @@ export default function AdminLoginFormPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function AdminLoginFormPage() {
+  return (
+    <Suspense fallback={
+      <div className="admin-password">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          background: '#ffffff'
+        }}>
+          Loading...
+        </div>
+      </div>
+    }>
+      <LoginFormContent />
+    </Suspense>
   );
 }
 
