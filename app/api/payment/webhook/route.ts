@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
           // Use departure date chosen by user, or fall back to today if not provided
           let departureDate: string;
           if (metadata.departureDate && metadata.departureDate.trim() !== '' && metadata.departureDate !== 'null' && metadata.departureDate !== 'undefined') {
-            departureDate = metadata.departureDate;
+            departureDate = metadata.departureDate.split('T')[0];
             console.log('[WEBHOOK] Using user-selected departure date:', departureDate);
           } else {
             // Fallback to today's date in YYYY-MM-DD format
