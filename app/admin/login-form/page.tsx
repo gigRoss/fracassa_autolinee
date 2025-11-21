@@ -11,11 +11,23 @@ function LoginFormContent() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState<'autista' | 'amministrazione' | null>(null);
 
-  // Get email from URL params or sessionStorage
+  // Get role and optional email from URL params
   useEffect(() => {
+    const roleParam = searchParams.get('role') as 'autista' | 'amministrazione' | null;
     const emailParam = searchParams.get('email');
     const storedEmail = sessionStorage.getItem('adminEmail');
+    
+    if (roleParam) {
+      setRole(roleParam);
+      sessionStorage.setItem('adminRole', roleParam);
+    } else {
+      const storedRole = sessionStorage.getItem('adminRole') as 'autista' | 'amministrazione' | null;
+      if (storedRole) {
+        setRole(storedRole);
+      }
+    }
     
     if (emailParam) {
       setEmail(emailParam);
@@ -50,6 +62,7 @@ function LoginFormContent() {
         body: JSON.stringify({
           email: email.trim(),
           password: password,
+          role: role || 'amministrazione', // Default to amministrazione if role not set
         }),
       });
 
@@ -59,11 +72,16 @@ function LoginFormContent() {
         throw new Error(data.error || 'Credenziali non valide');
       }
 
-      // Clear stored email
+      // Clear stored data
       sessionStorage.removeItem('adminEmail');
+      sessionStorage.removeItem('adminRole');
       
-      // Redirect to dashboard on success
-      router.push('/admin/dashboard');
+      // Redirect based on role
+      if (role === 'autista') {
+        router.push('/admin/driver/rides');
+      } else {
+        router.push('/admin/dashboard');
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Errore durante il login');

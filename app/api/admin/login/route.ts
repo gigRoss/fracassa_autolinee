@@ -5,7 +5,7 @@ import { findAdminByEmail, verifyPassword, createSession, SESSION_COOKIE, update
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password } = body;
+    const { email, password, role } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Use the same admin credentials for both roles (autista and amministrazione)
     const user = await findAdminByEmail(email.trim().toLowerCase());
     
     if (!user || !verifyPassword(password, user)) {
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, role: role || 'amministrazione' });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
