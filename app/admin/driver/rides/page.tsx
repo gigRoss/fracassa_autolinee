@@ -115,53 +115,56 @@ export default function DriverRidesPage() {
 
   return (
     <div className="select-journey">
-      {/* Back button */}
-      <button 
-        className="back-button"
-        onClick={handleBack}
-        aria-label="Indietro"
-      >
-        <svg 
-          width="18" 
-          height="16" 
-          viewBox="0 0 23 18" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
+      {/* Top orange header with back arrow and close (white icons) */}
+      <div className="header-bar">
+        {/* Back button */}
+        <button 
+          className="back-button"
+          onClick={handleBack}
+          aria-label="Indietro"
         >
-          <path 
-            d="M9.93086 17.1115C9.63081 17.4115 9.22392 17.58 8.79966 17.58C8.3754 17.58 7.9685 17.4115 7.66846 17.1115L0.468459 9.91154C0.168505 9.61149 7.322e-07 9.2046 7.69291e-07 8.78034C8.06381e-07 8.35608 0.168506 7.94918 0.468459 7.64914L7.66846 0.449139C7.97022 0.157687 8.37439 -0.00358318 8.7939 6.18039e-05C9.21342 0.00370678 9.61472 0.171977 9.91137 0.468631C10.208 0.765284 10.3763 1.16658 10.3799 1.5861C10.3836 2.00561 10.2223 2.40978 9.93086 2.71154L5.59966 7.18034L20.7997 7.18034C21.224 7.18034 21.631 7.34891 21.931 7.64897C22.2311 7.94903 22.3997 8.35599 22.3997 8.78034C22.3997 9.20469 22.2311 9.61165 21.931 9.91171C21.631 10.2118 21.224 10.3803 20.7997 10.3803L5.59966 10.3803L9.93086 14.8491C10.2308 15.1492 10.3993 15.5561 10.3993 15.9803C10.3993 16.4046 10.2308 16.8115 9.93086 17.1115Z" 
-            fill="#000000"
-          />
-        </svg>
-      </button>
+          <svg 
+            width="18" 
+            height="16" 
+            viewBox="0 0 23 18" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+              d="M9.93086 17.1115C9.63081 17.4115 9.22392 17.58 8.79966 17.58C8.3754 17.58 7.9685 17.4115 7.66846 17.1115L0.468459 9.91154C0.168505 9.61149 7.322e-07 9.2046 7.69291e-07 8.78034C8.06381e-07 8.35608 0.168506 7.94918 0.468459 7.64914L7.66846 0.449139C7.97022 0.157687 8.37439 -0.00358318 8.7939 6.18039e-05C9.21342 0.00370678 9.61472 0.171977 9.91137 0.468631C10.208 0.765284 10.3763 1.16658 10.3799 1.5861C10.3836 2.00561 10.2223 2.40978 9.93086 2.71154L5.59966 7.18034L20.7997 7.18034C21.224 7.18034 21.631 7.34891 21.931 7.64897C22.2311 7.94903 22.3997 8.35599 22.3997 8.78034C22.3997 9.20469 22.2311 9.61165 21.931 9.91171C21.631 10.2118 21.224 10.3803 20.7997 10.3803L5.59966 10.3803L9.93086 14.8491C10.2308 15.1492 10.3993 15.5561 10.3993 15.9803C10.3993 16.4046 10.2308 16.8115 9.93086 17.1115Z" 
+              fill="#FFFFFF"
+            />
+          </svg>
+        </button>
 
-      {/* Close button */}
-      <button 
-        className="close-button"
-        onClick={handleClose}
-        aria-label="Chiudi"
-      >
-        <svg 
-          width="15" 
-          height="15" 
-          viewBox="0 0 15 15" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
+        {/* Close button */}
+        <button 
+          className="close-button"
+          onClick={handleClose}
+          aria-label="Chiudi"
         >
-          <path 
-            d="M0.143677 0.143738L14.1437 14.1437" 
-            stroke="#000000" 
-            strokeWidth="3" 
-            strokeLinecap="round"
-          />
-          <path 
-            d="M13.9969 0L0.29042 14.2874" 
-            stroke="#000000" 
-            strokeWidth="3" 
-            strokeLinecap="round"
-          />
-        </svg>
-      </button>
+          <svg 
+            width="15" 
+            height="15" 
+            viewBox="0 0 15 15" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+              d="M0.143677 0.143738L14.1437 14.1437" 
+              stroke="#FFFFFF" 
+              strokeWidth="3" 
+              strokeLinecap="round"
+            />
+            <path 
+              d="M13.9969 0L0.29042 14.2874" 
+              stroke="#FFFFFF" 
+              strokeWidth="3" 
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      </div>
 
       {/* Scrollable container for logo and ride items */}
       <div className="rides-container">
@@ -221,34 +224,30 @@ export default function DriverRidesPage() {
           margin: 0 auto;
         }
 
-        .back-button {
+        .header-bar {
           position: absolute;
-          left: 21px;
-          top: 24px;
-          width: auto;
-          height: auto;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 91px;
+          border-bottom-right-radius: 20px;
+          border-bottom-left-radius: 20px;
+          padding: 16px 23px 20px;
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+          background: linear-gradient(
+            135deg,
+            rgba(255, 169, 37, 1) 0%,
+            rgba(250, 159, 19, 1) 57%,
+            rgba(244, 148, 1, 1) 75%
+          );
           display: flex;
           align-items: center;
-          justify-content: center;
-          background: transparent;
-          border: none;
-          cursor: pointer;
+          justify-content: space-between;
           z-index: 10;
-          transition: opacity 0.2s ease, transform 0.2s ease;
         }
 
-        .back-button:hover {
-          opacity: 0.7;
-        }
-
-        .back-button:active {
-          transform: scale(0.95);
-        }
-
+        .back-button,
         .close-button {
-          position: absolute;
-          right: 21px;
-          top: 24px;
           width: auto;
           height: auto;
           display: flex;
@@ -257,14 +256,15 @@ export default function DriverRidesPage() {
           background: transparent;
           border: none;
           cursor: pointer;
-          z-index: 10;
           transition: opacity 0.2s ease, transform 0.2s ease;
         }
 
+        .back-button:hover,
         .close-button:hover {
-          opacity: 0.7;
+          opacity: 0.8;
         }
 
+        .back-button:active,
         .close-button:active {
           transform: scale(0.95);
         }
@@ -295,7 +295,7 @@ export default function DriverRidesPage() {
           height: 80.14px;
           position: absolute;
           left: 141px;
-          top: 116px;
+          top: 150px;
           object-fit: cover;
           aspect-ratio: 112/80.14;
         }

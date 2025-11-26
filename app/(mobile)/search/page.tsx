@@ -1044,12 +1044,21 @@ function SearchContent() {
           display: flex;
           align-items: center;
           justify-content: center;
+          cursor: pointer;
         }
         .admin-icon {
           width: 18px;
           height: 18px;
           color: rgba(139, 139, 152, 0.28);
           transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        /* Hover effect for mouse users: enlarge and turn orange */
+        @media (hover: hover) and (pointer: fine) {
+          .frame-23:hover .admin-icon {
+            color: #f49401;
+            transform: scale(1.15);
+          }
         }
 
         .frame-23:active .admin-icon,
