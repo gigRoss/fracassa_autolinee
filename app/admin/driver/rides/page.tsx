@@ -110,7 +110,9 @@ export default function DriverRidesPage() {
 
   // Calculate spacing between items (61px based on design)
   const itemSpacing = 61;
-  const startTop = 281;
+  // Vertical offset of first ride item inside the scroll container
+  // (container itself is positioned under the header + logo)
+  const startTop = 21;
   const itemLeft = 26;
 
   return (
@@ -166,16 +168,17 @@ export default function DriverRidesPage() {
         </button>
       </div>
 
-      {/* Scrollable container for logo and ride items */}
-      <div className="rides-container">
-        {/* Logo */}
+      {/* Logo wrapper (fixed under orange header, above rides) */}
+      <div className="logo-wrapper">
         <img
           className="logo-fracassa-ok-323-page-0001-1"
           src="/mobile/logo-fracassa-new.png"
           alt="Fracassa Autolinee"
         />
+      </div>
 
-        {/* Ride items */}
+      {/* Scrollable container for ride items */}
+      <div className="rides-container">
         {rides.map((ride, index) => {
           const rideText = `${formatStopDisplay(ride.originStopName, ride.originStopCity)} - ${formatStopDisplay(ride.destinationStopName, ride.destinationStopCity)}`;
           const isSelected = selectedRideId === ride.id;
@@ -271,14 +274,15 @@ export default function DriverRidesPage() {
 
         .rides-container {
           position: absolute;
-          top: 0;
           left: 0;
           right: 0;
+          top: 260px; /* visual start of list under logo block */
           bottom: 0;
+          padding-bottom: 100px;
           overflow-y: auto;
           overflow-x: hidden;
-          padding-bottom: 100px;
-          height: 100%;
+          z-index: 1;
+          background: #ffffff;
         }
 
         .rides-container::-webkit-scrollbar {
@@ -290,12 +294,21 @@ export default function DriverRidesPage() {
           scrollbar-width: none;
         }
 
+        .logo-wrapper {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 130px;
+          display: flex;
+          justify-content: center;
+          padding: 16px 0;
+          background: #ffffff;
+          z-index: 8; /* above rides, below header */
+        }
+
         .logo-fracassa-ok-323-page-0001-1 {
           width: 112px;
           height: 80.14px;
-          position: absolute;
-          left: 141px;
-          top: 150px;
           object-fit: cover;
           aspect-ratio: 112/80.14;
         }
