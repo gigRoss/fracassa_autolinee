@@ -47,25 +47,19 @@ export default function AdminLogin2Page() {
         </button>
       </div>
 
-      <div className="frame-258">
-        <Image className="vector" src="/mobile/search/frame-410.svg" alt="" width={18} height={14} />
-        <Image className="frame-252" src="/mobile/search/frame-580.svg" alt="" width={16} height={16} />
-      </div>
-
-      <div className="frame-257">
-        <div className="admin">ADMIN</div>
-      </div>
-
-      <div className="frame-161"></div>
-
-      <div className="frame-260">
-        <div className="admin2">ADMIN</div>
-      </div>
-
-      <div className="frame-253">
-        <Image className="vector3" src="/mobile/search/frame-410.svg" alt="" width={20} height={16} />
-        <Image className="frame-2523" src="/mobile/search/frame-580.svg" alt="" width={16} height={16} />
-      </div>
+      <header className="frame-256">
+        <div className="frame-161">
+          <button className="frame-back" onClick={() => router.back()} aria-label="Torna indietro">
+            <div className="back-arrow-wrapper">
+              <Image className="back-arrow" src="/mobile/search/frame-410.svg" alt="" width={18} height={16} />
+            </div>
+          </button>
+          <div className="acquista">ADMIN</div>
+          <button className="close-button" onClick={() => router.push('/')} aria-label="Chiudi">
+            <Image className="close-icon" src="/mobile/search/frame-580.svg" alt="" width={16} height={16} />
+          </button>
+        </div>
+      </header>
 
       <style jsx>{`
         .admin-amministrazione,
@@ -272,156 +266,111 @@ export default function AdminLogin2Page() {
           position: relative;
         }
 
-        .frame-258 {
+        .frame-256 {
+          width: 393px;
+          height: 91px;
+          position: absolute;
+          left: 0;
+          top: 0;
           display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-          width: 348px;
-          position: absolute;
-          left: 21px;
-          top: 60px;
-          opacity: 0;
-          pointer-events: none;
+          justify-content: center;
         }
-
-        .vector {
-          flex-shrink: 0;
-          width: 18px;
-          height: 14px;
-          position: relative;
-          overflow: visible;
-        }
-
-        .frame-252 {
-          flex-shrink: 0;
-          width: 16px;
-          height: 16px;
-          position: relative;
-          overflow: visible;
-        }
-
-        .frame-254 {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-          width: 348px;
-          position: absolute;
-          left: 21px;
-          top: 60px;
-          opacity: 0;
-          pointer-events: none;
-        }
-
-        .vector2 {
-          flex-shrink: 0;
-          width: 18px;
-          height: 14px;
-          position: relative;
-          overflow: visible;
-        }
-
-        .frame-2522 {
-          flex-shrink: 0;
-          width: 16px;
-          height: 16px;
-          position: relative;
-          overflow: visible;
-        }
-
-        .frame-257 {
-          width: 243px;
-          height: 24px;
-          position: absolute;
-          left: 75px;
-          top: 48px;
-          opacity: 0;
-          pointer-events: none;
-        }
-
-        .admin {
-          color: #ffffff;
-          text-align: center;
-          font-family: "Inter-Regular", sans-serif;
-          font-size: 20px;
-          font-weight: 400;
-          position: absolute;
-          left: calc(50% - 46.5px);
-          top: 0px;
-          width: 67px;
-        }
-
+        
         .frame-161 {
-          background: radial-gradient(
-            closest-side,
-            rgba(255, 169, 37, 1) 39.13757801055908%,
-            rgba(244, 148, 1, 1) 74.92230534553528%
-          );
-          border-radius: 0px 0px 20px 20px;
-          padding: 0px 124px 0px 124px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          align-items: flex-start;
-          justify-content: flex-start;
-          width: 394px;
-          height: 83px;
-          position: absolute;
+          width: 100%;
+          height: 91px;
           left: 0px;
           top: 0px;
-          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-        }
-
-        .frame-260 {
-          width: 64px;
-          height: 24px;
           position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          top: 56px;
+          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+          border-bottom-right-radius: 20px;
+          border-bottom-left-radius: 20px;
+          z-index: 1000;
         }
-
-        .admin2 {
-          color: #ffffff;
-          text-align: center;
-          font-family: "Inter-Regular", sans-serif;
-          font-size: 20px;
-          font-weight: 400;
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          top: 0px;
-          width: 67px;
-        }
-
-        .frame-253 {
+        
+        .frame-back {
           display: flex;
-          flex-direction: row;
           align-items: center;
-          justify-content: space-between;
-          width: 348px;
+          justify-content: center;
+          width: auto;
+          height: auto;
           position: absolute;
-          left: 23px;
-          top: 52px;
-          opacity: 0;
-          pointer-events: none;
+          left: 21px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+          background: transparent;
+          padding: 0;
         }
-
-        .vector3 {
-          flex-shrink: 0;
-          width: 20px;
+        
+        .frame-back:hover {
+          opacity: 0.8;
+        }
+        
+        .frame-back:active {
+          transform: translateY(-50%) scale(0.95);
+        }
+        
+        .back-arrow-wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .back-arrow {
+          width: 18px;
           height: 16px;
           position: relative;
           overflow: visible;
         }
-
-        .frame-2523 {
-          flex-shrink: 0;
+        
+        .close-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: auto;
+          height: auto;
+          position: absolute;
+          right: 21px;
+          top: 50%;
+          transform: translateY(-50%);
+          overflow: visible;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+          background: transparent;
+          padding: 0;
+        }
+        
+        .close-button:hover {
+          opacity: 0.8;
+        }
+        
+        .close-button:active {
+          transform: translateY(-50%) scale(0.95);
+        }
+        
+        .close-icon {
           width: 16px;
           height: 16px;
           position: relative;
           overflow: visible;
+        }
+        
+        .acquista {
+          color: #ffffff;
+          font-size: 20px;
+          font-family: Inter, sans-serif;
+          font-weight: 400;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
         }
       `}</style>
     </div>

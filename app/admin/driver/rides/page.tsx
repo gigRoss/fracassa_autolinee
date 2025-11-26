@@ -90,10 +90,101 @@ export default function DriverRidesPage() {
 
   if (loading) {
     return (
-      <div className="select-journey">
-        <div className="loading-container">
-          <p>Caricamento...</p>
+      <div className="select-journey loading-splash">
+        <div className="loading-splash-inner" role="status" aria-label="Caricamento corse">
+          <div className="loading-logo">
+            <img
+              src="/mobile/splash-logo.png"
+              alt="Fracassa Autolinee"
+              className="loading-logo-img"
+            />
+          </div>
+          <div className="loading-dots" aria-hidden="true">
+            <span className="loading-dot" />
+            <span className="loading-dot" />
+            <span className="loading-dot" />
+            <span className="loading-dot" />
+          </div>
         </div>
+        <style jsx>{`
+          .loading-splash {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100vh; /* come la splash iniziale */
+            background: #ffffff;
+          }
+          .loading-splash-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            width: 100%;
+            max-width: 393px;
+            height: 100vh;
+          }
+          .loading-logo {
+            width: 184px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+          }
+          .loading-logo-img {
+            width: 100%;
+            height: 117px;
+            object-fit: contain;
+          }
+          .loading-dots {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 8px;
+          }
+          .loading-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #162686;
+            opacity: 0.4;
+            transform: scale(0.6);
+            animation: splash-dot-pulse 1.2s ease-in-out infinite;
+          }
+          .loading-dot:nth-child(2) {
+            animation-delay: 0.15s;
+          }
+          .loading-dot:nth-child(3) {
+            animation-delay: 0.3s;
+          }
+          .loading-dot:nth-child(4) {
+            animation-delay: 0.45s;
+          }
+          @keyframes splash-dot-pulse {
+            0%,
+            100% {
+              transform: scale(0.6);
+              opacity: 0.4;
+            }
+            40% {
+              transform: scale(1);
+              opacity: 1;
+            }
+            60% {
+              transform: scale(0.6);
+              opacity: 0.4;
+            }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .loading-dot {
+              animation: none;
+            }
+          }
+        `}</style>
       </div>
     );
   }
@@ -166,15 +257,6 @@ export default function DriverRidesPage() {
             />
           </svg>
         </button>
-      </div>
-
-      {/* Logo wrapper (fixed under orange header, above rides) */}
-      <div className="logo-wrapper">
-        <img
-          className="logo-fracassa-ok-323-page-0001-1"
-          src="/mobile/logo-fracassa-new.png"
-          alt="Fracassa Autolinee"
-        />
       </div>
 
       {/* Scrollable container for ride items */}
@@ -276,7 +358,7 @@ export default function DriverRidesPage() {
           position: absolute;
           left: 0;
           right: 0;
-          top: 260px; /* visual start of list under logo block */
+          top: 91px;
           bottom: 0;
           padding-bottom: 100px;
           overflow-y: auto;
@@ -292,25 +374,6 @@ export default function DriverRidesPage() {
         .rides-container {
           -ms-overflow-style: none;
           scrollbar-width: none;
-        }
-
-        .logo-wrapper {
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 130px;
-          display: flex;
-          justify-content: center;
-          padding: 16px 0;
-          background: #ffffff;
-          z-index: 8; /* above rides, below header */
-        }
-
-        .logo-fracassa-ok-323-page-0001-1 {
-          width: 112px;
-          height: 80.14px;
-          object-fit: cover;
-          aspect-ratio: 112/80.14;
         }
 
         .macchia-da-sole-teramo-centro {

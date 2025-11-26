@@ -259,17 +259,15 @@ export default function BuyPage() {
 
       <header className="frame-256">
         <div className="frame-161">
-          <div className="frame-253">
-            <button className="frame-back" onClick={handleBack} aria-label="Torna indietro">
-              <div className="back-arrow-wrapper">
-                <img className="back-arrow" src="/mobile/search/frame-410.svg" alt="" />
-              </div>
-            </button>
-            <div className="acquista">ACQUISTA</div>
-            <button className="close-button" onClick={() => router.push('/search')} aria-label="Chiudi">
-              <img className="close-icon" src="/mobile/search/frame-580.svg" alt="" />
-            </button>
-          </div>
+          <button className="frame-back" onClick={handleBack} aria-label="Torna indietro">
+            <div className="back-arrow-wrapper">
+              <img className="back-arrow" src="/mobile/search/frame-410.svg" alt="" />
+            </div>
+          </button>
+          <div className="acquista">ACQUISTA</div>
+          <button className="close-button" onClick={() => router.push('/search')} aria-label="Chiudi">
+            <img className="close-icon" src="/mobile/search/frame-580.svg" alt="" />
+          </button>
         </div>
       </header>
 
@@ -552,22 +550,40 @@ export default function BuyPage() {
         
         .frame-161 {
           width: 100%;
-          height: 100%;
-          position: relative;
+          height: 91px;
+          left: 0px;
+          top: 0px;
+          position: absolute;
+          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
-          padding: 16px 23px 20px;
-          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
+          z-index: 1000;
         }
         
-        .frame-253 {
-          position: absolute;
-          inset: 0;
+        .frame-back {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          padding: 0 23px;
+          justify-content: center;
+          width: auto;
+          height: auto;
+          position: absolute;
+          left: 21px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+          background: transparent;
+          padding: 0;
+        }
+        
+        .frame-back:hover {
+          opacity: 0.8;
+        }
+        
+        .frame-back:active {
+          transform: translateY(-50%) scale(0.95);
         }
         
         .back-arrow-wrapper {
@@ -576,19 +592,44 @@ export default function BuyPage() {
           justify-content: center;
         }
         
-        .back-arrow,
-        .close-icon {
-          display: block;
+        .back-arrow {
+          width: 18px;
+          height: 16px;
+          position: relative;
+          overflow: visible;
         }
         
-        .back-arrow {
-          width: 20px;
-          height: 16px;
+        .close-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: auto;
+          height: auto;
+          position: absolute;
+          right: 21px;
+          top: 50%;
+          transform: translateY(-50%);
+          overflow: visible;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+          background: transparent;
+          padding: 0;
+        }
+        
+        .close-button:hover {
+          opacity: 0.8;
+        }
+        
+        .close-button:active {
+          transform: translateY(-50%) scale(0.95);
         }
         
         .close-icon {
           width: 16px;
           height: 16px;
+          position: relative;
+          overflow: visible;
         }
         
         .acquista {
@@ -598,30 +639,10 @@ export default function BuyPage() {
           font-weight: 400;
           letter-spacing: 0.5px;
           text-transform: uppercase;
-        }
-        
-        .frame-back,
-        .close-button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: auto;
-          height: auto;
-          cursor: pointer;
-          border: none;
-          background: transparent;
-          padding: 0;
-          transition: opacity 0.2s ease, transform 0.2s ease;
-        }
-        
-        .frame-back:hover,
-        .close-button:hover {
-          opacity: 0.8;
-        }
-        
-        .frame-back:active,
-        .close-button:active {
-          transform: scale(0.95);
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
         }
         
         .dropdown-menu {

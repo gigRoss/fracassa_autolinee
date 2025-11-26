@@ -196,6 +196,248 @@ textarea {
 }
 .btn-secondary:hover { background: color-mix(in oklab, var(--brand-secondary) 90%, black 10%); }
 
+/* === Admin "Amministrazione" Dashboard (Figma) === */
+.amministrazione-page,
+.amministrazione-page * {
+  box-sizing: border-box;
+}
+
+.amministrazione-page {
+  background: #ffffff;
+  height: 852px;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 393px;
+  margin: 0 auto;
+}
+
+.vector-3 {
+  width: 90px;
+  height: 0px;
+  position: absolute;
+  left: 152px;
+  top: 844px;
+  overflow: visible;
+}
+
+.frame-157 {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 339px;
+  position: absolute;
+  left: 30px;
+  top: 189px;
+}
+
+.frame-64,
+.frame-62,
+.frame-45,
+.frame-63 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  height: 45px;
+  position: relative;
+}
+
+.frame-49,
+.frame-492,
+.frame-493 {
+  border-radius: 16px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.17);
+  border-width: 1px;
+  padding: 14px 9px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.frame-49 {
+  background: #ffffff;
+}
+
+.frame-492 {
+  background: #73e379;
+}
+
+.frame-493 {
+  background: rgba(255, 254, 254, 0.6);
+}
+
+.corse,
+.documenti,
+.gestione,
+.contabilit,
+.crea-nuova-corsa {
+  text-align: left;
+  font-family: "Inter-Medium", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+}
+
+.corse,
+.gestione,
+.contabilit,
+.crea-nuova-corsa {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.documenti {
+  color: #000000;
+}
+
+.frame-494 {
+  background: rgba(255, 254, 254, 0.6);
+  border-radius: 16px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.17);
+  border-width: 1px;
+  padding: 14px 9px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  width: 339px;
+  position: absolute;
+  left: 30px;
+  top: 412px;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.frame-256 {
+  width: 393px;
+  height: 91px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.frame-161 {
+  width: 100%;
+  height: 91px;
+  left: 0px;
+  top: 0px;
+  position: absolute;
+  background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  z-index: 1000;
+}
+
+.frame-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  position: absolute;
+  left: 21px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-decoration: none;
+}
+
+.frame-back:hover {
+  opacity: 0.8;
+}
+
+.frame-back:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.back-arrow-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-arrow {
+  width: 18px;
+  height: 16px;
+  position: relative;
+  overflow: visible;
+}
+
+.close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  position: absolute;
+  right: 21px;
+  top: 50%;
+  transform: translateY(-50%);
+  overflow: visible;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.close-button:hover {
+  opacity: 0.8;
+}
+
+.close-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.close-icon {
+  width: 16px;
+  height: 16px;
+  position: relative;
+  overflow: visible;
+}
+
+.acquista {
+  color: #ffffff;
+  font-size: 20px;
+  font-family: Inter, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.close-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
 /* Accent (orange) buttons */
 .btn-accent {
   background: var(--brand-accent-orange);
