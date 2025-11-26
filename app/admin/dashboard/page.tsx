@@ -32,9 +32,9 @@ export default async function AdminDashboardPage() {
         </div>
 
         <div className="frame-62">
-          <div className="frame-492">
+          <Link href="/admin/documents" className="frame-492">
             <div className="documenti">Documenti</div>
-          </div>
+          </Link>
         </div>
       </div>
 
