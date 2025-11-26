@@ -1,76 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { formatStopDisplay } from '@/app/lib/textUtils';
-
-interface Ride {
-  id: string;
-  lineName: string;
-  originStopId: string;
-  destinationStopId: string;
-  originStopName?: string;
-  originStopCity?: string;
-  destinationStopName?: string;
-  destinationStopCity?: string;
-  departureTime: string;
-  arrivalTime: string;
-}
+import Image from 'next/image';
 
 export default function DriverRidesPage() {
   const router = useRouter();
-  const [rides, setRides] = useState<Ride[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedRideId, setSelectedRideId] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchRides();
-  }, []);
-
-  const fetchRides = async () => {
-    try {
-      setLoading(true);
-      // Fetch rides and stops
-      const [ridesRes, stopsRes] = await Promise.all([
-        fetch('/api/driver/rides'),
-        fetch('/api/stops'),
-      ]);
-
-      if (!ridesRes.ok || !stopsRes.ok) {
-        throw new Error('Errore nel caricamento dei dati');
-      }
-
-      const ridesData = await ridesRes.json();
-      const stopsData = await stopsRes.json();
-
-      // Create a map of stop IDs to stop data (name and city)
-      const stopsMap = new Map<string, { name: string; city?: string }>();
-      stopsData.forEach((stop: { id: string; name: string; city?: string }) => {
-        stopsMap.set(stop.id, { name: stop.name, city: stop.city });
-      });
-
-      // Map rides with stop names and cities
-      const ridesWithNames = ridesData.map((ride: Ride) => {
-        const originStop = stopsMap.get(ride.originStopId);
-        const destStop = stopsMap.get(ride.destinationStopId);
-        return {
-          ...ride,
-          originStopName: originStop?.name || ride.originStopId,
-          originStopCity: originStop?.city || '',
-          destinationStopName: destStop?.name || ride.destinationStopId,
-          destinationStopCity: destStop?.city || '',
-        };
-      });
-
-      setRides(ridesWithNames);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching rides:', err);
-      setError(err instanceof Error ? err.message : 'Errore nel caricamento');
-      setLoading(false);
-    }
-  };
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const handleClose = () => {
     router.push('/');
@@ -80,131 +16,6 @@ export default function DriverRidesPage() {
     router.back();
   };
 
-  const handleRideClick = (rideId: string) => {
-    setSelectedRideId(rideId);
-    setTimeout(() => {
-      router.push(`/admin/driver/rides/${rideId}`);
-    }, 200);
-  };
-
-
-  if (loading) {
-    return (
-      <div className="select-journey loading-splash">
-        <div className="loading-splash-inner" role="status" aria-label="Caricamento corse">
-          <div className="loading-logo">
-            <img
-              src="/mobile/splash-logo.png"
-              alt="Fracassa Autolinee"
-              className="loading-logo-img"
-            />
-          </div>
-          <div className="loading-dots" aria-hidden="true">
-            <span className="loading-dot" />
-            <span className="loading-dot" />
-            <span className="loading-dot" />
-            <span className="loading-dot" />
-          </div>
-        </div>
-        <style jsx>{`
-          .loading-splash {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100vh; /* come la splash iniziale */
-            background: #ffffff;
-          }
-          .loading-splash-inner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 32px;
-            width: 100%;
-            max-width: 393px;
-            height: 100vh;
-          }
-          .loading-logo {
-            width: 184px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-          }
-          .loading-logo-img {
-            width: 100%;
-            height: 117px;
-            object-fit: contain;
-          }
-          .loading-dots {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            justify-content: center;
-            margin-top: 8px;
-          }
-          .loading-dot {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #162686;
-            opacity: 0.4;
-            transform: scale(0.6);
-            animation: splash-dot-pulse 1.2s ease-in-out infinite;
-          }
-          .loading-dot:nth-child(2) {
-            animation-delay: 0.15s;
-          }
-          .loading-dot:nth-child(3) {
-            animation-delay: 0.3s;
-          }
-          .loading-dot:nth-child(4) {
-            animation-delay: 0.45s;
-          }
-          @keyframes splash-dot-pulse {
-            0%,
-            100% {
-              transform: scale(0.6);
-              opacity: 0.4;
-            }
-            40% {
-              transform: scale(1);
-              opacity: 1;
-            }
-            60% {
-              transform: scale(0.6);
-              opacity: 0.4;
-            }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            .loading-dot {
-              animation: none;
-            }
-          }
-        `}</style>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="select-journey">
-        <div className="error-container">
-          <p className="error-message">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Calculate spacing between items (61px based on design)
-  const itemSpacing = 61;
-  // Vertical offset of first ride item inside the scroll container
-  // (container itself is positioned under the header + logo)
-  const startTop = 21;
-  const itemLeft = 26;
 
   return (
     <div className="select-journey">
@@ -230,68 +41,44 @@ export default function DriverRidesPage() {
           </svg>
         </button>
 
+        <div className="acquista">ADMIN</div>
+
         {/* Close button */}
         <button 
           className="close-button"
           onClick={handleClose}
           aria-label="Chiudi"
         >
-          <svg 
-            width="15" 
-            height="15" 
-            viewBox="0 0 15 15" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path 
-              d="M0.143677 0.143738L14.1437 14.1437" 
-              stroke="#FFFFFF" 
-              strokeWidth="3" 
-              strokeLinecap="round"
-            />
-            <path 
-              d="M13.9969 0L0.29042 14.2874" 
-              stroke="#FFFFFF" 
-              strokeWidth="3" 
-              strokeLinecap="round"
-            />
-          </svg>
+          <Image 
+            className="close-icon"
+            src="/mobile/search/frame-580.svg"
+            alt=""
+            width={16}
+            height={16}
+          />
         </button>
       </div>
 
-      {/* Scrollable container for ride items */}
-      <div className="rides-container">
-        {rides.map((ride, index) => {
-          const rideText = `${formatStopDisplay(ride.originStopName, ride.originStopCity)} - ${formatStopDisplay(ride.destinationStopName, ride.destinationStopCity)}`;
-          const isSelected = selectedRideId === ride.id;
-          
-          return (
-            <div
-              key={ride.id}
-              className={`ride-item ${isSelected ? 'ride-item-selected' : ''}`}
-              style={{
-                left: `${itemLeft}px`,
-                top: `${startTop + index * itemSpacing}px`,
-              }}
-              onClick={() => handleRideClick(ride.id)}
-            >
-              <p className="ride-item-text">{rideText}</p>
-            </div>
-          );
-        })}
+      {/* Menu section with Crea nuova corsa and search */}
+      <div className="menu-section">
+        <div className="frame-64">
+          <button className="frame-49" onClick={() => router.push('/admin/driver/rides/create')}>
+            <div className="corse">Crea nuova corsa</div>
+          </button>
+        </div>
+
+        <div className="search-section">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cerca corsa, fermata, orario..."
+            className="search-input"
+          />
+        </div>
       </div>
 
-      {/* Bottom text */}
-      {rides.length > 0 && (
-        <p className="macchia-da-sole-teramo-centro">
-          {formatStopDisplay(rides[0].originStopName, rides[0].originStopCity)} - {formatStopDisplay(rides[0].destinationStopName, rides[0].destinationStopCity)}
-        </p>
-      )}
 
-      {/* Vector 3 */}
-      <div className="vector-3">
-        <img src="/mobile/search/vector-30.svg" alt="" />
-      </div>
 
       <style jsx>{`
         .select-journey,
@@ -317,7 +104,6 @@ export default function DriverRidesPage() {
           height: 91px;
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
-          padding: 16px 23px 20px;
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           background: linear-gradient(
             135deg,
@@ -325,163 +111,199 @@ export default function DriverRidesPage() {
             rgba(250, 159, 19, 1) 57%,
             rgba(244, 148, 1, 1) 75%
           );
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
           z-index: 10;
         }
 
-        .back-button,
-        .close-button {
-          width: auto;
-          height: auto;
+        .back-button {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: transparent;
-          border: none;
+          width: auto;
+          height: auto;
+          position: absolute;
+          left: 21px;
+          top: 50%;
+          transform: translateY(-50%);
           cursor: pointer;
-          transition: opacity 0.2s ease, transform 0.2s ease;
+          transition: all 0.2s ease;
+          border: none;
+          background: transparent;
+          padding: 0;
         }
 
-        .back-button:hover,
+        .back-button:hover {
+          opacity: 0.8;
+        }
+
+        .back-button:active {
+          transform: translateY(-50%) scale(0.95);
+        }
+
+        .close-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: auto;
+          height: auto;
+          position: absolute;
+          right: 21px;
+          top: 50%;
+          transform: translateY(-50%);
+          overflow: visible;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+          background: transparent;
+          padding: 0;
+        }
+
         .close-button:hover {
           opacity: 0.8;
         }
 
-        .back-button:active,
         .close-button:active {
-          transform: scale(0.95);
+          transform: translateY(-50%) scale(0.95);
         }
 
-        .rides-container {
+        .acquista {
+          color: #ffffff;
+          font-size: 20px;
+          font-family: Inter, sans-serif;
+          font-weight: 400;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
           position: absolute;
-          left: 0;
-          right: 0;
-          top: 91px;
-          bottom: 0;
-          padding-bottom: 100px;
-          overflow-y: auto;
-          overflow-x: hidden;
-          z-index: 1;
-          background: #ffffff;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
         }
 
-        .rides-container::-webkit-scrollbar {
-          display: none;
-        }
-
-        .rides-container {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-
-        .macchia-da-sole-teramo-centro {
-          color: #000000;
-          text-align: left;
-          font-family: "Inter-Medium", sans-serif;
-          font-size: 14px;
-          font-weight: 500;
-          position: absolute;
-          left: 86px;
-          top: 865.5px;
-        }
-
-        .vector-3 {
-          width: 90px;
-          height: 0px;
-          position: absolute;
-          left: 152px;
-          top: 844px;
+        .close-icon {
+          width: 16px;
+          height: 16px;
+          position: relative;
           overflow: visible;
         }
 
-        .vector-3 img {
-          width: 100%;
-          height: auto;
-          display: block;
+        .menu-section {
+          position: absolute;
+          left: 30px;
+          top: 125px;
+          width: 339px;
+          display: flex;
+          flex-direction: column;
+          gap: 11px;
+          z-index: 2;
         }
 
-        .ride-item {
-          background: #ffffff;
+        .frame-64 {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          align-self: stretch;
+          flex-shrink: 0;
+          height: 45px;
+          position: relative;
+        }
+
+        .search-section {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          align-self: stretch;
+          flex-shrink: 0;
+          height: 45px;
+          position: relative;
+        }
+
+        .search-input {
+          background: #fffefe;
           border-radius: 16px;
           border-style: solid;
           border-color: rgba(0, 0, 0, 0.17);
           border-width: 1px;
-          padding: 14px 9px;
+          padding: 14px 20px;
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          align-items: center;
+          justify-content: flex-start;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          height: 45px;
+          width: 100%;
+          color: rgba(151, 151, 164, 0.8);
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          outline: none;
+        }
+
+        .search-input::placeholder {
+          color: rgba(151, 151, 164, 0.8);
+        }
+
+        .search-input:focus {
+          border-color: rgba(244, 148, 1, 0.5);
+        }
+
+        .frame-49 {
+          background: #fffefe;
+          border-radius: 16px;
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
+          padding: 14px 20px;
           display: flex;
           flex-direction: row;
           gap: 10px;
           align-items: center;
           justify-content: center;
-          width: 339px;
-          position: absolute;
-          cursor: pointer;
+          align-self: stretch;
+          flex-shrink: 0;
+          position: relative;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-          transition: all 0.2s ease;
+          cursor: pointer;
+          text-decoration: none;
+          transition: background-color 0.2s ease, transform 0.2s ease;
+          height: 45px;
+          width: 100%;
         }
 
-        .ride-item:hover {
+        .frame-49:hover {
           background: #F49401;
-          border-color: #F49401;
         }
 
-        .ride-item:hover .ride-item-text {
-          color: #000000;
+        .frame-49:hover .corse {
+          color: #ffffff;
         }
 
-        .ride-item:active {
+        .frame-49:active {
+          background: #F49401;
           transform: scale(0.98);
         }
 
-        .ride-item.ride-item-selected {
-          background: #F49401 !important;
-          border-color: #F49401 !important;
+        .frame-49:active .corse {
+          color: #ffffff;
         }
 
-        .ride-item.ride-item-selected .ride-item-text {
-          color: #000000 !important;
-        }
-
-        .ride-item.ride-item-selected:active {
-          transform: scale(0.98);
-        }
-
-        .ride-item.ride-item-selected:hover {
-          background: #F49401 !important;
-          border-color: #F49401 !important;
-        }
-
-        .ride-item.ride-item-selected:hover .ride-item-text {
-          color: #000000 !important;
-        }
-
-        .ride-item-text {
-          color: #000000;
+        .corse {
           text-align: left;
           font-family: "Inter-Medium", sans-serif;
           font-size: 14px;
           font-weight: 500;
           position: relative;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          color: rgba(0, 0, 0, 0.8);
+          transition: color 0.2s ease;
         }
 
-        .loading-container,
-        .error-container {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          text-align: center;
-        }
-
-        .error-message {
-          color: #d32f2f;
-          font-size: 14px;
-          font-family: Inter, sans-serif;
-        }
       `}</style>
     </div>
   );

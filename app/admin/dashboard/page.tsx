@@ -36,23 +36,6 @@ export default async function AdminDashboardPage() {
             <div className="documenti">Documenti</div>
           </div>
         </div>
-
-        <div className="frame-45">
-          <Link href="/admin/users" className="frame-493">
-            <div className="gestione">Gestione</div>
-          </Link>
-        </div>
-
-        <div className="frame-63">
-          <div className="frame-493">
-            <div className="contabilit">Contabilità</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Crea nuova corsa */}
-      <div className="frame-494">
-        <div className="crea-nuova-corsa">Crea nuova corsa</div>
       </div>
 
       {/* Orange header */}
