@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Calendar from '../../components/mobile/Calendar';
@@ -301,9 +302,13 @@ function SearchContent() {
 
   return (
     <div className="search">
-      {/* Logo Frame */}
+      {/* Logo Frame (tap to go to main search page) */}
       <div className="frame-1">
-        <div className="logo-block">
+        <Link
+          href="/search"
+          aria-label="Torna alla pagina principale"
+          className="logo-block logo-clickable"
+        >
           <Image
             src="/mobile/splash-logo.png"
             alt="Fracassa Autolinee"
@@ -312,7 +317,7 @@ function SearchContent() {
             priority
             className="logo-image"
           />
-        </div>
+        </Link>
       </div>
 
       {/* Bottom line */}
@@ -517,6 +522,14 @@ function SearchContent() {
           flex-direction: column;
           align-items: flex-start;
           gap: 10px;
+        }
+        .logo-clickable {
+          cursor: pointer;
+          transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+        .logo-clickable:hover {
+          transform: scale(1.02);
+          opacity: 0.95;
         }
         .logo-image {
           width: 100%;

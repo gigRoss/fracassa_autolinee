@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { listStops } from "@/app/lib/stopsStore";
 import { getRideById } from "@/app/lib/ridesStore";
 import { formatDuration } from "@/app/lib/data";
+import { normalizeStopName, normalizeCity } from "@/app/lib/textUtils";
 type Params = { id: string };
 
 export default async function RideDetail({ params }: { params: Promise<Params> }) {
@@ -32,7 +33,7 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
       </div>
 
       <h1 className="text-xl font-semibold mb-2">
-         {origin.name} → {dest.name}
+         {normalizeStopName(origin.name)} → {normalizeStopName(dest.name)}
       </h1>
       <div className="text-sm text-black/70 dark:text-white/70 mb-6">
         Partenza {ride.departureTime} • Arrivo {ride.arrivalTime} • Durata {duration}
@@ -42,7 +43,7 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
         <div className="p-4 flex items-center justify-between">
           {/*  <div className="font-medium">Partenza</div> */}
           <div className="text-sm text-[#9797a4]">
-            {origin.name.toLowerCase()} • {ride.departureTime}
+            {normalizeStopName(origin.name).toLowerCase()} • {ride.departureTime}
           </div>
         </div>
         {ride.intermediateStops && ride.intermediateStops.length > 0 && (
@@ -54,7 +55,7 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
                 <div className="p-4 flex items-center justify-between" key={`${s.stopId}-${s.time}-${idx}`}>
                   {/* <div className="font-medium">Fermata intermedia</div> */}
                   <div className="text-sm text-[#9797a4]">
-                    {via.name.toLowerCase()} • {s.time}
+                    {normalizeStopName(via.name).toLowerCase()} • {s.time}
                   </div>
                 </div>
               );
@@ -64,7 +65,7 @@ export default async function RideDetail({ params }: { params: Promise<Params> }
         <div className="p-4 flex items-center justify-between">
           {/* <div className="font-medium">Arrivo</div> */}
           <div className="text-sm text-[#9797a4]">
-            {dest.city.toLowerCase()} ({dest.name.toLowerCase()}) • {ride.arrivalTime}
+            {normalizeCity(dest.city).toLowerCase()} ({normalizeStopName(dest.name).toLowerCase()}) • {ride.arrivalTime}
           </div>
         </div>
       </div>

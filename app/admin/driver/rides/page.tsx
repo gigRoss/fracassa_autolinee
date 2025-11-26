@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { formatStopDisplay } from '@/app/lib/textUtils';
 
 interface Ride {
   id: string;
@@ -10,7 +10,9 @@ interface Ride {
   originStopId: string;
   destinationStopId: string;
   originStopName?: string;
+  originStopCity?: string;
   destinationStopName?: string;
+  destinationStopCity?: string;
   departureTime: string;
   arrivalTime: string;
 }
@@ -20,6 +22,7 @@ export default function DriverRidesPage() {
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedRideId, setSelectedRideId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRides();
@@ -41,18 +44,24 @@ export default function DriverRidesPage() {
       const ridesData = await ridesRes.json();
       const stopsData = await stopsRes.json();
 
-      // Create a map of stop IDs to names
-      const stopsMap = new Map<string, string>();
-      stopsData.forEach((stop: { id: string; name: string }) => {
-        stopsMap.set(stop.id, stop.name);
+      // Create a map of stop IDs to stop data (name and city)
+      const stopsMap = new Map<string, { name: string; city?: string }>();
+      stopsData.forEach((stop: { id: string; name: string; city?: string }) => {
+        stopsMap.set(stop.id, { name: stop.name, city: stop.city });
       });
 
-      // Map rides with stop names
-      const ridesWithNames = ridesData.map((ride: Ride) => ({
-        ...ride,
-        originStopName: stopsMap.get(ride.originStopId) || ride.originStopId,
-        destinationStopName: stopsMap.get(ride.destinationStopId) || ride.destinationStopId,
-      }));
+      // Map rides with stop names and cities
+      const ridesWithNames = ridesData.map((ride: Ride) => {
+        const originStop = stopsMap.get(ride.originStopId);
+        const destStop = stopsMap.get(ride.destinationStopId);
+        return {
+          ...ride,
+          originStopName: originStop?.name || ride.originStopId,
+          originStopCity: originStop?.city || '',
+          destinationStopName: destStop?.name || ride.destinationStopId,
+          destinationStopCity: destStop?.city || '',
+        };
+      });
 
       setRides(ridesWithNames);
       setLoading(false);
@@ -63,26 +72,21 @@ export default function DriverRidesPage() {
     }
   };
 
-  const handleBack = () => {
-    router.back();
-  };
-
   const handleClose = () => {
     router.push('/');
   };
 
-  const handleRideClick = (rideId: string) => {
-    // TODO: Navigate to ride details page
-    router.push(`/admin/driver/rides/${rideId}`);
+  const handleBack = () => {
+    router.back();
   };
 
-  const formatStopName = (name: string): string => {
-    // Take only the first part before comma if present, and format with first letter uppercase
-    const firstPart = name.split(',')[0].trim();
-    return firstPart.split(' ').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    ).join(' ');
+  const handleRideClick = (rideId: string) => {
+    setSelectedRideId(rideId);
+    setTimeout(() => {
+      router.push(`/admin/driver/rides/${rideId}`);
+    }, 200);
   };
+
 
   if (loading) {
     return (
@@ -104,133 +108,101 @@ export default function DriverRidesPage() {
     );
   }
 
+  // Calculate spacing between items (61px based on design)
+  const itemSpacing = 61;
+  const startTop = 281;
+  const itemLeft = 26;
+
   return (
     <div className="select-journey">
-      <div className="frame-242">
-        <div className="frame-185">
-          <img
-            className="logo-fracassa-ok-323-page-0001-1"
-            src="/mobile/logo-fracassa-new.png"
-            alt="Fracassa Autolinee"
+      {/* Back button */}
+      <button 
+        className="back-button"
+        onClick={handleBack}
+        aria-label="Indietro"
+      >
+        <svg 
+          width="18" 
+          height="16" 
+          viewBox="0 0 23 18" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M9.93086 17.1115C9.63081 17.4115 9.22392 17.58 8.79966 17.58C8.3754 17.58 7.9685 17.4115 7.66846 17.1115L0.468459 9.91154C0.168505 9.61149 7.322e-07 9.2046 7.69291e-07 8.78034C8.06381e-07 8.35608 0.168506 7.94918 0.468459 7.64914L7.66846 0.449139C7.97022 0.157687 8.37439 -0.00358318 8.7939 6.18039e-05C9.21342 0.00370678 9.61472 0.171977 9.91137 0.468631C10.208 0.765284 10.3763 1.16658 10.3799 1.5861C10.3836 2.00561 10.2223 2.40978 9.93086 2.71154L5.59966 7.18034L20.7997 7.18034C21.224 7.18034 21.631 7.34891 21.931 7.64897C22.2311 7.94903 22.3997 8.35599 22.3997 8.78034C22.3997 9.20469 22.2311 9.61165 21.931 9.91171C21.631 10.2118 21.224 10.3803 20.7997 10.3803L5.59966 10.3803L9.93086 14.8491C10.2308 15.1492 10.3993 15.5561 10.3993 15.9803C10.3993 16.4046 10.2308 16.8115 9.93086 17.1115Z" 
+            fill="#000000"
           />
-        </div>
+        </svg>
+      </button>
 
-        <div className="frame-90">
-          <div className="frame-79">
-            {rides.map((ride, index) => {
-              const rideText = `${formatStopName(ride.originStopName || ride.originStopId)} - ${formatStopName(ride.destinationStopName || ride.destinationStopId)}`;
-              
-              // First ride: frame-63 with padding 52px 84px and subtract0.svg
-              if (index === 0) {
-                return (
-                  <div
-                    key={ride.id}
-                    className="frame-63"
-                    onClick={() => handleRideClick(ride.id)}
-                  >
-                    <div className="subtract-container">
-                      <img 
-                        className="subtract" 
-                        src="/mobile/search/subtract0.svg" 
-                        alt="" 
-                      />
-                    </div>
-                    <p className="ride-name">
-                      {rideText}
-                    </p>
-                  </div>
-                );
-              }
-              
-              // Second and third rides: frame-64, frame-65 with padding 52px 76px and subtract1.svg
-              if (index === 1 || index === 2) {
-                const className = index === 1 ? 'frame-64' : 'frame-65';
-                return (
-                  <div
-                    key={ride.id}
-                    className={className}
-                    onClick={() => handleRideClick(ride.id)}
-                  >
-                    <div className="subtract-container">
-                      <img 
-                        className="subtract" 
-                        src="/mobile/search/subtract1.svg" 
-                        alt="" 
-                      />
-                    </div>
-                    <p className="ride-name">
-                      {rideText}
-                    </p>
-                  </div>
-                );
-              }
-              
-              // 4th ride (index 3): frame-73 with frame-66 inside
-              if (index === 3) {
-                return (
-                  <div key={ride.id} className="frame-73">
-                    <div className="frame-66" onClick={() => handleRideClick(ride.id)}>
-                      <div className="subtract-container">
-                        <img 
-                          className="subtract" 
-                          src="http://localhost:3845/assets/b6f2c234d9788c2a461f104b47db8ae40abd2ad2.svg" 
-                          alt="" 
-                        />
-                      </div>
-                      <p className="ride-name">
-                        {rideText}
-                      </p>
-                    </div>
-                  </div>
-                );
-              }
-              
-              // 5th ride (index 4): frame-74 with frame-662 inside
-              if (index === 4) {
-                return (
-                  <div key={ride.id} className="frame-74">
-                    <div className="frame-662" onClick={() => handleRideClick(ride.id)}>
-                      <div className="subtract-container">
-                        <img 
-                          className="subtract" 
-                          src="http://localhost:3845/assets/b6f2c234d9788c2a461f104b47db8ae40abd2ad2.svg" 
-                          alt="" 
-                        />
-                      </div>
-                      <p className="ride-name">
-                        {rideText}
-                      </p>
-                    </div>
-                  </div>
-                );
-              }
-              
-              // More than 5 rides: use frame-73 structure
-              return (
-                <div key={ride.id} className="frame-73">
-                  <div className="frame-66" onClick={() => handleRideClick(ride.id)}>
-                    <div className="subtract-container">
-                      <img 
-                        className="subtract" 
-                        src="/mobile/search/subtract1.svg" 
-                        alt="" 
-                      />
-                    </div>
-                    <p className="ride-name">
-                      {rideText}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+      {/* Close button */}
+      <button 
+        className="close-button"
+        onClick={handleClose}
+        aria-label="Chiudi"
+      >
+        <svg 
+          width="15" 
+          height="15" 
+          viewBox="0 0 15 15" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M0.143677 0.143738L14.1437 14.1437" 
+            stroke="#000000" 
+            strokeWidth="3" 
+            strokeLinecap="round"
+          />
+          <path 
+            d="M13.9969 0L0.29042 14.2874" 
+            stroke="#000000" 
+            strokeWidth="3" 
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
+
+      {/* Scrollable container for logo and ride items */}
+      <div className="rides-container">
+        {/* Logo */}
+        <img
+          className="logo-fracassa-ok-323-page-0001-1"
+          src="/mobile/logo-fracassa-new.png"
+          alt="Fracassa Autolinee"
+        />
+
+        {/* Ride items */}
+        {rides.map((ride, index) => {
+          const rideText = `${formatStopDisplay(ride.originStopName, ride.originStopCity)} - ${formatStopDisplay(ride.destinationStopName, ride.destinationStopCity)}`;
+          const isSelected = selectedRideId === ride.id;
+          
+          return (
+            <div
+              key={ride.id}
+              className={`ride-item ${isSelected ? 'ride-item-selected' : ''}`}
+              style={{
+                left: `${itemLeft}px`,
+                top: `${startTop + index * itemSpacing}px`,
+              }}
+              onClick={() => handleRideClick(ride.id)}
+            >
+              <p className="ride-item-text">{rideText}</p>
+            </div>
+          );
+        })}
       </div>
+
+      {/* Bottom text */}
+      {rides.length > 0 && (
+        <p className="macchia-da-sole-teramo-centro">
+          {formatStopDisplay(rides[0].originStopName, rides[0].originStopCity)} - {formatStopDisplay(rides[0].destinationStopName, rides[0].destinationStopCity)}
+        </p>
+      )}
+
+      {/* Vector 3 */}
       <div className="vector-3">
         <img src="/mobile/search/vector-30.svg" alt="" />
-      </div>
-      <div className="vector-4">
-        <img src="/mobile/search/vector-40.svg" alt="" />
       </div>
 
       <style jsx>{`
@@ -249,6 +221,96 @@ export default function DriverRidesPage() {
           margin: 0 auto;
         }
 
+        .back-button {
+          position: absolute;
+          left: 21px;
+          top: 24px;
+          width: auto;
+          height: auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          z-index: 10;
+          transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .back-button:hover {
+          opacity: 0.7;
+        }
+
+        .back-button:active {
+          transform: scale(0.95);
+        }
+
+        .close-button {
+          position: absolute;
+          right: 21px;
+          top: 24px;
+          width: auto;
+          height: auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          z-index: 10;
+          transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .close-button:hover {
+          opacity: 0.7;
+        }
+
+        .close-button:active {
+          transform: scale(0.95);
+        }
+
+        .rides-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding-bottom: 100px;
+          height: 100%;
+        }
+
+        .rides-container::-webkit-scrollbar {
+          display: none;
+        }
+
+        .rides-container {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+
+        .logo-fracassa-ok-323-page-0001-1 {
+          width: 112px;
+          height: 80.14px;
+          position: absolute;
+          left: 141px;
+          top: 116px;
+          object-fit: cover;
+          aspect-ratio: 112/80.14;
+        }
+
+        .macchia-da-sole-teramo-centro {
+          color: #000000;
+          text-align: left;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          position: absolute;
+          left: 86px;
+          top: 865.5px;
+        }
+
         .vector-3 {
           width: 90px;
           height: 0px;
@@ -264,209 +326,70 @@ export default function DriverRidesPage() {
           display: block;
         }
 
-        .vector-4 {
-          width: 0px;
-          height: 147px;
-          position: absolute;
-          left: 382px;
-          top: 281px;
-          overflow: visible;
-        }
-
-        .vector-4 img {
-          width: auto;
-          height: 100%;
-          display: block;
-        }
-
-        .frame-242 {
-          display: flex;
-          flex-direction: column;
-          gap: 17px;
-          align-items: center;
-          justify-content: flex-start;
-          width: 374px;
-          position: absolute;
-          left: 10px;
-          top: 106px;
-        }
-
-        .frame-185 {
-          padding: 10px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          align-items: flex-start;
-          justify-content: flex-start;
-          flex-shrink: 0;
-          width: 132px;
-          height: 98px;
-          position: relative;
-        }
-
-        .logo-fracassa-ok-323-page-0001-1 {
-          align-self: stretch;
-          flex-shrink: 0;
-          height: 80.14px;
-          position: relative;
-          object-fit: cover;
-          aspect-ratio: 112/80.14;
-        }
-
-        .frame-90 {
-          padding: 10px;
+        .ride-item {
+          background: #ffffff;
+          border-radius: 16px;
+          border-style: solid;
+          border-color: rgba(0, 0, 0, 0.17);
+          border-width: 1px;
+          padding: 14px 9px;
           display: flex;
           flex-direction: row;
           gap: 10px;
           align-items: center;
-          justify-content: flex-start;
-          align-self: stretch;
-          flex-shrink: 0;
-          position: relative;
-        }
-
-        .frame-79 {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          align-items: center;
-          justify-content: flex-start;
-          flex-shrink: 0;
-          width: 354px;
-          position: relative;
-        }
-
-        .frame-63 {
-          padding: 52px 84px 52px 84px;
-          display: flex;
-          flex-direction: row;
-          gap: 10px;
-          align-items: center;
-          justify-content: flex-start;
-          flex-shrink: 0;
-          width: 334px;
-          height: 122px;
-          position: relative;
-          cursor: pointer;
-          transition: opacity 0.2s ease;
-        }
-
-        .frame-64 {
-          padding: 52px 76px 52px 76px;
-          display: flex;
-          flex-direction: row;
-          gap: 10px;
-          align-items: center;
-          justify-content: flex-start;
-          flex-shrink: 0;
-          width: 334px;
-          height: 122px;
-          position: relative;
-          cursor: pointer;
-          transition: opacity 0.2s ease;
-        }
-
-        .frame-65 {
-          padding: 52px 76px 52px 76px;
-          display: flex;
-          flex-direction: row;
-          gap: 10px;
-          align-items: center;
-          justify-content: flex-start;
-          flex-shrink: 0;
-          width: 334px;
-          height: 122px;
-          position: relative;
-          cursor: pointer;
-          transition: opacity 0.2s ease;
-        }
-
-        .frame-73 {
-          padding: 10px;
-          align-self: stretch;
-          flex-shrink: 0;
-          height: 142px;
-          position: relative;
-        }
-
-        .frame-66 {
-          padding: 52px 84px 52px 84px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-          width: 334px;
-          height: 122px;
+          justify-content: center;
+          width: 339px;
           position: absolute;
-          left: 10px;
-          top: 10px;
           cursor: pointer;
-          transition: opacity 0.2s ease;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          transition: all 0.2s ease;
         }
 
-        .frame-74 {
-          padding: 10px;
-          align-self: stretch;
-          flex-shrink: 0;
-          height: 142px;
-          position: relative;
+        .ride-item:hover {
+          background: #F49401;
+          border-color: #F49401;
         }
 
-        .frame-662 {
-          padding: 52px 56px 52px 56px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-          width: 334px;
-          height: 122px;
-          position: absolute;
-          left: 10px;
-          top: 10px;
-          cursor: pointer;
-          transition: opacity 0.2s ease;
+        .ride-item:hover .ride-item-text {
+          color: #000000;
         }
 
-        .frame-63:hover,
-        .frame-64:hover,
-        .frame-65:hover,
-        .frame-66:hover,
-        .frame-662:hover {
-          opacity: 0.8;
+        .ride-item:active {
+          transform: scale(0.98);
         }
 
-        .subtract-container {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 334px;
-          height: 122px;
-          overflow: visible;
-          pointer-events: none;
+        .ride-item.ride-item-selected {
+          background: #F49401 !important;
+          border-color: #F49401 !important;
         }
 
-        .subtract {
-          position: absolute;
-          bottom: -6.56%;
-          left: -1.2%;
-          right: -1.2%;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: fill;
-          display: block;
-          max-width: none;
+        .ride-item.ride-item-selected .ride-item-text {
+          color: #000000 !important;
         }
 
-        .ride-name {
+        .ride-item.ride-item-selected:active {
+          transform: scale(0.98);
+        }
+
+        .ride-item.ride-item-selected:hover {
+          background: #F49401 !important;
+          border-color: #F49401 !important;
+        }
+
+        .ride-item.ride-item-selected:hover .ride-item-text {
+          color: #000000 !important;
+        }
+
+        .ride-item-text {
           color: #000000;
           text-align: left;
           font-family: "Inter-Medium", sans-serif;
           font-size: 14px;
           font-weight: 500;
           position: relative;
-          z-index: 1;
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .loading-container,
@@ -487,4 +410,3 @@ export default function DriverRidesPage() {
     </div>
   );
 }
-

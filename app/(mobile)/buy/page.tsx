@@ -161,6 +161,9 @@ export default function BuyPage() {
             className="logo-fracassa-ok-323-page-0001-1"
             src="/mobile/logo-fracassa-new.png"
             alt="Fracassa Autolinee"
+            role="button"
+            aria-label="Torna alla pagina principale"
+            onClick={() => router.push('/search')}
           />
         </div>
 
@@ -327,6 +330,13 @@ export default function BuyPage() {
           object-fit: cover;
           aspect-ratio: 164/117;
           width: 100%;
+          cursor: pointer;
+          transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        .logo-fracassa-ok-323-page-0001-1:hover {
+          transform: scale(1.02);
+          opacity: 0.95;
         }
         
         .frame-266 {

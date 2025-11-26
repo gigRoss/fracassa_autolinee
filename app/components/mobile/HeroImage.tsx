@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface HeroImageProps {
   priority?: boolean;
@@ -16,6 +17,7 @@ export default function HeroImage({
   priority = false,
   className = ''
 }: HeroImageProps) {
+  const router = useRouter();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -28,8 +30,13 @@ export default function HeroImage({
         absolute left-[18px]
         ${topPosition}
         w-[357px] h-[222px]
+        cursor-pointer
+        transition-transform duration-150 ease-out
         ${className}
       `}
+      role="button"
+      aria-label="Torna alla pagina principale"
+      onClick={() => router.push('/search')}
     >
       {/* Loading skeleton */}
       {!imageLoaded && !imageError && (

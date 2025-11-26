@@ -3,8 +3,9 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { stops, stopIdToStop, formatDuration } from '../../lib/data';
-import { truncateStopName } from '../../lib/textUtils';
+import { truncateStopName, normalizeStopName, normalizeCity } from '../../lib/textUtils';
 import type { Stop } from '../../lib/data';
 
 // Force dynamic rendering since this page depends on search parameters
@@ -204,9 +205,13 @@ function SearchResultsContent() {
 
   return (   
     <div className="find-i">
-      {/* Search background with logo */}
+      {/* Search background with logo (tap to go to main search page) */}
       <div className="frame-1">
-        <div className="logo-block">
+        <Link
+          href="/search"
+          aria-label="Torna alla pagina principale"
+          className="logo-block logo-clickable"
+        >
           <Image
             src="/mobile/splash-logo.png"
             alt="Fracassa Autolinee"
@@ -215,7 +220,7 @@ function SearchResultsContent() {
             priority
             className="logo-image"
           />
-        </div>
+        </Link>
       </div>
 
       {/* Header with search form */}
@@ -327,8 +332,8 @@ function SearchResultsContent() {
             ride.departureTime || '10:45',
             ride.arrivalTime || '11:15'
           );
-          const fromStopName = ride.originStop?.name || 'La tua posizione';
-          const toStopName = ride.destinationStop?.name || 'Teramo P.zza Garibaldi';
+          const fromStopName = normalizeStopName(ride.originStop?.name) || 'La tua posizione';
+          const toStopName = normalizeStopName(ride.destinationStop?.name) || 'Teramo P.zza Garibaldi';
 
           return (
             <div key={ride.id} className={`frame-${index === 0 ? '15' : index === 1 ? '15' : index === 2 ? '39' : index === 3 ? '41' : '42'}`}>
@@ -419,6 +424,14 @@ function SearchResultsContent() {
           flex-direction: column;
           align-items: flex-start;
           gap: 10px;
+        }
+        .logo-clickable {
+          cursor: pointer;
+          transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+        .logo-clickable:hover {
+          transform: scale(1.02);
+          opacity: 0.95;
         }
         .logo-image {
           width: 100%;

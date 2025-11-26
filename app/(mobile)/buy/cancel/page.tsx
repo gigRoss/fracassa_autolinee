@@ -33,6 +33,9 @@ export default function CancelPage() {
             className="logo-fracassa-ok-323-page-0001-1"
             src="/mobile/logo-fracassa-new.png"
             alt="Fracassa Autolinee"
+            role="button"
+            aria-label="Torna alla pagina principale"
+            onClick={handleGoHome}
           />
         </div>
 
@@ -158,6 +161,13 @@ export default function CancelPage() {
           width: 100%;
           height: 117px;
           object-fit: contain;
+          cursor: pointer;
+          transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        .logo-fracassa-ok-323-page-0001-1:hover {
+          transform: scale(1.02);
+          opacity: 0.95;
         }
         
         .content-section {

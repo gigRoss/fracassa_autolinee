@@ -4,12 +4,11 @@ import { listRides } from '@/app/lib/ridesStore';
 export async function GET(req: NextRequest) {
   try {
     // For now, allow access without auth (will add driver auth later)
+    // Get ALL rides from database (including archived)
     const allRides = await listRides();
-    // Filter out archived rides
-    const visibleRides = allRides.filter((r) => !r.archived);
     
-    // Return simplified ride data
-    const simplifiedRides = visibleRides.map((ride) => ({
+    // Return simplified ride data for all rides
+    const simplifiedRides = allRides.map((ride) => ({
       id: ride.id,
       lineName: ride.lineName,
       originStopId: ride.originStopId,

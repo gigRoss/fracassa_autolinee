@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { toMinutes } from "../lib/data";
 import { useAnalytics } from "../hooks/useAnalytics";
+import { normalizeStopName, normalizeCity } from "../lib/textUtils";
 
 async function fetchStops(): Promise<Array<{ id: string; name: string; city: string }>> {
   const res = await fetch("/stops", { cache: "no-store" });
@@ -340,10 +341,10 @@ export default function SearchDepartures() {
                       <div className="text-sm font-medium">
                         {matchedIntermediateStop ? (
                           // Show intermediate stop to destination
-                          <>{displayOrigin.name} → {dest.name}</>
+                          <>{normalizeStopName(displayOrigin.name)} → {normalizeStopName(dest.name)}</>
                         ) : (
                           // Show origin to destination
-                          <>{origin.name} → {dest.name}</>
+                          <>{normalizeStopName(origin.name)} → {normalizeStopName(dest.name)}</>
                         )}
                       </div>
                       <div className="text-xs text-black/60 dark:text-white/60 mt-1">
