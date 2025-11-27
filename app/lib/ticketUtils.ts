@@ -249,3 +249,14 @@ export async function updateTicketPaymentStatus(
     .where(eq(tickets.id, ticketId));
 }
 
+/**
+ * Get all tickets (for admin dashboard)
+ */
+export async function getAllTickets() {
+  const db = getDb();
+  return db
+    .select()
+    .from(tickets)
+    .orderBy(tickets.purchaseTimestamp);
+}
+
