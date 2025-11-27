@@ -201,7 +201,7 @@ export default function SimplifiedDashboard({ rides }: DashboardProps) {
               <button onClick={() => setShowCreateModal(false)} className="text-2xl leading-none">&times;</button>
             </div>
             <div className="p-4">
-              <CreateRideForm />
+              <CreateRideForm onSuccess={() => setShowCreateModal(false)} />
             </div>
           </div>
         </div>

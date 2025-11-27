@@ -14,7 +14,7 @@ type IntermediateStop = {
   newName?: string;
 };
 
-export default function CreateRideForm() {
+export default function CreateRideForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const [lineName, setLineName] = useState("");
   const [availableSaturday, setAvailableSaturday] = useState(false);
   const [stopsList, setStopsList] = useState<Stop[]>([]);
@@ -162,6 +162,12 @@ export default function CreateRideForm() {
       setOriginFascia("");
       setDestinationFascia("");
       setIntermediateStops([]);
+      
+      // Call onSuccess callback if provided (e.g., to close modal)
+      if (onSuccess) {
+        onSuccess();
+      }
+      
       // Trigger a refresh of server components list via router refresh
       if (typeof window !== "undefined") {
         // Soft refresh: navigate to same page to refresh server components

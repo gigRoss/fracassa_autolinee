@@ -1,84 +1,116 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { normalizeStopName, normalizeCity } from '@/app/lib/textUtils';
+
+interface Stop {
+  id: string;
+  name: string;
+  city: string;
+}
+
+interface Ride {
+  slug: string;
+  lineName: string;
+  originStopId: string;
+  destinationStopId: string;
+  departureTime: string;
+  arrivalTime: string;
+}
 
 export default function DriverRidesPage() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [rides, setRides] = useState<Ride[]>([]);
+  const [stops, setStops] = useState<Stop[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleClose = () => {
-    router.push('/');
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [ridesRes, stopsRes] = await Promise.all([
+          fetch('/rides', { cache: 'no-store' }),
+          fetch('/stops', { cache: 'no-store' }),
+        ]);
+
+        if (ridesRes.ok) {
+          const ridesData = await ridesRes.json();
+          setRides(ridesData);
+        }
+
+        if (stopsRes.ok) {
+          const stopsData = await stopsRes.json();
+          setStops(stopsData);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const stopIdToStop = Object.fromEntries(stops.map((s) => [s.id, s] as const));
+
+  const handleRideClick = (rideId: string) => {
+    router.push(`/admin/driver/rides/${rideId}`);
   };
 
-  const handleBack = () => {
-    router.back();
+  const getRideLabel = (ride: Ride): string => {
+    const origin = stopIdToStop[ride.originStopId];
+    const dest = stopIdToStop[ride.destinationStopId];
+    
+    if (!origin || !dest) return 'N/A';
+    
+    const originName = normalizeStopName(origin.name);
+    const destName = normalizeStopName(dest.name);
+    const originCity = normalizeCity(origin.city);
+    const destCity = normalizeCity(dest.city);
+    
+    // Format: "OriginName - DestCity DestName" (like "Leofara - Teramo Centro")
+    return `${originName} - ${destCity} ${destName}`;
   };
-
 
   return (
     <div className="select-journey">
-      {/* Top orange header with back arrow and close (white icons) */}
-      <div className="header-bar">
-        {/* Back button */}
-        <button 
-          className="back-button"
-          onClick={handleBack}
-          aria-label="Indietro"
-        >
-          <svg 
-            width="18" 
-            height="16" 
-            viewBox="0 0 23 18" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path 
-              d="M9.93086 17.1115C9.63081 17.4115 9.22392 17.58 8.79966 17.58C8.3754 17.58 7.9685 17.4115 7.66846 17.1115L0.468459 9.91154C0.168505 9.61149 7.322e-07 9.2046 7.69291e-07 8.78034C8.06381e-07 8.35608 0.168506 7.94918 0.468459 7.64914L7.66846 0.449139C7.97022 0.157687 8.37439 -0.00358318 8.7939 6.18039e-05C9.21342 0.00370678 9.61472 0.171977 9.91137 0.468631C10.208 0.765284 10.3763 1.16658 10.3799 1.5861C10.3836 2.00561 10.2223 2.40978 9.93086 2.71154L5.59966 7.18034L20.7997 7.18034C21.224 7.18034 21.631 7.34891 21.931 7.64897C22.2311 7.94903 22.3997 8.35599 22.3997 8.78034C22.3997 9.20469 22.2311 9.61165 21.931 9.91171C21.631 10.2118 21.224 10.3803 20.7997 10.3803L5.59966 10.3803L9.93086 14.8491C10.2308 15.1492 10.3993 15.5561 10.3993 15.9803C10.3993 16.4046 10.2308 16.8115 9.93086 17.1115Z" 
-              fill="#FFFFFF"
-            />
-          </svg>
-        </button>
-
-        <div className="acquista">ADMIN</div>
-
-        {/* Close button */}
-        <button 
-          className="close-button"
-          onClick={handleClose}
-          aria-label="Chiudi"
-        >
-          <Image 
-            className="close-icon"
-            src="/mobile/search/frame-580.svg"
-            alt=""
-            width={16}
-            height={16}
-          />
-        </button>
+      {/* Logo FRACASSA */}
+      <div className="logo-container">
+        <Image
+          src="/mobile/logo-fracassa-new.png"
+          alt="FRACASSA autolinee"
+          width={112}
+          height={80}
+          className="logo-image"
+          priority
+        />
       </div>
 
-      {/* Menu section with Crea nuova corsa and search */}
-      <div className="menu-section">
-        <div className="frame-64">
-          <button className="frame-49" onClick={() => router.push('/admin/driver/rides/create')}>
-            <div className="corse">Crea nuova corsa</div>
-          </button>
-        </div>
-
-        <div className="search-section">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cerca corsa, fermata, orario..."
-            className="search-input"
-          />
-        </div>
+      {/* Rides list */}
+      <div className="rides-list-container">
+        {loading ? (
+          <div className="loading-message">Caricamento...</div>
+        ) : rides.length === 0 ? (
+          <div className="no-rides-message">Nessuna corsa presente</div>
+        ) : (
+          <div className="rides-list">
+            {rides.map((ride) => (
+              <button
+                key={ride.slug}
+                className="ride-button"
+                onClick={() => handleRideClick(ride.slug)}
+              >
+                {getRideLabel(ride)}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-
+      {/* Bottom line */}
+      <div className="bottom-line" />
 
       <style jsx>{`
         .select-journey,
@@ -96,214 +128,98 @@ export default function DriverRidesPage() {
           margin: 0 auto;
         }
 
-        .header-bar {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-          height: 91px;
-          border-bottom-right-radius: 20px;
-          border-bottom-left-radius: 20px;
-          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-          background: linear-gradient(
-            135deg,
-            rgba(255, 169, 37, 1) 0%,
-            rgba(250, 159, 19, 1) 57%,
-            rgba(244, 148, 1, 1) 75%
-          );
-          z-index: 10;
-        }
-
-        .back-button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: auto;
-          height: auto;
-          position: absolute;
-          left: 21px;
-          top: 50%;
-          transform: translateY(-50%);
-          cursor: pointer;
-          transition: all 0.2s ease;
-          border: none;
-          background: transparent;
-          padding: 0;
-        }
-
-        .back-button:hover {
-          opacity: 0.8;
-        }
-
-        .back-button:active {
-          transform: translateY(-50%) scale(0.95);
-        }
-
-        .close-button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: auto;
-          height: auto;
-          position: absolute;
-          right: 21px;
-          top: 50%;
-          transform: translateY(-50%);
-          overflow: visible;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          border: none;
-          background: transparent;
-          padding: 0;
-        }
-
-        .close-button:hover {
-          opacity: 0.8;
-        }
-
-        .close-button:active {
-          transform: translateY(-50%) scale(0.95);
-        }
-
-        .acquista {
-          color: #ffffff;
-          font-size: 20px;
-          font-family: Inter, sans-serif;
-          font-weight: 400;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
+        .logo-container {
           position: absolute;
           left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-        }
-
-        .close-icon {
-          width: 16px;
-          height: 16px;
-          position: relative;
-          overflow: visible;
-        }
-
-        .menu-section {
-          position: absolute;
-          left: 30px;
-          top: 125px;
-          width: 339px;
+          top: 116px;
+          transform: translateX(-50%);
+          width: 112px;
+          height: 80.144px;
           display: flex;
-          flex-direction: column;
-          gap: 11px;
-          z-index: 2;
-        }
-
-        .frame-64 {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          align-items: flex-start;
-          justify-content: flex-start;
-          align-self: stretch;
-          flex-shrink: 0;
-          height: 45px;
-          position: relative;
-        }
-
-        .search-section {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          align-items: flex-start;
-          justify-content: flex-start;
-          align-self: stretch;
-          flex-shrink: 0;
-          height: 45px;
-          position: relative;
-        }
-
-        .search-input {
-          background: #fffefe;
-          border-radius: 16px;
-          border-style: solid;
-          border-color: rgba(0, 0, 0, 0.17);
-          border-width: 1px;
-          padding: 14px 20px;
-          display: flex;
-          flex-direction: row;
-          gap: 10px;
           align-items: center;
-          justify-content: flex-start;
-          align-self: stretch;
-          flex-shrink: 0;
-          position: relative;
-          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-          height: 45px;
+          justify-content: center;
+        }
+
+        .logo-image {
           width: 100%;
-          color: rgba(151, 151, 164, 0.8);
-          text-align: left;
-          font-family: "Inter-Medium", sans-serif;
-          font-size: 14px;
-          font-weight: 500;
-          outline: none;
+          height: 100%;
+          object-fit: contain;
         }
 
-        .search-input::placeholder {
-          color: rgba(151, 151, 164, 0.8);
+        .rides-list-container {
+          position: absolute;
+          left: 26px;
+          top: 243px;
+          width: 339px;
+          bottom: 60px;
+          overflow-y: auto;
         }
 
-        .search-input:focus {
-          border-color: rgba(244, 148, 1, 0.5);
+        .rides-list-container::-webkit-scrollbar {
+          display: none;
         }
 
-        .frame-49 {
-          background: #fffefe;
+        .rides-list-container {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+
+        .rides-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .ride-button {
+          background: #ffffff;
           border-radius: 16px;
-          border-style: solid;
-          border-color: rgba(0, 0, 0, 0.17);
-          border-width: 1px;
-          padding: 14px 20px;
+          border: 1px solid rgba(0, 0, 0, 0.17);
+          padding: 14px 9px;
           display: flex;
           flex-direction: row;
           gap: 10px;
           align-items: center;
           justify-content: center;
-          align-self: stretch;
-          flex-shrink: 0;
-          position: relative;
-          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-          cursor: pointer;
-          text-decoration: none;
-          transition: background-color 0.2s ease, transform 0.2s ease;
-          height: 45px;
           width: 100%;
-        }
-
-        .frame-49:hover {
-          background: #F49401;
-        }
-
-        .frame-49:hover .corse {
-          color: #ffffff;
-        }
-
-        .frame-49:active {
-          background: #F49401;
-          transform: scale(0.98);
-        }
-
-        .frame-49:active .corse {
-          color: #ffffff;
-        }
-
-        .corse {
-          text-align: left;
+          cursor: pointer;
+          transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          text-align: center;
           font-family: "Inter-Medium", sans-serif;
           font-size: 14px;
           font-weight: 500;
+          color: #000000;
           position: relative;
-          color: rgba(0, 0, 0, 0.8);
-          transition: color 0.2s ease;
         }
 
+        .ride-button:hover {
+          background: #F49401;
+          color: #ffffff;
+          transform: translateY(-2px);
+          box-shadow: 0px 6px 8px 0px rgba(0, 0, 0, 0.3);
+        }
+
+        .ride-button:active {
+          transform: translateY(0px) scale(0.98);
+        }
+
+        .loading-message,
+        .no-rides-message {
+          text-align: center;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.6);
+          padding: 40px 20px;
+        }
+
+        .bottom-line {
+          position: absolute;
+          left: 152px;
+          top: 844px;
+          width: 90px;
+          height: 0px;
+          border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
       `}</style>
     </div>
   );
