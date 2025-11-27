@@ -46,8 +46,9 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'Credenziali non valide');
       }
 
-      // Redirect to dashboard
-      router.push('/admin/dashboard');
+      // Redirect based on response (dashboard corse or tickets dashboard)
+      const redirectTo = data.redirectTo || '/admin/dashboard';
+      router.push(redirectTo);
     } catch (err) {
       console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Errore durante il login');

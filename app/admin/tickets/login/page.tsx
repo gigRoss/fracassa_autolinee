@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 export default function TicketsLoginPage() {
   const router = useRouter();
+  
+  useEffect(() => {
+    // Redirect to main login page
+    router.replace('/admin/login');
+  }, [router]);
+  
+  return null;
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
