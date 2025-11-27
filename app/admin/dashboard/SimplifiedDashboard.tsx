@@ -92,8 +92,8 @@ export default function SimplifiedDashboard({ rides }: DashboardProps) {
 
   return (
     <div className="space-y-6">
-      {/* Pulsanti Crea e Mostra tutte */}
-      <div className="space-y-3">
+      {/* Pulsanti Crea, Mostra tutte e Cerca */}
+      <div className="frame-155">
         <div className="frame-64">
           <button className="frame-49 w-full" onClick={() => setShowCreateModal(true)}>
             <div className="crea-nuova-corsa">Crea nuova corsa</div>
@@ -110,50 +110,63 @@ export default function SimplifiedDashboard({ rides }: DashboardProps) {
             <div className="crea-nuova-corsa">{showAll ? "Nascondi" : "Mostra tutte"}</div>
           </button>
         </div>
-      </div>
-
-      {/* Barra di ricerca */}
-      <div className="space-y-3">
-        <div>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setShowAll(false);
-            }}
-            placeholder="Cerca corsa, fermata, orario..."
-            className="w-full h-10 px-4 rounded-md border bg-white/80 dark:bg-black/20"
-            style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
-          />
-        </div>
-
-        {/* Ordinamento */}
-        {shouldShowResults && (
-          <div className="flex flex-wrap gap-2 items-center text-sm">
-            <span className="text-black/60 dark:text-white/60">Ordina per:</span>
-            <select
-              value={sortField}
-              onChange={(e) => setSortField(e.target.value as SortField)}
-              className="h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20 text-sm"
-              style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
-            >
-              <option value="departureTime">Orario partenza</option>
-              <option value="arrivalTime">Orario arrivo</option>
-              <option value="lineName">Nome linea</option>
-              <option value="origin">Origine</option>
-              <option value="destination">Destinazione</option>
-            </select>
-            <button
-              onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}
-              className="btn text-sm h-9 px-3"
-              title={sortDirection === "asc" ? "Crescente" : "Decrescente"}
-            >
-              {sortDirection === "asc" ? "↑ A-Z" : "↓ Z-A"}
-            </button>
+        <div className="frame-64">
+          <div className="frame-49 w-full">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowAll(false);
+              }}
+              placeholder="Cerca corsa, fermata, orario..."
+              className="search-input"
+              style={{
+                width: '100%',
+                height: 'auto',
+                minHeight: 0,
+                border: 'none',
+                background: 'transparent',
+                outline: 'none',
+                fontFamily: '"Inter-Medium", sans-serif',
+                fontSize: '14px',
+                fontWeight: 500,
+                lineHeight: '1',
+                color: 'rgba(0, 0, 0, 0.8)',
+                padding: 0,
+                margin: 0,
+                boxSizing: 'border-box',
+              }}
+            />
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Ordinamento */}
+      {shouldShowResults && (
+        <div className="flex flex-wrap gap-2 items-center text-sm">
+          <span className="text-black/60 dark:text-white/60">Ordina per:</span>
+          <select
+            value={sortField}
+            onChange={(e) => setSortField(e.target.value as SortField)}
+            className="h-9 px-3 rounded-md border bg-white/80 dark:bg-black/20 text-sm"
+            style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
+          >
+            <option value="departureTime">Orario partenza</option>
+            <option value="arrivalTime">Orario arrivo</option>
+            <option value="lineName">Nome linea</option>
+            <option value="origin">Origine</option>
+            <option value="destination">Destinazione</option>
+          </select>
+          <button
+            onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}
+            className="btn text-sm h-9 px-3"
+            title={sortDirection === "asc" ? "Crescente" : "Decrescente"}
+          >
+            {sortDirection === "asc" ? "↑ A-Z" : "↓ Z-A"}
+          </button>
+        </div>
+      )}
 
       {/* Risultati ricerca / Tutte le corse */}
       {shouldShowResults && (
