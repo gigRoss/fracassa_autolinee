@@ -92,16 +92,29 @@ export default function SimplifiedDashboard({ rides }: DashboardProps) {
 
   return (
     <div className="space-y-6">
-      {/* Pulsante Crea */}
-      <div>
-        <button className="btn btn-primary w-full sm:w-auto" onClick={() => setShowCreateModal(true)}>
-          Crea nuova corsa
-        </button>
+      {/* Pulsanti Crea e Mostra tutte */}
+      <div className="space-y-3">
+        <div className="frame-64">
+          <button className="frame-49 w-full" onClick={() => setShowCreateModal(true)}>
+            <div className="crea-nuova-corsa">Crea nuova corsa</div>
+          </button>
+        </div>
+        <div className="frame-64">
+          <button
+            className="frame-49 w-full"
+            onClick={() => {
+              setShowAll(!showAll);
+              setSearchQuery("");
+            }}
+          >
+            <div className="crea-nuova-corsa">{showAll ? "Nascondi" : "Mostra tutte"}</div>
+          </button>
+        </div>
       </div>
 
-      {/* Barra di ricerca + Mostra tutte */}
+      {/* Barra di ricerca */}
       <div className="space-y-3">
-        <div className="flex gap-2">
+        <div>
           <input
             type="text"
             value={searchQuery}
@@ -110,18 +123,9 @@ export default function SimplifiedDashboard({ rides }: DashboardProps) {
               setShowAll(false);
             }}
             placeholder="Cerca corsa, fermata, orario..."
-            className="flex-1 h-10 px-4 rounded-md border bg-white/80 dark:bg-black/20"
+            className="w-full h-10 px-4 rounded-md border bg-white/80 dark:bg-black/20"
             style={{ borderColor: "color-mix(in oklab, var(--foreground) 10%, transparent)" }}
           />
-          <button
-            className="btn whitespace-nowrap"
-            onClick={() => {
-              setShowAll(!showAll);
-              setSearchQuery("");
-            }}
-          >
-            {showAll ? "Nascondi" : "Mostra tutte"}
-          </button>
         </div>
 
         {/* Ordinamento */}

@@ -278,7 +278,8 @@ textarea {
 }
 
 .frame-49:hover .corse,
-.frame-492:hover .documenti {
+.frame-492:hover .documenti,
+.frame-49:hover .crea-nuova-corsa {
   color: #ffffff;
 }
 
@@ -289,7 +290,8 @@ textarea {
 }
 
 .frame-49:active .corse,
-.frame-492:active .documenti {
+.frame-492:active .documenti,
+.frame-49:active .crea-nuova-corsa {
   color: #ffffff;
 }
 
