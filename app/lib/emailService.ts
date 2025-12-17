@@ -296,21 +296,17 @@ function generateEmailHTML(data: TicketEmailData): string {
     </div>
     
     <div class="footer">
-      <p style="margin: 0 0 10px 0;"><strong>Fracassa Autolinee</strong></p>
-      <p style="margin: 5px 0;">Servizi di trasporto passeggeri di qualità</p>
+      <p style="margin: 0 0 15px 0;"><strong>Fracassa Autolinee</strong></p>
+      
+      <p style="margin: 5px 0;">Per info e assistenza:</p>
+      <p style="margin: 5px 0;">Tel. <a href="tel:+390861410578" style="color: #1e40af;">0861 410578</a></p>
+      <p style="margin: 5px 0;">WhatsApp <a href="https://wa.me/393451120967" style="color: #1e40af;">345 1120967</a></p>
+      <p style="margin: 5px 0;"><a href="mailto:autolineefracassa@alice.it" style="color: #1e40af;">autolineefracassa@alice.it</a></p>
       
       <hr class="footer-divider">
       
-      <div class="support-info">
-        <p style="margin: 5px 0;"><strong>Hai bisogno di assistenza?</strong></p>
-        <p style="margin: 5px 0;">Contattaci: <a href="mailto:${getSupportEmail()}" style="color: #1e40af;">${getSupportEmail()}</a></p>
-      </div>
-      
-      <p style="margin: 15px 0 5px 0; font-size: 11px; color: #94a3b8;">
-        Questa email è stata generata automaticamente. Per favore non rispondere a questo messaggio.
-      </p>
-      <p style="margin: 5px 0; font-size: 11px; color: #94a3b8;">
-        © ${new Date().getFullYear()} Fracassa Autolinee. Tutti i diritti riservati.
+      <p style="margin: 10px 0 5px 0; font-size: 11px; color: #94a3b8;">
+        © Fracassa Autolinee S.r.l. · P. IVA 01765220676
       </p>
     </div>
   </div>
@@ -367,13 +363,12 @@ al momento della partenza. Il numero del biglietto potrebbe
 essere richiesto per la verifica.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Hai bisogno di assistenza?
-Contattaci: ${getSupportEmail()}
+Per info e assistenza:
+Tel. 0861 410578
+WhatsApp 345 1120967
+autolineefracassa@alice.it
 
-Questa email è stata generata automaticamente. 
-Per favore non rispondere a questo messaggio.
-
-© ${new Date().getFullYear()} Fracassa Autolinee. Tutti i diritti riservati.
+© Fracassa Autolinee S.r.l. · P. IVA 01765220676
   `.trim();
 }
 
