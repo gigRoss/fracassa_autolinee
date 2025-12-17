@@ -285,7 +285,7 @@ function SearchResultsContent() {
           <div className="andata">Andata</div>
           <div className="_11-06-2025">{formatDateDisplay(andataDate)}</div>
         </div>
-        <div className="frame-32">
+        <div className="frame-32 disabled">
           <div className="ritorno">Ritorno</div>
           <div className="_11-06-2025">{formatDateDisplay(ritornoDate)}</div>
         </div>
@@ -686,7 +686,8 @@ function SearchResultsContent() {
           width: 165px;
           height: 51px;
           position: absolute;
-          left: 0px;
+          left: 50%;
+          transform: translateX(-50%);
           top: 136px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
         }
@@ -723,6 +724,11 @@ function SearchResultsContent() {
           left: 169px;
           top: 136px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          display: none;
+        }
+        .frame-32.disabled {
+          opacity: 0.4;
+          pointer-events: none;
         }
         .ritorno {
           color: #d6d8dc;

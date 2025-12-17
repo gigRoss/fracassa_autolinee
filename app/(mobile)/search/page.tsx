@@ -434,7 +434,7 @@ function SearchContent() {
         <div className={`frame-30 ${showAndataError ? 'has-error' : ''}`} onClick={() => setIsAndataCalendarOpen(true)}>
           <div className="frame-109">
             <div className="frame-48">
-              <div className="andata">Andata</div>
+              <div className="andata">Data</div>
             </div>
             <div className="frame-108">
               <div className="div">{formatDateDisplay(andataDate)}</div>
@@ -456,7 +456,7 @@ function SearchContent() {
           </div>
         )}
 
-        <div className="frame-32" onClick={() => setIsRitornoCalendarOpen(true)}>
+        <div className="frame-32 disabled">
           <div className="frame-111">
             <div className="frame-47">
               <div className="ritorno">Ritorno</div>
@@ -902,7 +902,8 @@ function SearchContent() {
           width: 165px;
           height: 51px;
           position: absolute;
-          left: 0px;
+          left: 50%;
+          transform: translateX(-50%);
           top: 136px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
@@ -922,9 +923,10 @@ function SearchContent() {
           font-size: 11px;
           font-weight: 500;
           position: absolute;
-          left: 0px;
+          left: 50%;
+          transform: translateX(-50%);
           top: 192px;
-          padding-left: 8px;
+          text-align: center;
           animation: fadeIn 0.3s ease-in;
         }
         @keyframes fadeIn {
@@ -1008,9 +1010,16 @@ function SearchContent() {
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
           transition: background-color 0.2s;
+          display: none;
         }
 
-        .frame-32:hover {
+        .frame-32.disabled {
+          opacity: 0.4;
+          pointer-events: none;
+          cursor: not-allowed;
+        }
+
+        .frame-32:hover:not(.disabled) {
           background: rgba(255, 254, 254, 0.8);
         }
         .frame-111 {
