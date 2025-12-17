@@ -474,8 +474,33 @@ export async function sendTicketConfirmationEmail(
       text: textContent,
     });
 
+    // Validate messageId is present - if null/undefined, the email was not actually sent
+    const messageId = result.data?.id;
+    if (!messageId) {
+      const errorMsg = 'Email API returned no messageId - email was not sent';
+      console.error('[EMAIL] CRITICAL: Email send failed - no messageId returned:', {
+        ticketNumber: data.ticketNumber,
+        to: data.passengerEmail,
+        result: JSON.stringify(result),
+        timestamp: new Date().toISOString()
+      });
+      
+      await logEmailSend(
+        data.ticketNumber,
+        data.passengerEmail,
+        'failed',
+        undefined,
+        errorMsg
+      );
+      
+      return {
+        success: false,
+        error: errorMsg
+      };
+    }
+
     console.log('[EMAIL] Email sent successfully:', {
-      messageId: result.data?.id,
+      messageId,
       ticketNumber: data.ticketNumber,
       timestamp: new Date().toISOString()
     });
@@ -485,12 +510,12 @@ export async function sendTicketConfirmationEmail(
       data.ticketNumber,
       data.passengerEmail,
       'sent',
-      result.data?.id
+      messageId
     );
 
     return {
       success: true,
-      messageId: result.data?.id
+      messageId
     };
 
   } catch (error) {
