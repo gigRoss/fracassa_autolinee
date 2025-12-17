@@ -87,6 +87,31 @@ function SearchContent() {
     loadStops();
   }, []);
 
+  // Helper function to parse date from URL (handles both YYYY-MM-DD and ISO formats)
+  const parseDateFromUrl = (dateStr: string): Date | null => {
+    try {
+      // Check if it's a YYYY-MM-DD format (local date)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day);
+      }
+      // Otherwise try to parse as ISO or other format
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        // If it's an ISO format, extract local date parts to avoid timezone issues
+        if (dateStr.includes('T')) {
+          const datePart = dateStr.split('T')[0];
+          const [year, month, day] = datePart.split('-').map(Number);
+          return new Date(year, month - 1, day);
+        }
+        return date;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   // Load search parameters from URL on component mount
   useEffect(() => {
     const fromStopId = searchParams.get('from');
@@ -96,18 +121,20 @@ function SearchContent() {
 
     // Set dates if provided
     if (andataParam) {
-      try {
-        setAndataDate(new Date(andataParam));
-      } catch (err) {
-        console.error('Invalid andata date:', err);
+      const parsedDate = parseDateFromUrl(andataParam);
+      if (parsedDate) {
+        setAndataDate(parsedDate);
+      } else {
+        console.error('Invalid andata date:', andataParam);
       }
     }
     
     if (ritornoParam) {
-      try {
-        setRitornoDate(new Date(ritornoParam));
-      } catch (err) {
-        console.error('Invalid ritorno date:', err);
+      const parsedDate = parseDateFromUrl(ritornoParam);
+      if (parsedDate) {
+        setRitornoDate(parsedDate);
+      } else {
+        console.error('Invalid ritorno date:', ritornoParam);
       }
     }
 
@@ -198,6 +225,14 @@ function SearchContent() {
     }
   };
 
+  // Helper function to format date as YYYY-MM-DD (local timezone)
+  const formatDateForUrl = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Handle search button click
   const handleSearch = () => {
     if (isLoading) {
@@ -237,10 +272,12 @@ function SearchContent() {
       searchParams.set('to', toStop.id);
     }
     if (andataDate) {
-      searchParams.set('andata', andataDate.toISOString());
+      // Use local date format (YYYY-MM-DD) to avoid timezone issues
+      searchParams.set('andata', formatDateForUrl(andataDate));
     }
     if (ritornoDate) {
-      searchParams.set('ritorno', ritornoDate.toISOString());
+      // Use local date format (YYYY-MM-DD) to avoid timezone issues
+      searchParams.set('ritorno', formatDateForUrl(ritornoDate));
     }
     
     // Navigate to search results page
