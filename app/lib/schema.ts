@@ -121,6 +121,29 @@ export const festivita = sqliteTable('festivita', {
   date: text('date').primaryKey(), // formato YYYY-MM-DD
   name: text('name').notNull(),
 });
+
+// ============================================================================
+// EMAIL_LOGS TABLE (Story 7.1.5 - Email audit trail)
+// ============================================================================
+export const emailLogs = sqliteTable('email_logs', {
+  id: text('id').primaryKey(),
+  ticketNumber: text('ticket_number').references(() => tickets.ticketNumber),
+  recipientEmail: text('recipient_email').notNull(),
+  emailType: text('email_type').notNull(), // 'ticket_confirmation', 'reminder', etc.
+  status: text('status').notNull(), // 'sent', 'failed', 'retrying'
+  messageId: text('message_id'), // External email service message ID
+  errorMessage: text('error_message'),
+  attemptCount: integer('attempt_count').notNull().default(1),
+  sentAt: integer('sent_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+}, (table) => ({
+  ticketIdx: index('idx_email_logs_ticket').on(table.ticketNumber),
+  emailIdx: index('idx_email_logs_email').on(table.recipientEmail),
+  statusIdx: index('idx_email_logs_status').on(table.status),
+  sentAtIdx: index('idx_email_logs_sent_at').on(table.sentAt),
+}));
+
+// ============================================================================
 // TICKETS TABLE
 // ============================================================================
 export const tickets = sqliteTable('tickets', {
@@ -229,7 +252,10 @@ export type NewUserSession = typeof userSessions.$inferInsert;
 
 export type Festivita = typeof festivita.$inferSelect;
 export type NewFestivita = typeof festivita.$inferInsert;
+
 export type Ticket = typeof tickets.$inferSelect;
 export type NewTicket = typeof tickets.$inferInsert;
 
+export type EmailLog = typeof emailLogs.$inferSelect;
+export type NewEmailLog = typeof emailLogs.$inferInsert;
 

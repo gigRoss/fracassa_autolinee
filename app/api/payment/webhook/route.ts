@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createTicket, CreateTicketData } from '@/app/lib/ticketUtils';
+import { sendTicketConfirmationEmailWithRetry, TicketEmailData } from '@/app/lib/emailService';
+import { getDb } from '@/app/lib/db';
+import { stops } from '@/app/lib/schema';
+import { eq } from 'drizzle-orm';
 
 // Initialize Stripe with secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -105,10 +109,66 @@ export async function POST(request: NextRequest) {
             timestamp: new Date().toISOString(),
           });
 
+          // Send confirmation email
+          try {
+            // Get stop names for email
+            const db = getDb();
+            const [originStop, destinationStop] = await Promise.all([
+              db.select().from(stops).where(eq(stops.id, metadata.originStopId)).limit(1),
+              db.select().from(stops).where(eq(stops.id, metadata.destinationStopId)).limit(1)
+            ]);
+
+            if (!originStop[0] || !destinationStop[0]) {
+              console.error('[WEBHOOK] Could not find stop names for email:', {
+                originStopId: metadata.originStopId,
+                destinationStopId: metadata.destinationStopId
+              });
+            } else {
+              // Prepare email data
+              const emailData: TicketEmailData = {
+                ticketNumber: ticket.ticketNumber,
+                passengerName: ticket.passengerName,
+                passengerSurname: ticket.passengerSurname,
+                passengerEmail: ticket.passengerEmail,
+                originStopName: originStop[0].name,
+                destinationStopName: destinationStop[0].name,
+                departureDate: ticket.departureDate,
+                departureTime: ticket.departureTime,
+                amountPaid: ticket.amountPaid,
+                passengerCount: ticket.passengerCount,
+                purchaseTimestamp: ticket.purchaseTimestamp,
+                // Optional: Add link to view ticket in app
+                // ticketUrl: `${process.env.NEXT_PUBLIC_APP_URL}/ticket/${ticket.ticketNumber}`
+              };
+
+              // Send email with retry logic
+              const emailResult = await sendTicketConfirmationEmailWithRetry(emailData);
+
+              if (emailResult.success) {
+                console.log('[WEBHOOK] Confirmation email sent successfully:', {
+                  ticketNumber: ticket.ticketNumber,
+                  email: ticket.passengerEmail,
+                  messageId: emailResult.messageId,
+                  timestamp: new Date().toISOString()
+                });
+              } else {
+                console.error('[WEBHOOK] Failed to send confirmation email:', {
+                  ticketNumber: ticket.ticketNumber,
+                  email: ticket.passengerEmail,
+                  error: emailResult.error,
+                  timestamp: new Date().toISOString()
+                });
+                // Note: We don't fail the webhook if email fails
+                // The ticket has been created successfully
+              }
+            }
+          } catch (emailError) {
+            console.error('[WEBHOOK] Error in email sending process:', emailError);
+            // Don't fail the webhook - ticket creation was successful
+          }
+
           // TODO: Future enhancements:
-          // 1. Send ticket via email
-          // 2. Send confirmation email
-          // 3. Update ride availability
+          // 1. Update ride availability
         } catch (error) {
           console.error('[WEBHOOK] Error creating ticket:', error);
           // Don't fail the webhook - log the error and handle manually if needed
