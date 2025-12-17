@@ -32,14 +32,33 @@ export async function GET(request: NextRequest) {
     let visibleRides = rides.filter((r) => !r.archived);
 
     // Check if the date is a Saturday and filter rides accordingly
+    // Also filter out past rides if the date is today
+    let isToday = false;
+    let currentTimeMinutes = 0;
+    
     if (date) {
       try {
-        const selectedDate = new Date(date);
+        // Parse the selected date (YYYY-MM-DD format)
+        const [year, month, day] = date.split('-').map(Number);
+        const selectedDate = new Date(year, month - 1, day);
         const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
         
         // If it's Saturday (6), filter out rides where available_saturday is false
         if (dayOfWeek === 6) {
           visibleRides = visibleRides.filter((r) => r.availableSaturday === true);
+        }
+        
+        // Check if the selected date is today
+        const now = new Date();
+        const todayYear = now.getFullYear();
+        const todayMonth = now.getMonth();
+        const todayDay = now.getDate();
+        
+        isToday = year === todayYear && (month - 1) === todayMonth && day === todayDay;
+        
+        if (isToday) {
+          // Calculate current time in minutes since midnight for comparison
+          currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
         }
       } catch (err) {
         console.error('Error parsing date:', err);
@@ -54,6 +73,19 @@ export async function GET(request: NextRequest) {
           s.id.toLowerCase() === query.toLowerCase() ||
           s.name.toLowerCase() === query.toLowerCase()
       );
+    };
+
+    // Helper function to convert HH:MM time to minutes since midnight
+    const timeToMinutes = (time: string): number => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+
+    // Helper function to check if a ride is in the future (for today's date)
+    const isRideInFuture = (departureTime: string): boolean => {
+      if (!isToday) return true; // Not today, show all rides
+      const departureMinutes = timeToMinutes(departureTime);
+      return departureMinutes > currentTimeMinutes;
     };
 
     const originStop = findStop(origin);
@@ -140,7 +172,10 @@ export async function GET(request: NextRequest) {
         };
       }));
 
-      const validResults = enrichedRides.filter(r => r !== null);
+      // Filter out null results and past rides if today
+      const validResults = enrichedRides
+        .filter(r => r !== null)
+        .filter(r => isRideInFuture(r!.departureTime));
 
       return NextResponse.json({
         results: validResults,
@@ -208,9 +243,12 @@ export async function GET(request: NextRequest) {
       };
     }));
 
+    // Filter out past rides if today
+    const filteredRides = enrichedRides.filter(r => isRideInFuture(r.departureTime));
+
     return NextResponse.json({
-      results: enrichedRides,
-      count: enrichedRides.length,
+      results: filteredRides,
+      count: filteredRides.length,
       query: {
         origin: originStop.name,
         destination: destinationStop.name,
