@@ -906,11 +906,11 @@ function SearchContent() {
         @keyframes fadeIn {
           from {
             opacity: 0;
-            transform: translateY(-5px);
+            transform: translateX(-50%) translateY(-5px);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
           }
         }
         .frame-109 {

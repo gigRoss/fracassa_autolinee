@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { Stop } from "@/app/lib/data";
 import Toast from "@/app/components/admin/Toast";
 
+type Stop = { id: string; name: string; city: string };
 type StopMode = "existing" | "new";
 type IntermediateStop = {
   stopId: string;

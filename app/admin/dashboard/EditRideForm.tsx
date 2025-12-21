@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Stop, toMinutes } from "@/app/lib/data";
 import Toast from "@/app/components/admin/Toast";
+
+type Stop = { id: string; name: string; city: string };
+function toMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
 
 type IntermediateStop = { stopId: string; time: string; fascia?: number | "" };
 
