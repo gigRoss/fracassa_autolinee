@@ -350,3 +350,18 @@ export async function getRideIdsWithUpcomingTickets(): Promise<string[]> {
   return Array.from(upcomingRideIds);
 }
 
+/**
+ * Validate (or unvalidate) a ticket
+ * Called by driver when checking passenger ticket
+ */
+export async function validateTicket(ticketId: string, validated: boolean = true) {
+  const db = getDb();
+  return db
+    .update(tickets)
+    .set({
+      validated,
+      updatedAt: new Date(),
+    })
+    .where(eq(tickets.id, ticketId));
+}
+

@@ -11,6 +11,7 @@ interface PassengerTicket {
   validated: boolean;
   departureDate?: string;
   passengerCount?: number;
+  isValidating?: boolean;
 }
 
 interface ApiTicket {
@@ -20,6 +21,7 @@ interface ApiTicket {
   departureDate: string;
   departureTime: string;
   passengerCount: number;
+  validated: boolean;
 }
 
 /**
@@ -35,6 +37,7 @@ export default function DriverRideTicketsPage() {
   const [passengers, setPassengers] = useState<PassengerTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmTicket, setConfirmTicket] = useState<PassengerTicket | null>(null);
 
   // Fetch tickets from API
   useEffect(() => {
@@ -55,25 +58,16 @@ export default function DriverRideTicketsPage() {
         
         const data: ApiTicket[] = await res.json();
         
-        // Load validated state from localStorage
-        let validatedIds: string[] = [];
-        try {
-          const stored = localStorage.getItem(`driver_tickets_validated_${rideId}`);
-          if (stored) {
-            validatedIds = JSON.parse(stored);
-          }
-        } catch {
-          // ignore parse errors
-        }
-        
         // Transform API data to PassengerTicket format
+        // validated field now comes from the database
         const tickets: PassengerTicket[] = data.map((ticket) => ({
           id: ticket.id,
           name: ticket.name,
           ticketCode: ticket.ticketCode,
-          validated: validatedIds.includes(ticket.id),
+          validated: ticket.validated ?? false,
           departureDate: ticket.departureDate,
           passengerCount: ticket.passengerCount,
+          isValidating: false,
         }));
         
         setPassengers(tickets);
@@ -88,27 +82,61 @@ export default function DriverRideTicketsPage() {
     fetchTickets();
   }, [rideId]);
 
-  const handleToggleValidated = (id: string) => {
-    setPassengers((prev) => {
-      const updated = prev.map((p) =>
-        p.id === id ? { ...p, validated: !p.validated } : p,
-      );
+  // Show confirmation popup before validating
+  const handleRequestValidation = (id: string) => {
+    const ticket = passengers.find((p) => p.id === id);
+    if (!ticket || ticket.isValidating) return;
+    setConfirmTicket(ticket);
+  };
 
-      // Save to localStorage
-      try {
-        if (rideId) {
-          const validatedIds = updated.filter((p) => p.validated).map((p) => p.id);
-          localStorage.setItem(
-            `driver_tickets_validated_${rideId}`,
-            JSON.stringify(validatedIds),
-          );
-        }
-      } catch {
-        // ignore storage errors
+  // Actually perform the validation after confirmation
+  const handleConfirmValidation = async () => {
+    if (!confirmTicket) return;
+    
+    const id = confirmTicket.id;
+    const newValidated = !confirmTicket.validated;
+    
+    // Close popup
+    setConfirmTicket(null);
+    
+    // Optimistic update + set loading state
+    setPassengers((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, validated: newValidated, isValidating: true } : p,
+      ),
+    );
+    
+    try {
+      // Call API to persist validation
+      const res = await fetch(`/api/driver/rides/${rideId}/tickets`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId: id, validated: newValidated }),
+      });
+      
+      if (!res.ok) {
+        throw new Error('Errore nella validazione del biglietto');
       }
+      
+      // Clear loading state on success
+      setPassengers((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, isValidating: false } : p,
+        ),
+      );
+    } catch (err) {
+      console.error('Error validating ticket:', err);
+      // Revert on error
+      setPassengers((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, validated: !newValidated, isValidating: false } : p,
+        ),
+      );
+    }
+  };
 
-      return updated;
-    });
+  const handleCancelValidation = () => {
+    setConfirmTicket(null);
   };
 
   const handleBack = () => {
@@ -186,16 +214,16 @@ export default function DriverRideTicketsPage() {
                             )}
                           </div>
                           <div
-                            className={
-                              passenger.validated
-                                ? 'status-dot status-dot--active'
-                                : 'status-dot'
-                            }
-                            onClick={() => handleToggleValidated(passenger.id)}
+                            className={`status-dot ${
+                              passenger.validated ? 'status-dot--active' : ''
+                            } ${passenger.isValidating ? 'status-dot--loading' : ''}`}
+                            onClick={() => handleRequestValidation(passenger.id)}
                             role="button"
                             aria-pressed={passenger.validated}
                             aria-label={
-                              passenger.validated
+                              passenger.isValidating
+                                ? 'Validazione in corso...'
+                                : passenger.validated
                                 ? 'Biglietto validato'
                                 : 'Segna biglietto come validato'
                             }
@@ -219,6 +247,34 @@ export default function DriverRideTicketsPage() {
         </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmTicket && (
+        <div className="modal-overlay" onClick={handleCancelValidation}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              {confirmTicket.validated ? 'Annulla validazione' : 'Conferma validazione'}
+            </div>
+            <div className="modal-body">
+              <p className="modal-message">
+                {confirmTicket.validated
+                  ? 'Vuoi annullare la validazione del biglietto di:'
+                  : 'Vuoi validare il biglietto di:'}
+              </p>
+              <p className="modal-passenger">{confirmTicket.name}</p>
+              <p className="modal-ticket">#{confirmTicket.ticketCode}</p>
+            </div>
+            <div className="modal-actions">
+              <button className="modal-btn modal-btn--cancel" onClick={handleCancelValidation}>
+                Annulla
+              </button>
+              <button className="modal-btn modal-btn--confirm" onClick={handleConfirmValidation}>
+                {confirmTicket.validated ? 'Annulla validazione' : 'Valida'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .driver-tickets-page,
@@ -456,6 +512,17 @@ export default function DriverRideTicketsPage() {
           border-color: rgba(22, 208, 32, 0.8);
         }
 
+        .status-dot--loading {
+          opacity: 0.5;
+          pointer-events: none;
+          animation: pulse 0.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 0.8; }
+        }
+
         .frame-74 {
           width: 140px;
           height: 19px;
@@ -493,6 +560,107 @@ export default function DriverRideTicketsPage() {
           position: absolute;
           right: 0;
           top: 0;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+          padding: 20px;
+        }
+
+        .modal-content {
+          background: #ffffff;
+          border-radius: 20px;
+          width: 100%;
+          max-width: 320px;
+          box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.25);
+          overflow: hidden;
+        }
+
+        .modal-header {
+          background: linear-gradient(
+            135deg,
+            rgba(255, 169, 37, 1) 0%,
+            rgba(250, 159, 19, 1) 57%,
+            rgba(244, 148, 1, 1) 75%
+          );
+          color: #ffffff;
+          font-family: 'Inter-Bold', sans-serif;
+          font-size: 18px;
+          font-weight: 700;
+          padding: 16px 20px;
+          text-align: center;
+        }
+
+        .modal-body {
+          padding: 24px 20px;
+          text-align: center;
+        }
+
+        .modal-message {
+          font-family: 'Inter-Medium', sans-serif;
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.6);
+          margin: 0 0 12px 0;
+        }
+
+        .modal-passenger {
+          font-family: 'Inter-Bold', sans-serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: rgba(0, 0, 0, 0.8);
+          margin: 0 0 8px 0;
+        }
+
+        .modal-ticket {
+          font-family: 'Inter-Medium', sans-serif;
+          font-size: 14px;
+          color: rgba(244, 148, 1, 1);
+          margin: 0;
+        }
+
+        .modal-actions {
+          display: flex;
+          border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-btn {
+          flex: 1;
+          padding: 16px;
+          font-family: 'Inter-Medium', sans-serif;
+          font-size: 16px;
+          font-weight: 500;
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.15s ease;
+        }
+
+        .modal-btn--cancel {
+          background: #f5f5f5;
+          color: rgba(0, 0, 0, 0.6);
+          border-right: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-btn--cancel:hover {
+          background: #ebebeb;
+        }
+
+        .modal-btn--confirm {
+          background: rgba(22, 208, 32, 0.15);
+          color: rgba(22, 168, 32, 1);
+        }
+
+        .modal-btn--confirm:hover {
+          background: rgba(22, 208, 32, 0.25);
         }
       `}</style>
     </div>

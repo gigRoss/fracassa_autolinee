@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUpcomingTicketsByRideId, getTicketsByRideId } from '@/app/lib/ticketUtils';
+import { getUpcomingTicketsByRideId, getTicketsByRideId, validateTicket } from '@/app/lib/ticketUtils';
 
 type Params = { id: string };
 
@@ -38,11 +38,50 @@ export async function GET(
       departureDate: ticket.departureDate,
       departureTime: ticket.departureTime,
       passengerCount: ticket.passengerCount,
+      validated: ticket.validated ?? false,
     }));
 
     return NextResponse.json(driverTickets);
   } catch (error) {
     console.error('Error fetching driver tickets:', error);
+    return NextResponse.json(
+      { error: 'Errore interno del server' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PATCH - Validate or unvalidate a ticket
+ */
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<Params> }
+) {
+  try {
+    const body = await req.json();
+    const { ticketId, validated } = body;
+    
+    if (!ticketId) {
+      return NextResponse.json(
+        { error: 'ID biglietto obbligatorio' },
+        { status: 400 }
+      );
+    }
+
+    if (typeof validated !== 'boolean') {
+      return NextResponse.json(
+        { error: 'Campo validated obbligatorio (boolean)' },
+        { status: 400 }
+      );
+    }
+
+    // Update ticket validation status
+    await validateTicket(ticketId, validated);
+
+    return NextResponse.json({ success: true, validated });
+  } catch (error) {
+    console.error('Error validating ticket:', error);
     return NextResponse.json(
       { error: 'Errore interno del server' },
       { status: 500 }

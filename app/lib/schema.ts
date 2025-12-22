@@ -140,6 +140,7 @@ export const tickets = sqliteTable('tickets', {
   stripeSessionId: text('stripe_session_id'),
   amountPaid: integer('amount_paid').notNull(), // in cents
   passengerCount: integer('passenger_count').notNull().default(1),
+  validated: integer('validate', { mode: 'boolean' }).default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }),
   updatedAt: integer('updated_at', { mode: 'timestamp' }),
 }, (table) => ({
