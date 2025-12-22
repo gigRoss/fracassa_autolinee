@@ -260,3 +260,93 @@ export async function getAllTickets() {
     .orderBy(tickets.purchaseTimestamp);
 }
 
+/**
+ * Get tickets by ride ID for a specific date (for driver view)
+ * Only returns completed tickets
+ */
+export async function getTicketsByRideId(rideId: string, departureDate?: string) {
+  const db = getDb();
+  
+  // Build the query
+  if (departureDate) {
+    return db
+      .select()
+      .from(tickets)
+      .where(
+        and(
+          eq(tickets.rideId, rideId),
+          eq(tickets.departureDate, departureDate),
+          eq(tickets.paymentStatus, 'completed')
+        )
+      )
+      .orderBy(tickets.purchaseTimestamp);
+  }
+  
+  // If no date specified, return all completed tickets for the ride
+  return db
+    .select()
+    .from(tickets)
+    .where(
+      and(
+        eq(tickets.rideId, rideId),
+        eq(tickets.paymentStatus, 'completed')
+      )
+    )
+    .orderBy(tickets.purchaseTimestamp);
+}
+
+/**
+ * Get upcoming tickets by ride ID (for driver view)
+ * Returns tickets for today and future dates
+ */
+export async function getUpcomingTicketsByRideId(rideId: string) {
+  const db = getDb();
+  
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  
+  // Get all completed tickets for this ride from today onwards
+  const allTickets = await db
+    .select()
+    .from(tickets)
+    .where(
+      and(
+        eq(tickets.rideId, rideId),
+        eq(tickets.paymentStatus, 'completed')
+      )
+    )
+    .orderBy(tickets.departureDate, tickets.purchaseTimestamp);
+  
+  // Filter to only include today and future dates
+  return allTickets.filter(ticket => ticket.departureDate >= todayStr);
+}
+
+/**
+ * Get all ride IDs that have upcoming tickets (for driver rides list)
+ * Returns unique ride IDs that have at least one completed ticket for today or future dates
+ */
+export async function getRideIdsWithUpcomingTickets(): Promise<string[]> {
+  const db = getDb();
+  
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  
+  // Get all completed tickets
+  const allTickets = await db
+    .select({ rideId: tickets.rideId, departureDate: tickets.departureDate })
+    .from(tickets)
+    .where(eq(tickets.paymentStatus, 'completed'));
+  
+  // Filter to today and future, then get unique ride IDs
+  const upcomingRideIds = new Set<string>();
+  for (const ticket of allTickets) {
+    if (ticket.departureDate >= todayStr) {
+      upcomingRideIds.add(ticket.rideId);
+    }
+  }
+  
+  return Array.from(upcomingRideIds);
+}
+

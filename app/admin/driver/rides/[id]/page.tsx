@@ -9,45 +9,83 @@ interface PassengerTicket {
   name: string;
   ticketCode: string;
   validated: boolean;
+  departureDate?: string;
+  passengerCount?: number;
+}
+
+interface ApiTicket {
+  id: string;
+  name: string;
+  ticketCode: string;
+  departureDate: string;
+  departureTime: string;
+  passengerCount: number;
 }
 
 /**
  * Driver Ride Tickets Page
  * Shows the list of passengers and ticket codes for a specific ride,
- * based on the Figma design (frame-240).
+ * fetched from the database.
  */
 export default function DriverRideTicketsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const rideId = params.id;
 
-  // TODO: replace with real data from API (e.g. /api/tickets?rideId=...)
-  const initialPassengers: PassengerTicket[] = [
-    { id: '1', name: 'Mario Rossi', ticketCode: '12345678', validated: false },
-    { id: '2', name: 'Maria Bianchi', ticketCode: '12345679', validated: false },
-    { id: '3', name: 'Gianluca Rosato', ticketCode: '12345680', validated: false },
-    { id: '4', name: 'Gianvito Sammaritani', ticketCode: '12345681', validated: false },
-    { id: '5', name: 'Marco Stupefacente', ticketCode: '12345682', validated: false },
-  ];
+  const [passengers, setPassengers] = useState<PassengerTicket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [passengers, setPassengers] = useState<PassengerTicket[]>(initialPassengers);
-
-  // Persist validation state per ride in localStorage so it stays green even after leaving the page
+  // Fetch tickets from API
   useEffect(() => {
     if (!rideId) return;
-    try {
-      const stored = localStorage.getItem(`driver_tickets_validated_${rideId}`);
-      if (!stored) return;
-      const validatedIds: string[] = JSON.parse(stored);
-      setPassengers((prev) =>
-        prev.map((p) => ({
-          ...p,
-          validated: validatedIds.includes(p.id),
-        })),
-      );
-    } catch {
-      // ignore parse errors
+
+    async function fetchTickets() {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const res = await fetch(`/api/driver/rides/${rideId}/tickets`, {
+          cache: 'no-store',
+        });
+        
+        if (!res.ok) {
+          throw new Error('Errore nel caricamento dei biglietti');
+        }
+        
+        const data: ApiTicket[] = await res.json();
+        
+        // Load validated state from localStorage
+        let validatedIds: string[] = [];
+        try {
+          const stored = localStorage.getItem(`driver_tickets_validated_${rideId}`);
+          if (stored) {
+            validatedIds = JSON.parse(stored);
+          }
+        } catch {
+          // ignore parse errors
+        }
+        
+        // Transform API data to PassengerTicket format
+        const tickets: PassengerTicket[] = data.map((ticket) => ({
+          id: ticket.id,
+          name: ticket.name,
+          ticketCode: ticket.ticketCode,
+          validated: validatedIds.includes(ticket.id),
+          departureDate: ticket.departureDate,
+          passengerCount: ticket.passengerCount,
+        }));
+        
+        setPassengers(tickets);
+      } catch (err) {
+        console.error('Error fetching tickets:', err);
+        setError('Errore nel caricamento dei biglietti');
+      } finally {
+        setLoading(false);
+      }
     }
+
+    fetchTickets();
   }, [rideId]);
 
   const handleToggleValidated = (id: string) => {
@@ -124,10 +162,17 @@ export default function DriverRideTicketsPage() {
 
       {/* Contenuto scrollabile: lista biglietti */}
       <div className="content">
+        {loading ? (
+          <div className="loading-message">Caricamento biglietti...</div>
+        ) : error ? (
+          <div className="error-message">{error}</div>
+        ) : passengers.length === 0 ? (
+          <div className="empty-message">Nessun biglietto per questa corsa</div>
+        ) : (
         <div className="frame-240">
           <div className="frame-94">
             <div className="frame-78">
-              {[...passengers, ...passengers].map((passenger, index) => (
+              {passengers.map((passenger) => (
                 <div key={passenger.id} className="ticket-card">
                   <div className="ticket-inner">
                     <div className="ticket-shape" />
@@ -136,6 +181,9 @@ export default function DriverRideTicketsPage() {
                         <div className="frame-69">
                           <div className="passenger-name">
                             {passenger.name}
+                            {passenger.passengerCount && passenger.passengerCount > 1 && (
+                              <span className="passenger-count"> ({passenger.passengerCount} pax)</span>
+                            )}
                           </div>
                           <div
                             className={
@@ -159,7 +207,6 @@ export default function DriverRideTicketsPage() {
                       </div>
                       <div className="frame-75">
                         <div className="ticket-code">
-                          {/* TODO: sostituire con il vero numero del biglietto dal backend */}
                           #{passenger.ticketCode}
                         </div>
                       </div>
@@ -170,6 +217,7 @@ export default function DriverRideTicketsPage() {
             </div>
           </div>
         </div>
+        )}
       </div>
 
       <style jsx>{`
@@ -256,6 +304,27 @@ export default function DriverRideTicketsPage() {
         .content {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+
+        .loading-message,
+        .error-message,
+        .empty-message {
+          text-align: center;
+          font-family: 'Inter-Medium', sans-serif;
+          font-size: 16px;
+          padding: 60px 20px;
+        }
+
+        .loading-message {
+          color: rgba(0, 0, 0, 0.5);
+        }
+
+        .error-message {
+          color: #dc3545;
+        }
+
+        .empty-message {
+          color: rgba(0, 0, 0, 0.5);
         }
 
         .frame-240 {
@@ -360,6 +429,12 @@ export default function DriverRideTicketsPage() {
           font-size: 16px;
           font-weight: 700;
           position: relative;
+        }
+
+        .passenger-count {
+          font-size: 12px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.4);
         }
 
         .status-dot {

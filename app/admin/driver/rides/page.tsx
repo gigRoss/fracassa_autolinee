@@ -12,7 +12,7 @@ interface Stop {
 }
 
 interface Ride {
-  slug: string;
+  id: string;
   lineName: string;
   originStopId: string;
   destinationStopId: string;
@@ -30,8 +30,8 @@ export default function DriverRidesPage() {
     async function fetchData() {
       try {
         const [ridesRes, stopsRes] = await Promise.all([
-          fetch('/rides', { cache: 'no-store' }),
-          fetch('/stops', { cache: 'no-store' }),
+          fetch('/api/driver/rides', { cache: 'no-store' }),
+          fetch('/api/stops', { cache: 'no-store' }),
         ]);
 
         if (ridesRes.ok) {
@@ -93,14 +93,14 @@ export default function DriverRidesPage() {
         {loading ? (
           <div className="loading-message">Caricamento...</div>
         ) : rides.length === 0 ? (
-          <div className="no-rides-message">Nessuna corsa presente</div>
+          <div className="no-rides-message">Nessuna corsa con biglietti attivi</div>
         ) : (
           <div className="rides-list">
             {rides.map((ride) => (
               <button
-                key={ride.slug}
+                key={ride.id}
                 className="ride-button"
-                onClick={() => handleRideClick(ride.slug)}
+                onClick={() => handleRideClick(ride.id)}
               >
                 {getRideLabel(ride)}
               </button>

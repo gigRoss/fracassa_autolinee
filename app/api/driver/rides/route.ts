@@ -1,14 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listRides } from '@/app/lib/ridesStore';
+import { getRideIdsWithUpcomingTickets } from '@/app/lib/ticketUtils';
 
 export async function GET(req: NextRequest) {
   try {
-    // For now, allow access without auth (will add driver auth later)
-    // Get ALL rides from database (including archived)
+    // Get ride IDs that have upcoming tickets (today or future)
+    const rideIdsWithTickets = await getRideIdsWithUpcomingTickets();
+    
+    if (rideIdsWithTickets.length === 0) {
+      // No rides with active tickets
+      return NextResponse.json([]);
+    }
+    
+    // Get all rides from database
     const allRides = await listRides();
     
-    // Return simplified ride data for all rides
-    const simplifiedRides = allRides.map((ride) => ({
+    // Filter to only include rides with active tickets
+    const ridesWithTickets = allRides.filter((ride) => 
+      rideIdsWithTickets.includes(ride.id)
+    );
+    
+    // Return simplified ride data
+    const simplifiedRides = ridesWithTickets.map((ride) => ({
       id: ride.id,
       lineName: ride.lineName,
       originStopId: ride.originStopId,
