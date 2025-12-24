@@ -10,8 +10,9 @@ export default function GeneralPage() {
     router.push('/');
   };
 
-  const handleBack = () => {
-    router.back();
+  const handleLogout = async () => {
+    await fetch('/admin/logout', { method: 'POST' });
+    router.push('/admin/login');
   };
 
   return (
@@ -21,8 +22,8 @@ export default function GeneralPage() {
         {/* Back button */}
         <button 
           className="back-button"
-          onClick={handleBack}
-          aria-label="Indietro"
+          onClick={handleLogout}
+          aria-label="Logout"
         >
           <svg 
             width="18" 
