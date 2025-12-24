@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { verifySession, SESSION_COOKIE } from "@/app/lib/auth";
 import { logoutAction } from "@/app/lib/authActions";
 import Image from "next/image";
+import Link from "next/link";
 import SimplifiedDashboard from "./SimplifiedDashboard";
 import { Stop } from "@/app/lib/data";
 import { normalizeStopName, normalizeCity } from "@/app/lib/textUtils";
@@ -118,19 +119,17 @@ export default async function AdminDashboardPage() {
       {/* Orange header */}
       <header className="frame-256">
         <div className="frame-161">
-          <form action={logoutAction}>
-            <button type="submit" aria-label="Logout" className="frame-back">
-              <div className="back-arrow-wrapper">
-                <Image
-                  className="back-arrow"
-                  src="/mobile/search/frame-410.svg"
-                  alt=""
-                  width={18}
-                  height={16}
-                />
-              </div>
-            </button>
-          </form>
+          <Link href="/admin/general" aria-label="Indietro" className="frame-back">
+            <div className="back-arrow-wrapper">
+              <Image
+                className="back-arrow"
+                src="/mobile/search/frame-410.svg"
+                alt=""
+                width={18}
+                height={16}
+              />
+            </div>
+          </Link>
           <div className="acquista">ADMIN</div>
           <form action={logoutAction}>
             <button type="submit" aria-label="Logout" className="close-button">

@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-export default function DocumentsPage() {
+export default function GeneralPage() {
   const router = useRouter();
 
   const handleClose = () => {
@@ -60,20 +59,14 @@ export default function DocumentsPage() {
       {/* Menu section with buttons */}
       <div className="menu-section">
         <div className="frame-64">
-          <button className="frame-49" onClick={() => router.push('/admin/documents/fatture')}>
-            <div className="corse">Fatture</div>
+          <button className="frame-49" onClick={() => router.push('/admin/driver/rides')}>
+            <div className="corse">Biglietti</div>
           </button>
         </div>
 
         <div className="frame-62">
-          <button className="frame-49" onClick={() => router.push('/admin/documents/autisti')}>
-            <div className="corse">Autisti</div>
-          </button>
-        </div>
-
-        <div className="frame-62">
-          <button className="frame-49" onClick={() => router.push('/admin/documents/prenotazioni')}>
-            <div className="corse">Prenotazioni</div>
+          <button className="frame-49" onClick={() => router.push('/admin/dashboard')}>
+            <div className="corse">Corse</div>
           </button>
         </div>
       </div>

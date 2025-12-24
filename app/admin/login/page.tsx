@@ -46,8 +46,8 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'Credenziali non valide');
       }
 
-      // Redirect based on response (dashboard corse or tickets dashboard)
-      const redirectTo = data.redirectTo || '/admin/dashboard';
+      // Redirect to general page after login
+      const redirectTo = data.redirectTo || '/admin/general';
       router.push(redirectTo);
     } catch (err) {
       console.error('Login error:', err);

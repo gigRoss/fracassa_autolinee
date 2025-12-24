@@ -59,6 +59,24 @@ export default function DriverRidesPage() {
     router.push(`/admin/driver/rides/${rideId}`);
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/admin/logout', { method: 'POST' });
+      if (response.redirected) {
+        window.location.href = response.url;
+      } else {
+        window.location.href = '/admin/login';
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = '/admin/login';
+    }
+  };
+
   const getRideLabel = (ride: Ride): string => {
     const origin = stopIdToStop[ride.originStopId];
     const dest = stopIdToStop[ride.destinationStopId];
@@ -76,6 +94,35 @@ export default function DriverRidesPage() {
 
   return (
     <div className="select-journey">
+      {/* Header bar with back and logout buttons */}
+      <div className="header-bar">
+        <div className="back-button" onClick={handleBack}>
+          <Image
+            src="/mobile/search/frame-410.svg"
+            alt="Indietro"
+            width={18}
+            height={16}
+            className="back-arrow"
+          />
+        </div>
+        <div className="logout-button" onClick={handleLogout}>
+          <svg 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="white" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </div>
+      </div>
+
       {/* Logo FRACASSA */}
       <div className="logo-container">
         <Image
@@ -126,6 +173,62 @@ export default function DriverRidesPage() {
           width: 100%;
           max-width: 393px;
           margin: 0 auto;
+        }
+
+        .header-bar {
+          width: 100%;
+          height: 70px;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+          border-bottom-right-radius: 20px;
+          border-bottom-left-radius: 20px;
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 21px;
+        }
+
+        .back-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          padding: 8px;
+        }
+
+        .back-button:hover {
+          opacity: 0.8;
+        }
+
+        .back-button:active {
+          transform: scale(0.95);
+        }
+
+        .back-arrow {
+          width: 18px;
+          height: 16px;
+        }
+
+        .logout-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          padding: 8px;
+        }
+
+        .logout-button:hover {
+          opacity: 0.8;
+        }
+
+        .logout-button:active {
+          transform: scale(0.95);
         }
 
         .logo-container {
