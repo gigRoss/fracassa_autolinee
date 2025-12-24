@@ -60,7 +60,7 @@ export default function AdminUsersPage() {
             Crea ed elimina utenti amministratori
           </p>
         </div>
-        <Link href="/admin/dashboard" className="text-sm hover:underline">
+        <Link href="/admin/general" className="text-sm hover:underline">
           ← Torna alla dashboard
         </Link>
       </div>

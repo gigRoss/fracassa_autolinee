@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import CreateRideForm from "./CreateRideForm";
 import CompactEditRideForm from "./CompactEditRideForm";
 import DeleteRideButton from "./DeleteRideButton";
@@ -140,11 +139,6 @@ export default function SimplifiedDashboard({ rides }: DashboardProps) {
               }}
             />
           </div>
-        </div>
-        <div className="frame-64">
-          <Link href="/admin/users" className="frame-49 w-full">
-            <div className="crea-nuova-corsa">Crea nuovo admin User</div>
-          </Link>
         </div>
       </div>
 

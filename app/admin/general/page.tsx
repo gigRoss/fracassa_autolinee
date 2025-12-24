@@ -69,6 +69,12 @@ export default function GeneralPage() {
             <div className="corse">Corse</div>
           </button>
         </div>
+
+        <div className="frame-62">
+          <button className="frame-49" onClick={() => router.push('/admin/users')}>
+            <div className="corse">Utenti</div>
+          </button>
+        </div>
       </div>
 
       <style jsx>{`
