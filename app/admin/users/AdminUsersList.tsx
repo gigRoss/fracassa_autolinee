@@ -7,6 +7,7 @@ type AdminUserListItem = {
   id: string;
   email: string;
   name: string;
+  isAdmin: boolean | null;
   lastAccess: Date | null;
   createdAt: Date | null;
 };
@@ -57,6 +58,7 @@ export default function AdminUsersList({
           <tr>
             <th className="text-left p-3 font-medium">Email</th>
             <th className="text-left p-3 font-medium">Nome</th>
+            <th className="text-left p-3 font-medium">Ruolo</th>
             <th className="text-left p-3 font-medium">Ultimo accesso</th>
             <th className="text-left p-3 font-medium">Creato il</th>
             <th className="text-right p-3 font-medium">Azioni</th>
@@ -70,6 +72,15 @@ export default function AdminUsersList({
             >
               <td className="p-3">{user.email}</td>
               <td className="p-3">{user.name}</td>
+              <td className="p-3">
+                <span className={`text-xs px-2 py-1 rounded font-medium ${
+                  user.isAdmin !== false 
+                    ? 'bg-orange-500 text-white' 
+                    : 'bg-gray-600 text-white'
+                }`}>
+                  {user.isAdmin !== false ? 'Admin' : 'Autista'}
+                </span>
+              </td>
               <td className="p-3 text-black/70 dark:text-white/70">
                 {formatDate(user.lastAccess)}
               </td>
@@ -80,7 +91,7 @@ export default function AdminUsersList({
                 <button
                   onClick={() => handleDelete(user.id, user.email)}
                   disabled={deleting === user.id}
-                  className="text-xs px-3 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-900/40 disabled:opacity-50"
+                  className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 font-medium"
                 >
                   {deleting === user.id ? "..." : "Elimina"}
                 </button>

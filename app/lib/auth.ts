@@ -107,9 +107,10 @@ export function verifySession(token: string | undefined | null): SessionPayload 
  * @param email - Admin email (will be lowercased)
  * @param password - Plain text password
  * @param name - Display name
+ * @param isAdmin - Whether the user is an admin (true) or driver (false)
  * @returns Created admin user
  */
-export async function createAdminUser(email: string, password: string, name: string): Promise<AdminUser> {
+export async function createAdminUser(email: string, password: string, name: string, isAdmin: boolean = true): Promise<AdminUser> {
   const db = getDb();
   const id = `admin-${Date.now()}-${randomBytes(4).toString('hex')}`;
   const salt = randomBytes(16).toString('hex');
@@ -120,6 +121,7 @@ export async function createAdminUser(email: string, password: string, name: str
     email: email.toLowerCase(),
     passwordHash: `${salt}:${hash}`,
     name,
+    isAdmin,
     createdAt: nowInItaly(),
   }).returning();
   
@@ -135,6 +137,7 @@ export async function listAdminUsers() {
     id: adminUsers.id,
     email: adminUsers.email,
     name: adminUsers.name,
+    isAdmin: adminUsers.isAdmin,
     lastAccess: adminUsers.lastAccess,
     createdAt: adminUsers.createdAt,
   }).from(adminUsers);

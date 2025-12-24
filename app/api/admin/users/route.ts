@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   
   try {
     const body = await req.json();
-    const { email, password, name } = body;
+    const { email, password, name, isAdmin } = body;
     
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    const newUser = await createAdminUser(email, password, name);
+    const newUser = await createAdminUser(email, password, name, isAdmin ?? true);
     
     // Non restituire la password hash
     const { passwordHash, ...userWithoutPassword } = newUser;

@@ -10,6 +10,7 @@ type AdminUserListItem = {
   id: string;
   email: string;
   name: string;
+  isAdmin: boolean | null;
   lastAccess: Date | null;
   createdAt: Date | null;
 };
