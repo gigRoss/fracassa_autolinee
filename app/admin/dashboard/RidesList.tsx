@@ -6,6 +6,7 @@ import DeleteRideButton from "./DeleteRideButton";
 import { Suspense } from "react";
 import { cookies as serverCookies } from "next/headers";
 import { normalizeStopName, normalizeCity } from "@/app/lib/textUtils";
+import { type Stop } from "@/app/lib/schema";
 
 async function fetchRides() {
   const cookieStore = await cookies();
