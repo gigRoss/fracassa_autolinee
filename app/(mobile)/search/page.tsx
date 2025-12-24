@@ -88,6 +88,31 @@ function SearchContent() {
     loadStops();
   }, []);
 
+  // Helper function to parse date from URL (handles both YYYY-MM-DD and ISO formats)
+  const parseDateFromUrl = (dateStr: string): Date | null => {
+    try {
+      // Check if it's a YYYY-MM-DD format (local date)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day);
+      }
+      // Otherwise try to parse as ISO or other format
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        // If it's an ISO format, extract local date parts to avoid timezone issues
+        if (dateStr.includes('T')) {
+          const datePart = dateStr.split('T')[0];
+          const [year, month, day] = datePart.split('-').map(Number);
+          return new Date(year, month - 1, day);
+        }
+        return date;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   // Load search parameters from URL on component mount
   useEffect(() => {
     const fromStopId = searchParams.get('from');
@@ -97,18 +122,20 @@ function SearchContent() {
 
     // Set dates if provided
     if (andataParam) {
-      try {
-        setAndataDate(new Date(andataParam));
-      } catch (err) {
-        console.error('Invalid andata date:', err);
+      const parsedDate = parseDateFromUrl(andataParam);
+      if (parsedDate) {
+        setAndataDate(parsedDate);
+      } else {
+        console.error('Invalid andata date:', andataParam);
       }
     }
     
     if (ritornoParam) {
-      try {
-        setRitornoDate(new Date(ritornoParam));
-      } catch (err) {
-        console.error('Invalid ritorno date:', err);
+      const parsedDate = parseDateFromUrl(ritornoParam);
+      if (parsedDate) {
+        setRitornoDate(parsedDate);
+      } else {
+        console.error('Invalid ritorno date:', ritornoParam);
       }
     }
 
@@ -199,6 +226,14 @@ function SearchContent() {
     }
   };
 
+  // Helper function to format date as YYYY-MM-DD (local timezone)
+  const formatDateForUrl = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Handle search button click
   const handleSearch = () => {
     if (isLoading) {
@@ -238,10 +273,12 @@ function SearchContent() {
       searchParams.set('to', toStop.id);
     }
     if (andataDate) {
-      searchParams.set('andata', andataDate.toISOString());
+      // Use local date format (YYYY-MM-DD) to avoid timezone issues
+      searchParams.set('andata', formatDateForUrl(andataDate));
     }
     if (ritornoDate) {
-      searchParams.set('ritorno', ritornoDate.toISOString());
+      // Use local date format (YYYY-MM-DD) to avoid timezone issues
+      searchParams.set('ritorno', formatDateForUrl(ritornoDate));
     }
     
     // Navigate to search results page
@@ -402,7 +439,7 @@ function SearchContent() {
         <div className={`frame-30 ${showAndataError ? 'has-error' : ''}`} onClick={() => setIsAndataCalendarOpen(true)}>
           <div className="frame-109">
             <div className="frame-48">
-              <div className="andata">Andata</div>
+              <div className="andata">Data</div>
             </div>
             <div className="frame-108">
               <div className="div">{formatDateDisplay(andataDate)}</div>
@@ -424,7 +461,7 @@ function SearchContent() {
           </div>
         )}
 
-        <div className="frame-32" onClick={() => setIsRitornoCalendarOpen(true)}>
+        <div className="frame-32 disabled">
           <div className="frame-111">
             <div className="frame-47">
               <div className="ritorno">Ritorno</div>
@@ -878,7 +915,8 @@ function SearchContent() {
           width: 165px;
           height: 51px;
           position: absolute;
-          left: 0px;
+          left: 50%;
+          transform: translateX(-50%);
           top: 136px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
@@ -898,19 +936,20 @@ function SearchContent() {
           font-size: 11px;
           font-weight: 500;
           position: absolute;
-          left: 0px;
+          left: 50%;
+          transform: translateX(-50%);
           top: 192px;
-          padding-left: 8px;
+          text-align: center;
           animation: fadeIn 0.3s ease-in;
         }
         @keyframes fadeIn {
           from {
             opacity: 0;
-            transform: translateY(-5px);
+            transform: translateX(-50%) translateY(-5px);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
           }
         }
         .frame-109 {
@@ -984,9 +1023,16 @@ function SearchContent() {
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
           transition: background-color 0.2s;
+          display: none;
         }
 
-        .frame-32:hover {
+        .frame-32.disabled {
+          opacity: 0.4;
+          pointer-events: none;
+          cursor: not-allowed;
+        }
+
+        .frame-32:hover:not(.disabled) {
           background: rgba(255, 254, 254, 0.8);
         }
         .frame-111 {

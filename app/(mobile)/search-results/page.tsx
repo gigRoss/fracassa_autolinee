@@ -189,11 +189,29 @@ function SearchResultsContent() {
     router.push('/search');
   };
 
-  // Format date for display
+  // Format date for display (handles YYYY-MM-DD and ISO formats)
   const formatDateDisplay = (dateStr: string | null) => {
     if (!dateStr) return '-';
     try {
-      const date = new Date(dateStr);
+      let date: Date;
+      
+      // Check if it's a YYYY-MM-DD format (local date)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        date = new Date(year, month - 1, day);
+      } else if (dateStr.includes('T')) {
+        // ISO format: extract date part to avoid timezone issues
+        const datePart = dateStr.split('T')[0];
+        const [year, month, day] = datePart.split('-').map(Number);
+        date = new Date(year, month - 1, day);
+      } else {
+        date = new Date(dateStr);
+      }
+      
+      if (isNaN(date.getTime())) {
+        return dateStr;
+      }
+      
       return date.toLocaleDateString('it-IT', {
         day: '2-digit',
         month: '2-digit'
@@ -272,7 +290,7 @@ function SearchResultsContent() {
           <div className="andata">Andata</div>
           <div className="_11-06-2025">{formatDateDisplay(andataDate)}</div>
         </div>
-        <div className="frame-32">
+        <div className="frame-32 disabled">
           <div className="ritorno">Ritorno</div>
           <div className="_11-06-2025">{formatDateDisplay(ritornoDate)}</div>
         </div>
@@ -681,7 +699,8 @@ function SearchResultsContent() {
           width: 165px;
           height: 51px;
           position: absolute;
-          left: 0px;
+          left: 50%;
+          transform: translateX(-50%);
           top: 136px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
         }
@@ -718,6 +737,11 @@ function SearchResultsContent() {
           left: 169px;
           top: 136px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+          display: none;
+        }
+        .frame-32.disabled {
+          opacity: 0.4;
+          pointer-events: none;
         }
         .ritorno {
           color: #d6d8dc;

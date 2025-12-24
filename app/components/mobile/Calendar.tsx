@@ -75,12 +75,18 @@ export default function Calendar({
   // Day names in Italian
   const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
 
+  // Helper function to normalize a date to midnight (start of day)
+  const normalizeToMidnight = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+
   const handleDateClick = (day: number) => {
     const clickedDate = new Date(year, month, day);
+    const normalizedMinDate = normalizeToMidnight(minDate);
     
     // Check if date is valid (not in the past, within max date, not Sunday or holiday)
     if (
-      clickedDate < minDate ||
+      clickedDate < normalizedMinDate ||
       (maxDate && clickedDate > maxDate) ||
       clickedDate.getDay() === 0 ||
       isHoliday(clickedDate)
@@ -119,9 +125,10 @@ export default function Calendar({
 
   const isDateDisabled = (day: number) => {
     const dateToCheck = new Date(year, month, day);
+    const normalizedMinDate = normalizeToMidnight(minDate);
     const isSunday = dateToCheck.getDay() === 0; // Sunday is day 0
     return (
-      dateToCheck < minDate ||
+      dateToCheck < normalizedMinDate ||
       (maxDate && dateToCheck > maxDate) ||
       isSunday ||
       isHoliday(dateToCheck)
