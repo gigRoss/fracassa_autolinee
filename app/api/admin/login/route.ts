@@ -37,11 +37,18 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    // Redirect sempre a /admin/general dopo il login
+    // Debug: log del valore isAdmin
+    console.log('Login user:', user.email, 'isAdmin value:', user.isAdmin, 'type:', typeof user.isAdmin);
+
+    // Redirect basato sul ruolo: admin va a /admin/general, driver va a /admin/driver/rides
+    // SQLite può restituire 1/0 invece di true/false, quindi usiamo == true o Boolean()
+    const isAdminUser = Boolean(user.isAdmin);
+    const redirectTo = isAdminUser ? '/admin/general' : '/admin/driver/rides';
+    
     return NextResponse.json({ 
       success: true, 
-      redirectTo: '/admin/general',
-      role: role || 'amministrazione' 
+      redirectTo,
+      role: isAdminUser ? 'amministrazione' : 'driver'
     });
   } catch (error) {
     console.error('Login error:', error);
