@@ -178,7 +178,8 @@ function SearchContent() {
     if (!date) return '';
     return date.toLocaleDateString('it-IT', {
       day: '2-digit',
-      month: '2-digit'
+      month: '2-digit',
+      year: 'numeric'
     });
   };
 
@@ -436,22 +437,16 @@ function SearchContent() {
         </div>
 
         {/* Date Pickers */}
-        <div className={`frame-30 ${showAndataError ? 'has-error' : ''}`} onClick={() => setIsAndataCalendarOpen(true)}>
-          <div className="frame-109">
-            <div className="frame-48">
-              <div className="andata">Data</div>
-            </div>
-            <div className="frame-108">
-              <div className="div">{formatDateDisplay(andataDate)}</div>
-              <Image
-                src="/mobile/search/vector-50.svg"
-                alt="Dropdown"
-                width={12.5}
-                height={8}
-                className="vector-5"
-              />
-            </div>
-          </div>
+        <div className={`frame-30 ${showAndataError ? 'has-error' : ''} ${andataDate ? 'has-date' : ''}`} onClick={() => setIsAndataCalendarOpen(true)}>
+          {!andataDate && <div className="date-label">Seleziona una data di partenza</div>}
+          {andataDate && <div className="date-value-selected">{formatDateDisplay(andataDate)}</div>}
+          <Image
+            src="/mobile/search/vector-50.svg"
+            alt="Dropdown"
+            width={12.5}
+            height={8}
+            className="date-arrow"
+          />
         </div>
 
         {/* Error message for Andata date */}
@@ -833,18 +828,18 @@ function SearchContent() {
           border-style: solid;
           border-color: rgba(0, 0, 0, 0.17);
           border-width: 1px;
-          padding: 15px 27px 15px 27px;
+          padding: 16px 32px;
           display: flex;
           flex-direction: column;
           gap: 10px;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          width: 109px;
-          height: 47px;
+          width: 130px;
+          height: 52px;
           position: absolute;
-          left: 113px;
-          top: 209px;
+          left: 102px;
+          top: 218px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
           transition: filter 0.2s;
@@ -890,8 +885,8 @@ function SearchContent() {
         }
         .entypo-magnifying-glass {
           flex-shrink: 0;
-          width: 11px;
-          height: 11px;
+          width: 14px;
+          height: 14px;
           position: relative;
           overflow: visible;
           aspect-ratio: 1;
@@ -900,7 +895,7 @@ function SearchContent() {
           color: #ffffff;
           text-align: left;
           font-family: "Inter-SemiBold", sans-serif;
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 600;
           position: relative;
         }
@@ -910,17 +905,50 @@ function SearchContent() {
           border-style: solid;
           border-color: rgba(0, 0, 0, 0.17);
           border-width: 1px;
-          padding: 4px 55px 4px 55px;
+          padding: 14px 18px;
           flex-shrink: 0;
-          width: 165px;
-          height: 51px;
+          width: 334px;
+          height: 58px;
           position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
+          left: 0;
           top: 136px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
           transition: background-color 0.2s;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .date-label {
+          color: #d6d8dc;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 12px;
+          font-weight: 500;
+        }
+        .date-value {
+          color: rgba(151, 151, 164, 0.8);
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          flex: 1;
+          text-align: center;
+        }
+        .date-arrow {
+          flex-shrink: 0;
+          width: 12.5px;
+          height: 8px;
+        }
+        .date-value-selected {
+          color: #9797a4;
+          font-family: "Inter-Medium", sans-serif;
+          font-size: 16px;
+          font-weight: 500;
+          flex: 1;
+          text-align: center;
+        }
+        .frame-30.has-date {
+          justify-content: center;
         }
 
         .frame-30:hover {
@@ -956,11 +984,11 @@ function SearchContent() {
           display: flex;
           flex-direction: column;
           gap: 0px;
-          align-items: flex-start;
+          align-items: center;
           justify-content: flex-start;
-          width: 96.5px;
+          width: 100%;
           position: absolute;
-          left: 61px;
+          left: 0;
           top: 4px;
         }
         .frame-48 {
@@ -970,12 +998,12 @@ function SearchContent() {
           align-items: center;
           justify-content: flex-start;
           flex-shrink: 0;
-          width: 42px;
+          width: 100%;
           position: relative;
         }
         .andata {
           color: #d6d8dc;
-          text-align: left;
+          text-align: center;
           font-family: "Inter-Medium", sans-serif;
           font-size: 12px;
           font-weight: 500;
@@ -986,7 +1014,8 @@ function SearchContent() {
           display: flex;
           flex-direction: row;
           align-items: center;
-          justify-content: space-between;
+          justify-content: center;
+          gap: 10px;
           align-self: stretch;
           flex-shrink: 0;
           position: relative;
@@ -998,7 +1027,6 @@ function SearchContent() {
           font-size: 12px;
           font-weight: 500;
           position: relative;
-          width: 42px;
         }
         .vector-5 {
           flex-shrink: 0;
