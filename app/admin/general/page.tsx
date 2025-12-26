@@ -58,28 +58,28 @@ export default function GeneralPage() {
       </div>
 
       {/* Menu section with buttons */}
-      <div className="menu-section">
-        <div className="frame-64">
-          <button className="frame-49" onClick={() => router.push('/admin/driver/rides')}>
-            <div className="corse">Biglietti</div>
-          </button>
-        </div>
 
+
+      <div className="menu-section">
         <div className="frame-62">
           <button className="frame-49" onClick={() => router.push('/admin/dashboard')}>
             <div className="corse">Corse</div>
           </button>
         </div>
-
-        <div className="frame-62">
-          <button className="frame-49" onClick={() => router.push('/admin/users')}>
-            <div className="corse">Gestione utenti</div>
+        <div className="frame-64">
+          <button className="frame-49" onClick={() => router.push('/admin/driver/rides')}>
+            <div className="corse">Valida biglietti</div>
           </button>
         </div>
 
         <div className="frame-62">
           <button className="frame-49" onClick={() => router.push('/admin/tickets/archive')}>
             <div className="corse">Archivio biglietti</div>
+          </button>
+        </div>
+        <div className="frame-62">
+          <button className="frame-49" onClick={() => router.push('/admin/users')}>
+            <div className="corse">Gestione utenti</div>
           </button>
         </div>
       </div>
