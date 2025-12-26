@@ -16,17 +16,22 @@ interface TicketInfo {
   purchaseTimestamp: Date | null;
   originStopName: string;
   destinationStopName: string;
+  departureDate: string;
 }
 
 interface RideGroup {
   rideId: string;
   rideName: string;
   departureTime: string;
+  departureDate: string;
   tickets: TicketInfo[];
 }
 
-interface DateGroup {
-  date: string;
+interface MonthGroup {
+  month: string; // formato YYYY-MM
+  monthLabel: string; // es. "Dicembre 2025"
+  totalTickets: number;
+  totalAmount: number;
   rides: RideGroup[];
 }
 
@@ -58,26 +63,28 @@ export async function GET(req: NextRequest) {
     const allRides = await db.select().from(rides);
     const rideIdToRide = Object.fromEntries(allRides.map((r) => [r.id, r] as const));
 
-    // Group tickets by date -> ride
-    const dateMap = new Map<string, Map<string, TicketInfo[]>>();
+    // Group tickets by month -> date+ride
+    const monthMap = new Map<string, Map<string, TicketInfo[]>>();
 
     for (const ticket of allTickets) {
       const date = ticket.departureDate;
+      const month = date.substring(0, 7); // YYYY-MM
+      const dateRideKey = `${date}|${ticket.rideId}`;
       
-      if (!dateMap.has(date)) {
-        dateMap.set(date, new Map());
+      if (!monthMap.has(month)) {
+        monthMap.set(month, new Map());
       }
       
-      const rideMap = dateMap.get(date)!;
+      const dateRideMap = monthMap.get(month)!;
       
-      if (!rideMap.has(ticket.rideId)) {
-        rideMap.set(ticket.rideId, []);
+      if (!dateRideMap.has(dateRideKey)) {
+        dateRideMap.set(dateRideKey, []);
       }
 
       const originStop = stopIdToStop[ticket.originStopId];
       const destinationStop = stopIdToStop[ticket.destinationStopId];
 
-      rideMap.get(ticket.rideId)!.push({
+      dateRideMap.get(dateRideKey)!.push({
         id: ticket.id,
         ticketNumber: ticket.ticketNumber,
         passengerName: ticket.passengerName,
@@ -89,20 +96,38 @@ export async function GET(req: NextRequest) {
         purchaseTimestamp: ticket.purchaseTimestamp,
         originStopName: originStop ? `${originStop.city} - ${originStop.name}` : ticket.originStopId,
         destinationStopName: destinationStop ? `${destinationStop.city} - ${destinationStop.name}` : ticket.destinationStopId,
+        departureDate: ticket.departureDate,
       });
     }
 
     // Build the response
-    const dateGroups: DateGroup[] = [];
+    const monthNames = [
+      'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+      'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    ];
 
-    // Sort dates in descending order (most recent first)
-    const sortedDates = Array.from(dateMap.keys()).sort((a, b) => b.localeCompare(a));
+    const monthGroups: MonthGroup[] = [];
 
-    for (const date of sortedDates) {
-      const rideMap = dateMap.get(date)!;
+    // Sort months in descending order (most recent first)
+    const sortedMonths = Array.from(monthMap.keys()).sort((a, b) => b.localeCompare(a));
+
+    for (const month of sortedMonths) {
+      const dateRideMap = monthMap.get(month)!;
       const rideGroups: RideGroup[] = [];
+      let totalTickets = 0;
+      let totalAmount = 0;
 
-      for (const [rideId, ticketList] of rideMap) {
+      // Sort date+ride keys in descending order by date, then by time
+      const sortedDateRideKeys = Array.from(dateRideMap.keys()).sort((a, b) => {
+        const [dateA] = a.split('|');
+        const [dateB] = b.split('|');
+        return dateB.localeCompare(dateA);
+      });
+
+      for (const dateRideKey of sortedDateRideKeys) {
+        const [date, rideId] = dateRideKey.split('|');
+        const ticketList = dateRideMap.get(dateRideKey)!;
+        
         const ride = rideIdToRide[rideId];
         const originStop = ride ? stopIdToStop[ride.originStopId] : null;
         const destStop = ride ? stopIdToStop[ride.destinationStopId] : null;
@@ -115,20 +140,28 @@ export async function GET(req: NextRequest) {
           rideId,
           rideName,
           departureTime: ride?.departureTime || '',
+          departureDate: date,
           tickets: ticketList,
         });
+
+        totalTickets += ticketList.length;
+        totalAmount += ticketList.reduce((sum, t) => sum + t.amountPaid, 0);
       }
 
-      // Sort rides by departure time
-      rideGroups.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
+      // Parse month for label
+      const [year, monthNum] = month.split('-');
+      const monthLabel = `${monthNames[parseInt(monthNum, 10) - 1]} ${year}`;
 
-      dateGroups.push({
-        date,
+      monthGroups.push({
+        month,
+        monthLabel,
+        totalTickets,
+        totalAmount,
         rides: rideGroups,
       });
     }
 
-    return NextResponse.json(dateGroups);
+    return NextResponse.json(monthGroups);
   } catch (error) {
     console.error('Error fetching archived tickets:', error);
     return NextResponse.json(
@@ -137,4 +170,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
