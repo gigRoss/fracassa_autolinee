@@ -73,7 +73,7 @@ export default function GeneralPage() {
 
         <div className="frame-62">
           <button className="frame-49" onClick={() => router.push('/admin/users')}>
-            <div className="corse">Utenti</div>
+            <div className="corse">Gestione utenti</div>
           </button>
         </div>
       </div>

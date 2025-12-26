@@ -8,7 +8,7 @@ import SimplifiedDashboard from "./SimplifiedDashboard";
 import { Stop } from "@/app/lib/data";
 import { normalizeStopName, normalizeCity } from "@/app/lib/textUtils";
 
-async function fetchRides() {
+async function fetchRides(showArchived: boolean = false) {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   const archived = cookieStore.get("archived_rides")?.value;
@@ -16,7 +16,8 @@ async function fetchRides() {
   const host = hdrs.get("host");
   const proto = hdrs.get("x-forwarded-proto") || "http";
   const base = `${proto}://${host}`;
-  const res = await fetch(`${base}/admin/rides`, {
+  const url = showArchived ? `${base}/admin/rides?showArchived=true` : `${base}/admin/rides`;
+  const res = await fetch(url, {
     headers: {
       Cookie: `${SESSION_COOKIE}=${token}${archived ? `; archived_rides=${archived}` : ""}`,
     },
@@ -53,14 +54,21 @@ async function fetchStops(): Promise<Stop[]> {
   return (await res.json()) as Stop[];
 }
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const session = verifySession(token);
   if (!session) {
     redirect("/admin/login");
   }
 
-  const [rides, stops] = await Promise.all([fetchRides(), fetchStops()]);
+  const params = await searchParams;
+  const showArchived = params.archived === "true";
+
+  const [rides, stops] = await Promise.all([fetchRides(showArchived), fetchStops()]);
   const stopIdToStop = Object.fromEntries(stops.map((s) => [s.id, s] as const));
 
   // Format rides with labels for SimplifiedDashboard
@@ -154,7 +162,7 @@ export default async function AdminDashboardPage() {
 
       {/* Dashboard content */}
       <div className="dashboard-content">
-        <SimplifiedDashboard rides={formattedRides} />
+        <SimplifiedDashboard rides={formattedRides} showArchived={showArchived} />
       </div>
     </div>
   );

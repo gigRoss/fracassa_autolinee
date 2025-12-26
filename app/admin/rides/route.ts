@@ -9,9 +9,19 @@ export async function GET(req: NextRequest) {
   if (!verifySession(token)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  
+  const showArchived = req.nextUrl.searchParams.get("showArchived") === "true";
   const archivedCookie = req.cookies.get("archived_rides")?.value || "";
   const archivedIds = new Set(archivedCookie.split(",").filter(Boolean));
   const all = await listRides();
+  
+  if (showArchived) {
+    // Show only archived rides
+    const archived = all.filter((r) => archivedIds.has(r.id) || r.archived);
+    return NextResponse.json(archived);
+  }
+  
+  // Show only non-archived rides (default)
   const visible = all.filter((r) => !archivedIds.has(r.id) && !r.archived);
   return NextResponse.json(visible);
 }
