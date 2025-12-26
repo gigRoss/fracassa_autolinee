@@ -260,13 +260,16 @@ function ConfirmPageContent() {
           }
 
           .frame-256 {
-            width: 393px;
+            width: 100%;
+            max-width: 393px;
             height: 91px;
-            position: absolute;
-            left: 0;
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
             top: 0;
             display: flex;
             justify-content: center;
+            z-index: 1000;
           }
           
           .frame-161 {
@@ -279,7 +282,6 @@ function ConfirmPageContent() {
             box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
             border-bottom-right-radius: 20px;
             border-bottom-left-radius: 20px;
-            z-index: 1000;
           }
           
           .frame-back {
@@ -403,12 +405,20 @@ function ConfirmPageContent() {
             <div className="user-details-card">
               <div className="user-info-row">
                 <span className="user-label">Nome:</span>
-                <span className="user-value">{userData.nome}</span>
+                <span className="user-value">
+                  {userData.nome && userData.nome.trim() !== '' 
+                    ? userData.nome 
+                    : <span className="field-missing">Campo obbligatorio</span>}
+                </span>
               </div>
               
               <div className="user-info-row">
                 <span className="user-label">Cognome:</span>
-                <span className="user-value">{userData.cognome}</span>
+                <span className="user-value">
+                  {userData.cognome && userData.cognome.trim() !== '' 
+                    ? userData.cognome 
+                    : <span className="field-missing">Campo obbligatorio</span>}
+                </span>
               </div>
               
               <div className="user-info-row">
@@ -511,13 +521,16 @@ function ConfirmPageContent() {
         }
         
         .frame-256 {
-          width: 393px;
+          width: 100%;
+          max-width: 393px;
           height: 91px;
-          position: absolute;
-          left: 0;
+          position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
           top: 0;
           display: flex;
           justify-content: center;
+          z-index: 1000;
         }
         
         .frame-161 {
@@ -638,6 +651,13 @@ function ConfirmPageContent() {
           flex-direction: column;
           gap: 20px;
           align-items: center;
+        }
+        
+        .field-missing {
+          color: #d32f2f;
+          font-style: italic;
+          font-weight: 400;
+          font-size: 13px;
         }
         
         .section-container {

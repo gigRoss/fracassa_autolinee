@@ -312,10 +312,12 @@ export default function DriverRideTicketsPage() {
         }
 
         .header-bar {
-          position: absolute;
-          left: 0;
+          position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
           top: 0;
           width: 100%;
+          max-width: 393px;
           height: 91px;
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
@@ -330,7 +332,7 @@ export default function DriverRideTicketsPage() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          z-index: 10;
+          z-index: 1000;
         }
 
         .icon-button {

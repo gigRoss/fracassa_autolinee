@@ -101,10 +101,12 @@ export default function GeneralPage() {
         }
 
         .header-bar {
-          position: absolute;
-          left: 0;
+          position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
           top: 0;
           width: 100%;
+          max-width: 393px;
           height: 91px;
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
@@ -115,7 +117,7 @@ export default function GeneralPage() {
             rgba(250, 159, 19, 1) 57%,
             rgba(244, 148, 1, 1) 75%
           );
-          z-index: 10;
+          z-index: 1000;
         }
 
         .back-button {

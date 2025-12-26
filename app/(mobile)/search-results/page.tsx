@@ -1138,10 +1138,12 @@ function SearchResultsContent() {
         
         .frame-161 {
           width: 100%;
+          max-width: 393px;
           height: 91px;
-          left: 0px;
+          left: 50%;
+          transform: translateX(-50%);
           top: 0px;
-          position: absolute;
+          position: fixed;
           background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           border-bottom-right-radius: 20px;

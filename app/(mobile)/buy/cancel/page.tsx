@@ -103,13 +103,16 @@ export default function CancelPage() {
         }
         
         .frame-256 {
-          width: 393px;
+          width: 100%;
+          max-width: 393px;
           height: 91px;
-          position: absolute;
-          left: 0;
+          position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
           top: 0;
           display: flex;
           justify-content: center;
+          z-index: 1000;
         }
         
         .frame-161 {
@@ -122,7 +125,6 @@ export default function CancelPage() {
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           border-bottom-right-radius: 20px;
           border-bottom-left-radius: 20px;
-          z-index: 1000;
         }
         
         .frame-back {

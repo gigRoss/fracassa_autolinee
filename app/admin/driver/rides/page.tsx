@@ -203,9 +203,11 @@ export default function DriverRidesPage() {
 
         .header-bar {
           width: 100%;
+          max-width: 393px;
           height: 70px;
-          position: absolute;
-          left: 0;
+          position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
           top: 0;
           background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
