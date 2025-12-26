@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
 interface PassengerTicket {
@@ -31,13 +31,24 @@ interface ApiTicket {
  */
 export default function DriverRideTicketsPage() {
   const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const rideId = params.id;
+  const dateParam = searchParams.get('date');
 
   const [passengers, setPassengers] = useState<PassengerTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [confirmTicket, setConfirmTicket] = useState<PassengerTicket | null>(null);
+
+  // Format the date for display
+  const formatDateDisplay = (dateStr: string | null): string => {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+    return `${dayNames[date.getDay()]} ${day}/${month}`;
+  };
 
   // Fetch tickets from API
   useEffect(() => {
@@ -48,7 +59,12 @@ export default function DriverRideTicketsPage() {
         setLoading(true);
         setError(null);
         
-        const res = await fetch(`/api/driver/rides/${rideId}/tickets`, {
+        // Include date parameter if available
+        const url = dateParam 
+          ? `/api/driver/rides/${rideId}/tickets?date=${dateParam}`
+          : `/api/driver/rides/${rideId}/tickets`;
+        
+        const res = await fetch(url, {
           cache: 'no-store',
         });
         
@@ -80,7 +96,7 @@ export default function DriverRideTicketsPage() {
     }
 
     fetchTickets();
-  }, [rideId]);
+  }, [rideId, dateParam]);
 
   // Show confirmation popup before validating
   const handleRequestValidation = (id: string) => {
@@ -171,7 +187,10 @@ export default function DriverRideTicketsPage() {
           </svg>
         </button>
 
-        <div className="header-title">BIGLIETTI</div>
+        <div className="header-title-container">
+          <div className="header-title">BIGLIETTI</div>
+          {dateParam && <div className="header-date">{formatDateDisplay(dateParam)}</div>}
+        </div>
 
         <button
           className="icon-button"
@@ -210,7 +229,7 @@ export default function DriverRideTicketsPage() {
                           <div className="passenger-name">
                             {passenger.name}
                             {passenger.passengerCount && passenger.passengerCount > 1 && (
-                              <span className="passenger-count"> ({passenger.passengerCount} pax)</span>
+                              <span className="passenger-count"> ({passenger.passengerCount} passeggeri)</span>
                             )}
                           </div>
                           <div
@@ -333,6 +352,13 @@ export default function DriverRideTicketsPage() {
           transform: scale(0.95);
         }
 
+        .header-title-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2px;
+        }
+
         .header-title {
           color: #ffffff;
           font-family: Inter, sans-serif;
@@ -340,6 +366,13 @@ export default function DriverRideTicketsPage() {
           font-weight: 400;
           letter-spacing: 0.5px;
           text-transform: uppercase;
+        }
+
+        .header-date {
+          color: rgba(255, 255, 255, 0.9);
+          font-family: Inter, sans-serif;
+          font-size: 13px;
+          font-weight: 500;
         }
 
         .content {

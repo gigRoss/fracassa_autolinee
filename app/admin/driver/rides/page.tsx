@@ -18,11 +18,17 @@ interface Ride {
   destinationStopId: string;
   departureTime: string;
   arrivalTime: string;
+  allValidated: boolean;
+}
+
+interface DateGroup {
+  date: string;
+  rides: Ride[];
 }
 
 export default function DriverRidesPage() {
   const router = useRouter();
-  const [rides, setRides] = useState<Ride[]>([]);
+  const [dateGroups, setDateGroups] = useState<DateGroup[]>([]);
   const [stops, setStops] = useState<Stop[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +42,7 @@ export default function DriverRidesPage() {
 
         if (ridesRes.ok) {
           const ridesData = await ridesRes.json();
-          setRides(ridesData);
+          setDateGroups(ridesData);
         }
 
         if (stopsRes.ok) {
@@ -55,8 +61,8 @@ export default function DriverRidesPage() {
 
   const stopIdToStop = Object.fromEntries(stops.map((s) => [s.id, s] as const));
 
-  const handleRideClick = (rideId: string) => {
-    router.push(`/admin/driver/rides/${rideId}`);
+  const handleRideClick = (rideId: string, date: string) => {
+    router.push(`/admin/driver/rides/${rideId}?date=${date}`);
   };
 
   const handleBack = () => {
@@ -85,11 +91,26 @@ export default function DriverRidesPage() {
     
     const originName = normalizeStopName(origin.name);
     const destName = normalizeStopName(dest.name);
-    const originCity = normalizeCity(origin.city);
     const destCity = normalizeCity(dest.city);
     
-    // Format: "OriginName - DestCity DestName" (like "Leofara - Teramo Centro")
-    return `${originName} - ${destCity} ${destName}`;
+    // Format: "HH:MM - OriginName → DestCity DestName"
+    return `${ride.departureTime} - ${originName} → ${destCity} ${destName}`;
+  };
+
+  const formatDateHeader = (dateStr: string): string => {
+    // Parse YYYY-MM-DD
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    
+    const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+    
+    const dayName = dayNames[date.getDay()];
+    const dayNum = date.getDate();
+    const monthName = monthNames[date.getMonth()];
+    
+    return `${dayName} ${dayNum} ${monthName}`;
   };
 
   return (
@@ -135,22 +156,27 @@ export default function DriverRidesPage() {
         />
       </div>
 
-      {/* Rides list */}
+      {/* Rides list grouped by date */}
       <div className="rides-list-container">
         {loading ? (
           <div className="loading-message">Caricamento...</div>
-        ) : rides.length === 0 ? (
+        ) : dateGroups.length === 0 ? (
           <div className="no-rides-message">Nessuna corsa con biglietti attivi</div>
         ) : (
           <div className="rides-list">
-            {rides.map((ride) => (
-              <button
-                key={ride.id}
-                className="ride-button"
-                onClick={() => handleRideClick(ride.id)}
-              >
-                {getRideLabel(ride)}
-              </button>
+            {dateGroups.map((group) => (
+              <div key={group.date} className="date-group">
+                <div className="date-header">{formatDateHeader(group.date)}</div>
+                {group.rides.map((ride) => (
+                  <button
+                    key={`${group.date}-${ride.id}`}
+                    className={`ride-button ${ride.allValidated ? 'all-validated' : ''}`}
+                    onClick={() => handleRideClick(ride.id, group.date)}
+                  >
+                    {getRideLabel(ride)}
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
         )}
@@ -270,7 +296,24 @@ export default function DriverRidesPage() {
         .rides-list {
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 16px;
+        }
+
+        .date-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .date-header {
+          font-family: "Inter-Bold", sans-serif;
+          font-size: 15px;
+          font-weight: 700;
+          color: #F49401;
+          padding: 8px 4px;
+          border-bottom: 2px solid #F49401;
+          margin-bottom: 4px;
+          text-transform: capitalize;
         }
 
         .ride-button {
@@ -304,6 +347,17 @@ export default function DriverRidesPage() {
 
         .ride-button:active {
           transform: translateY(0px) scale(0.98);
+        }
+
+        .ride-button.all-validated {
+          background: linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+          border-color: #16a34a;
+          color: #ffffff;
+        }
+
+        .ride-button.all-validated:hover {
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+          color: #ffffff;
         }
 
         .loading-message,
