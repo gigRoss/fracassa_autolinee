@@ -80,11 +80,7 @@ export default function CancelPage() {
               </div>
             </button>
             
-            <button className="frame-37 secondary" onClick={handleGoHome}>
-              <div className="frame-17">
-                <span className="continua">Torna alla Home</span>
-              </div>
-            </button>
+           
           </div>
         </div>
       </div>

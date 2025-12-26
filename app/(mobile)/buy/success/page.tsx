@@ -72,7 +72,7 @@ function SuccessContent() {
               <img className="back-arrow" src="/mobile/search/frame-410.svg" alt="" />
             </div>
           </button>
-          <div className="acquista">PAGAMENTO COMPLETATO</div>
+          <div className="acquista"></div>
           <button className="close-button" onClick={handleGoHome} aria-label="Chiudi">
             <img className="close-icon" src="/mobile/search/frame-580.svg" alt="" />
           </button>
@@ -164,11 +164,7 @@ function SuccessContent() {
               </ul>
             </div>
           </div>
-          <button className="frame-37" onClick={handleGoHome}>
-            <div className="frame-17">
-              <span className="continua">Torna alla Home</span>
-            </div>
-          </button>
+         
 
         </div>
       </div>
