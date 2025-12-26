@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { findAdminByEmail, verifyPassword, createSession, SESSION_COOKIE, updateLastAccess } from '@/app/lib/auth';
 
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password } = body;
+    const { email, password, role } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -14,7 +15,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await findAdminByEmail(email.trim().toLowerCase());
+    const emailLower = email.trim().toLowerCase();
+
+    // Verifica con il database degli admin
+    const user = await findAdminByEmail(emailLower);
     
     if (!user || !verifyPassword(password, user)) {
       return NextResponse.json(
@@ -23,13 +27,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Update last access timestamp
     await updateLastAccess(user.email);
-
-    // Create session token
     const token = createSession(user.email);
     
-    // Set cookie
     (await cookies()).set(SESSION_COOKIE, token, {
       httpOnly: true,
       sameSite: 'lax',
@@ -37,7 +37,19 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    return NextResponse.json({ success: true });
+    // Debug: log del valore isAdmin
+    console.log('Login user:', user.email, 'isAdmin value:', user.isAdmin, 'type:', typeof user.isAdmin);
+
+    // Redirect basato sul ruolo: admin va a /admin/general, driver va a /admin/driver/rides
+    // SQLite può restituire 1/0 invece di true/false, quindi usiamo == true o Boolean()
+    const isAdminUser = Boolean(user.isAdmin);
+    const redirectTo = isAdminUser ? '/admin/general' : '/admin/driver/rides';
+    
+    return NextResponse.json({ 
+      success: true, 
+      redirectTo,
+      role: isAdminUser ? 'amministrazione' : 'driver'
+    });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

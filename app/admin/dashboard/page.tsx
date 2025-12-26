@@ -2,24 +2,24 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifySession, SESSION_COOKIE } from "@/app/lib/auth";
 import { logoutAction } from "@/app/lib/authActions";
-// import { fetchKpis } from "@/app/lib/adminData";
-import { Stop } from "@/app/lib/data";
-import SimplifiedDashboard from "./SimplifiedDashboard";
+import Image from "next/image";
 import Link from "next/link";
-// import RecentChanges from "./RecentChanges";
-// import CreateRideForm from "./CreateRideForm";
-// import RidesList from "./RidesList";
+import SimplifiedDashboard from "./SimplifiedDashboard";
+import { Stop } from "@/app/lib/data";
+import { normalizeStopName, normalizeCity } from "@/app/lib/textUtils";
 
-async function fetchRides() {
+async function fetchRides(showArchived: boolean = false) {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
+  const archived = cookieStore.get("archived_rides")?.value;
   const hdrs = await headers();
   const host = hdrs.get("host");
   const proto = hdrs.get("x-forwarded-proto") || "http";
   const base = `${proto}://${host}`;
-  const res = await fetch(`${base}/admin/rides`, {
+  const url = showArchived ? `${base}/admin/rides?showArchived=true` : `${base}/admin/rides`;
+  const res = await fetch(url, {
     headers: {
-      Cookie: `${SESSION_COOKIE}=${token}`,
+      Cookie: `${SESSION_COOKIE}=${token}${archived ? `; archived_rides=${archived}` : ""}`,
     },
     cache: "no-store",
   });
@@ -54,92 +54,116 @@ async function fetchStops(): Promise<Stop[]> {
   return (await res.json()) as Stop[];
 }
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const session = verifySession(token);
   if (!session) {
     redirect("/admin/login");
   }
 
-  // const kpis = await fetchKpis();
-  const [rides, stops] = await Promise.all([fetchRides(), fetchStops()]);
+  const params = await searchParams;
+  const showArchived = params.archived === "true";
+
+  const [rides, stops] = await Promise.all([fetchRides(showArchived), fetchStops()]);
   const stopIdToStop = Object.fromEntries(stops.map((s) => [s.id, s] as const));
 
-  const ridesWithLabels = rides.map((r) => {
-    const origin = stopIdToStop[r.originStopId];
-    const dest = stopIdToStop[r.destinationStopId];
-    const intermediateStopsWithLabels = r.intermediateStops?.map((s: { stopId: string; time: string; fascia?: number | null }) => {
-      const stop = stopIdToStop[s.stopId];
+  // Format rides with labels for SimplifiedDashboard
+  const formattedRides = rides.map((ride) => {
+    const origin = stopIdToStop[ride.originStopId];
+    const destination = stopIdToStop[ride.destinationStopId];
+    
+    const originLabel = origin
+      ? `${normalizeCity(origin.city)} (${normalizeStopName(origin.name)})`
+      : ride.originStopId;
+    
+    const destinationLabel = destination
+      ? `${normalizeCity(destination.city)} (${normalizeStopName(destination.name)})`
+      : ride.destinationStopId;
+
+    const intermediateStops = (ride.intermediateStops || []).map((stop: { stopId: string; time: string; fascia?: number | null }) => {
+      const stopData = stopIdToStop[stop.stopId];
+      const label = stopData
+        ? `${normalizeCity(stopData.city)} (${normalizeStopName(stopData.name)})`
+        : stop.stopId;
+      
       return {
-        ...s,
-        label: stop ? `${stop.city} (${stop.name})` : s.stopId,
+        stopId: stop.stopId,
+        time: stop.time,
+        label,
+        fascia: stop.fascia ?? null,
       };
     });
+
     return {
-      ...r,
-      originLabel: origin ? `${origin.city} (${origin.name})` : "N/A",
-      destinationLabel: dest ? `${dest.city} (${dest.name})` : "N/A",
-      intermediateStops: intermediateStopsWithLabels,
+      id: ride.id,
+      lineName: ride.lineName,
+      originStopId: ride.originStopId,
+      destinationStopId: ride.destinationStopId,
+      departureTime: ride.departureTime,
+      arrivalTime: ride.arrivalTime,
+      originLabel,
+      destinationLabel,
+      originFascia: ride.originFascia ?? null,
+      destinationFascia: ride.destinationFascia ?? null,
+      intermediateStops,
     };
   });
 
   return (
-    <div className="max-w-4xl w-full mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold">Dashboard amministratore</h1>
-        <div className="text-sm text-black/70 dark:text-white/70">Benvenuto, {session.sub}</div>
-        <form action={logoutAction} className="mt-3">
-          <button className="btn" type="submit">
-            Logout
-          </button>
-        </form>
-      </div>
+    <div className="amministrazione-page">
+      {/* Bottom vector line */}
+      <Image
+        className="vector-3"
+        src="/mobile/search/vector-30.svg"
+        alt=""
+        width={90}
+        height={1}
+      />
 
-      <SimplifiedDashboard rides={ridesWithLabels} />
-
-      {/* Link discreto gestione utenti */}
-      <div className="pt-8 border-t border-black/10 dark:border-white/10">
-        <Link 
-          href="/admin/users" 
-          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-        >
-          Gestione utenti
-        </Link>
-      </div>
-
-      {/* CODICE ORIGINALE COMMENTATO - DA RIATTIVARE SE NECESSARIO */}
-      {/* 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="card p-4">
-          <div className="text-xs text-black/60 dark:text-white/60">Corse odierne programmate</div>
-          <div className="text-2xl font-semibold mt-1">{kpis.scheduledToday}</div>
+      {/* Orange header */}
+      <header className="frame-256">
+        <div className="frame-161">
+          <Link href="/admin/general" aria-label="Indietro" className="frame-back">
+            <div className="back-arrow-wrapper">
+              <Image
+                className="back-arrow"
+                src="/mobile/search/frame-410.svg"
+                alt=""
+                width={18}
+                height={16}
+              />
+            </div>
+          </Link>
+          <div className="acquista">ADMIN</div>
+          <form action={logoutAction}>
+            <button type="submit" aria-label="Logout" className="close-button">
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="white" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          </form>
         </div>
-        <div className="card p-4">
-          <div className="text-xs text-black/60 dark:text-white/60">Modificate/Eliminate (7 giorni)</div>
-          <div className="text-2xl font-semibold mt-1">{kpis.changedLast7d}</div>
-        </div>
-        <div className="card p-4 sm:col-span-2 lg:col-span-1">
-          <div className="text-xs text-black/60 dark:text-white/60">Stato</div>
-          <div className="text-sm mt-1">Operativo</div>
-        </div>
-      </div>
+      </header>
 
-      <RecentChanges />
-
-      <div className="card">
-        <div className="p-4 border-b border-black/10 dark:border-white/10 font-medium">Crea nuova corsa</div>
-        <div className="p-4">
-          <CreateRideForm />
-        </div>
+      {/* Dashboard content */}
+      <div className="dashboard-content">
+        <SimplifiedDashboard rides={formattedRides} showArchived={showArchived} />
       </div>
-
-      <div className="card">
-        <div className="p-4 border-b border-black/10 dark:border-white/10 font-medium">Corse</div>
-        <RidesList />
-      </div>
-      */}
     </div>
   );
 }
-
-

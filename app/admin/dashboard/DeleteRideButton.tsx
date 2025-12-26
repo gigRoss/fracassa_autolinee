@@ -118,7 +118,7 @@ export default function DeleteRideButton({ ride }: Props) {
           onClick={() => setConfirmOpen(true)}
           className="btn"
         >
-          Elimina
+          Archivia
         </button>
       ) : (
         <div className="text-xs p-2 rounded-md border bg-white/80 dark:bg-black/20"

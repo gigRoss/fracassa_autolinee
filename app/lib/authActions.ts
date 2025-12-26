@@ -8,6 +8,6 @@ export async function logoutAction() {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE);
   redirect("/admin/login");
-}
+} 
 
 

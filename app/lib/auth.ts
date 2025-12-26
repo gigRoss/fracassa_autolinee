@@ -1,8 +1,7 @@
 import { scryptSync, timingSafeEqual, randomBytes, createHmac } from "crypto";
-import { getDb } from "./db";
-import { adminUsers } from "./schema";
-import { eq } from "drizzle-orm";
-import type { AdminUser } from "./schema";
+import { getDb } from './db';
+import { adminUsers, type AdminUser } from './schema';
+import { eq } from 'drizzle-orm';
 import { nowInItaly } from "./dateUtils";
 
 const DEFAULT_SESSION_TTL_MS = 1000 * 60 * 60 * 8; // 8h
@@ -12,6 +11,10 @@ function getSessionSecret(): string {
   return process.env.SESSION_SECRET || "dev-insecure-secret-change-me";
 }
 
+/**
+ * Hash password with salt using scrypt
+ * Returns combined format: salt:hash
+ */
 export function hashPassword(password: string, salt: string): string {
   const buf = scryptSync(password, salt, 32);
   return buf.toString("hex");
@@ -31,16 +34,17 @@ export async function findAdminByEmail(email: string): Promise<AdminUser | null>
 
 /**
  * Verify password against stored hash
- * Expects passwordHash in format: "salt:hash"
+ * Expects passwordHash in format: salt:hash
  */
 export function verifyPassword(password: string, user: AdminUser): boolean {
-  const [salt, storedHash] = user.passwordHash.split(":");
-  if (!salt || !storedHash) return false;
+  const parts = user.passwordHash.split(':');
+  if (parts.length !== 2) return false;
   
-  const candidateHash = hashPassword(password, salt);
+  const [storedSalt, storedHash] = parts;
+  const candidateHash = hashPassword(password, storedSalt);
+  
   const candidate = Buffer.from(candidateHash, "hex");
   const stored = Buffer.from(storedHash, "hex");
-  
   if (candidate.length !== stored.length) return false;
   return timingSafeEqual(candidate, stored);
 }
@@ -53,48 +57,6 @@ export async function updateLastAccess(email: string): Promise<void> {
   await db.update(adminUsers)
     .set({ lastAccess: nowInItaly() })
     .where(eq(adminUsers.email, email.toLowerCase()));
-}
-
-/**
- * Create a new admin user
- */
-export async function createAdminUser(email: string, password: string, name: string): Promise<AdminUser> {
-  const db = getDb();
-  const id = `admin-${Date.now()}-${randomBytes(4).toString('hex')}`;
-  const salt = randomBytes(16).toString('hex');
-  const hash = hashPassword(password, salt);
-  
-  const [user] = await db.insert(adminUsers).values({
-    id,
-    email: email.toLowerCase(),
-    passwordHash: `${salt}:${hash}`,
-    name,
-    createdAt: nowInItaly(),
-  }).returning();
-  
-  return user;
-}
-
-/**
- * List all admin users (without password hash)
- */
-export async function listAdminUsers() {
-  const db = getDb();
-  return await db.select({
-    id: adminUsers.id,
-    email: adminUsers.email,
-    name: adminUsers.name,
-    lastAccess: adminUsers.lastAccess,
-    createdAt: adminUsers.createdAt,
-  }).from(adminUsers);
-}
-
-/**
- * Delete an admin user by ID
- */
-export async function deleteAdminUser(id: string): Promise<void> {
-  const db = getDb();
-  await db.delete(adminUsers).where(eq(adminUsers.id, id));
 }
 
 export type SessionPayload = {
@@ -138,6 +100,55 @@ export function createSession(email: string, ttlMs: number = DEFAULT_SESSION_TTL
 export function verifySession(token: string | undefined | null): SessionPayload | null {
   if (!token) return null;
   return verify(token, getSessionSecret());
+}
+
+/**
+ * Create a new admin user
+ * @param email - Admin email (will be lowercased)
+ * @param password - Plain text password
+ * @param name - Display name
+ * @param isAdmin - Whether the user is an admin (true) or driver (false)
+ * @returns Created admin user
+ */
+export async function createAdminUser(email: string, password: string, name: string, isAdmin: boolean = true): Promise<AdminUser> {
+  const db = getDb();
+  const id = `admin-${Date.now()}-${randomBytes(4).toString('hex')}`;
+  const salt = randomBytes(16).toString('hex');
+  const hash = hashPassword(password, salt);
+  
+  const [user] = await db.insert(adminUsers).values({
+    id,
+    email: email.toLowerCase(),
+    passwordHash: `${salt}:${hash}`,
+    name,
+    isAdmin,
+    createdAt: nowInItaly(),
+  }).returning();
+  
+  return user;
+}
+
+/**
+ * List all admin users (excludes password hash)
+ */
+export async function listAdminUsers() {
+  const db = getDb();
+  return await db.select({
+    id: adminUsers.id,
+    email: adminUsers.email,
+    name: adminUsers.name,
+    isAdmin: adminUsers.isAdmin,
+    lastAccess: adminUsers.lastAccess,
+    createdAt: adminUsers.createdAt,
+  }).from(adminUsers);
+}
+
+/**
+ * Delete an admin user by ID
+ */
+export async function deleteAdminUser(id: string): Promise<void> {
+  const db = getDb();
+  await db.delete(adminUsers).where(eq(adminUsers.id, id));
 }
 
 export { SESSION_COOKIE, DEFAULT_SESSION_TTL_MS };

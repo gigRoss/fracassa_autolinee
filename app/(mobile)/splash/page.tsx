@@ -52,7 +52,7 @@ export default function SplashScreen() {
       aria-label="Schermata di avvio"
     >
       <div
-        className="animate-splash-entry"
+        className="animate-splash-entry cursor-pointer splash-logo-wrapper"
         style={{
           width: '184px',
           padding: '10px',
@@ -61,6 +61,9 @@ export default function SplashScreen() {
           alignItems: 'flex-start',
           gap: '10px',
         }}
+        role="button"
+        aria-label="Torna alla pagina principale"
+        onClick={() => router.push('/search')}
       >
         <Image
           src="/mobile/splash-logo.png"
@@ -89,6 +92,15 @@ export default function SplashScreen() {
       </div>
 
       <style jsx>{`
+        .splash-logo-wrapper {
+          transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        .splash-logo-wrapper:hover {
+          transform: scale(1.02);
+          opacity: 0.95;
+        }
+
         .loading-dots {
           display: flex;
           gap: 12px;

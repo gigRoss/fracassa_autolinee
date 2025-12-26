@@ -55,6 +55,7 @@ export const adminUsers = sqliteTable('admin_users', {
   email: text('email').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
   name: text('name').notNull(),
+  isAdmin: integer('is_admin', { mode: 'boolean' }).default(true),
   lastAccess: integer('last_access', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' }),
 });
@@ -163,6 +164,7 @@ export const tickets = sqliteTable('tickets', {
   stripeSessionId: text('stripe_session_id'),
   amountPaid: integer('amount_paid').notNull(), // in cents
   passengerCount: integer('passenger_count').notNull().default(1),
+  validated: integer('validate', { mode: 'boolean' }).default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }),
   updatedAt: integer('updated_at', { mode: 'timestamp' }),
 }, (table) => ({
