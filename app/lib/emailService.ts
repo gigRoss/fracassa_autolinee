@@ -111,10 +111,11 @@ function generateEmailHTML(data: TicketEmailData): string {
       background-color: #ffffff;
     }
     .header {
-      background-color: #1e40af;
-      color: #ffffff;
+      background-color: #ffffff;
+      color: #1e40af;
       padding: 30px 20px;
       text-align: center;
+      border-bottom: 3px solid #f59e0b;
     }
     .logo {
       font-size: 28px;
@@ -158,23 +159,17 @@ function generateEmailHTML(data: TicketEmailData): string {
       padding-bottom: 8px;
       border-bottom: 2px solid #e2e8f0;
     }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .info-table td {
       padding: 10px 0;
       border-bottom: 1px solid #f1f5f9;
+      vertical-align: top;
     }
-    .info-row:last-child {
+    .info-table tr:last-child td {
       border-bottom: none;
-    }
-    .info-label {
-      font-weight: 500;
-      color: #64748b;
-    }
-    .info-value {
-      font-weight: 600;
-      color: #1e293b;
-      text-align: right;
     }
     .cta-button {
       display: inline-block;
@@ -187,33 +182,9 @@ function generateEmailHTML(data: TicketEmailData): string {
       margin: 20px 0;
       text-align: center;
     }
-    .footer {
-      background-color: #f8fafc;
-      padding: 20px;
-      text-align: center;
-      font-size: 12px;
-      color: #64748b;
-      border-top: 1px solid #e2e8f0;
-    }
-    .footer-divider {
-      margin: 15px 0;
-      border: 0;
-      border-top: 1px solid #e2e8f0;
-    }
-    .support-info {
-      margin-top: 15px;
-      font-size: 13px;
-    }
     @media only screen and (max-width: 600px) {
       .content {
         padding: 20px 15px;
-      }
-      .info-row {
-        flex-direction: column;
-      }
-      .info-value {
-        text-align: left;
-        margin-top: 5px;
       }
     }
   </style>
@@ -221,8 +192,8 @@ function generateEmailHTML(data: TicketEmailData): string {
 <body>
   <div class="email-container">
     <div class="header">
-      <h1 class="logo">🚌 Fracassa Autolinee</h1>
-      <p style="margin: 10px 0 0 0; font-size: 16px;">Conferma Acquisto Biglietto</p>
+      <p class="logo">Fracassa Autolinee</p>
+      <p style="margin: 0; font-size: 13px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 2px;">Conferma Acquisto Biglietto</p>
     </div>
     
     <div class="content">
@@ -236,50 +207,56 @@ function generateEmailHTML(data: TicketEmailData): string {
       
       <div class="section">
         <h2 class="section-title">Dettagli Passeggero</h2>
-        <div class="info-row">
-          <span class="info-label">Nome e Cognome:&nbsp;</span>
-          <span class="info-value">${fullName}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Email:&nbsp;</span>
-          <span class="info-value">${data.passengerEmail}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Numero Passeggeri:&nbsp;</span>
-          <span class="info-value">${data.passengerCount}</span>
-        </div>
+        <table class="info-table" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 500; color: #64748b; text-align: left; width: 45%; vertical-align: top;">Nome e Cognome</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #1e293b; text-align: right; width: 55%; vertical-align: top;">${fullName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 500; color: #64748b; text-align: left; width: 45%; vertical-align: top;">Email</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #1e293b; text-align: right; width: 55%; vertical-align: top;">${data.passengerEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; font-weight: 500; color: #64748b; text-align: left; width: 45%; vertical-align: top;">Numero Passeggeri</td>
+            <td style="padding: 10px 0; font-weight: 600; color: #1e293b; text-align: right; width: 55%; vertical-align: top;">${data.passengerCount}</td>
+          </tr>
+        </table>
       </div>
       
       <div class="section">
         <h2 class="section-title">Dettagli Viaggio</h2>
-        <div class="info-row">
-          <span class="info-label">Partenza:&nbsp;</span>
-          <span class="info-value">${data.originStopName}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Destinazione:&nbsp;</span>
-          <span class="info-value">${data.destinationStopName}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Data:&nbsp;</span>
-          <span class="info-value">${formattedDate}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Orario:&nbsp;</span>
-          <span class="info-value">${data.departureTime}</span>
-        </div>
+        <table class="info-table" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 500; color: #64748b; text-align: left; width: 45%; vertical-align: top;">Partenza</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #1e293b; text-align: right; width: 55%; vertical-align: top;">${data.originStopName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 500; color: #64748b; text-align: left; width: 45%; vertical-align: top;">Destinazione</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #1e293b; text-align: right; width: 55%; vertical-align: top;">${data.destinationStopName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 500; color: #64748b; text-align: left; width: 45%; vertical-align: top;">Data</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #1e293b; text-align: right; width: 55%; vertical-align: top;">${formattedDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; font-weight: 500; color: #64748b; text-align: left; width: 45%; vertical-align: top;">Orario</td>
+            <td style="padding: 10px 0; font-weight: 600; color: #1e293b; text-align: right; width: 55%; vertical-align: top;">${data.departureTime}</td>
+          </tr>
+        </table>
       </div>
       
       <div class="section">
         <h2 class="section-title">Dettagli Pagamento</h2>
-        <div class="info-row">
-          <span class="info-label">Importo Pagato:&nbsp;</span>
-          <span class="info-value">€ ${amountFormatted}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Data Acquisto:&nbsp;</span>
-          <span class="info-value">${purchaseDateTime}</span>
-        </div>
+        <table class="info-table" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 500; color: #64748b; text-align: left; width: 45%; vertical-align: top;">Importo Pagato</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #1e293b; text-align: right; width: 55%; vertical-align: top;">€ ${amountFormatted}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; font-weight: 500; color: #64748b; text-align: left; width: 45%; vertical-align: top;">Data Acquisto</td>
+            <td style="padding: 10px 0; font-weight: 600; color: #1e293b; text-align: right; width: 55%; vertical-align: top;">${purchaseDateTime}</td>
+          </tr>
+        </table>
       </div>
       
       ${data.ticketUrl ? `
@@ -293,21 +270,13 @@ function generateEmailHTML(data: TicketEmailData): string {
           <strong>Importante:</strong> Conserva questo biglietto e presentalo all'autista al momento della partenza. Il numero del biglietto potrebbe essere richiesto per la verifica.
         </p>
       </div>
-    </div>
-    
-    <div class="footer">
-      <p style="margin: 0 0 15px 0;"><strong>Fracassa Autolinee</strong></p>
       
-      <p style="margin: 5px 0;">Per info e assistenza:</p>
-      <p style="margin: 5px 0;">Tel. <a href="tel:+390861410578" style="color: #1e40af;">0861 410578</a></p>
-      <p style="margin: 5px 0;">WhatsApp <a href="https://wa.me/393451120967" style="color: #1e40af;">345 1120967</a></p>
-      <p style="margin: 5px 0;"><a href="mailto:autolineefracassa@alice.it" style="color: #1e40af;">autolineefracassa@alice.it</a></p>
-      
-      <hr class="footer-divider">
-      
-      <p style="margin: 10px 0 5px 0; font-size: 11px; color: #94a3b8;">
-        © Fracassa Autolinee S.r.l. · P. IVA 01765220676
-      </p>
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+        <p style="margin: 0 0 10px 0; font-size: 14px; color: #1e293b;"><strong>Per info e assistenza:</strong></p>
+        <p style="margin: 5px 0; font-size: 13px; color: #64748b;">Tel. <a href="tel:+390861410578" style="color: #1e40af;">0861 410578</a> · WhatsApp <a href="https://wa.me/393451120967" style="color: #1e40af;">345 1120967</a></p>
+        <p style="margin: 5px 0; font-size: 13px; color: #64748b;"><a href="mailto:autolineefracassa@alice.it" style="color: #1e40af;">autolineefracassa@alice.it</a></p>
+        <p style="margin: 15px 0 0 0; font-size: 11px; color: #94a3b8;">© Fracassa Autolinee S.r.l. · P. IVA 01765220676</p>
+      </div>
     </div>
   </div>
 </body>
@@ -465,14 +434,17 @@ export async function sendTicketConfirmationEmail(
     const htmlContent = generateEmailHTML(data);
     const textContent = generateEmailText(data);
 
-    // Send email via Resend
-    const result = await getResendClient().emails.send({
+    // Prepare email options
+    const emailOptions = {
       from: getFromEmail(),
       to: data.passengerEmail,
-      subject: `Conferma Biglietto ${data.ticketNumber} - Fracassa Autolinee`,
+      subject: `Conferma Acquisto Biglietto Fracassa Autolinee`,
       html: htmlContent,
       text: textContent,
-    });
+    };
+
+    // Send email via Resend
+    const result = await getResendClient().emails.send(emailOptions);
 
     // Validate messageId is present - if null/undefined, the email was not actually sent
     const messageId = result.data?.id;
