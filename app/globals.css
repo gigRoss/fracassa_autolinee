@@ -660,3 +660,38 @@ textarea {
 .skip-link:focus-visible {
   top: 0;
 }
+
+/* === Mobile Touch Behavior Fixes === */
+/* Prevent text selection and context menu on interactive elements */
+@media (pointer: coarse) {
+  /* Apply to all clickable/interactive elements on touch devices */
+  button,
+  [role="button"],
+  .frame-37,
+  .frame-114,
+  .frame-115,
+  .frame-30,
+  .frame-49,
+  .frame-492,
+  .stops-modal-item,
+  .mobile-clickable {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Prevent context menu globally on mobile app pages */
+  .search,
+  .search-results,
+  .buy-page {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+}

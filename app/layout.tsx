@@ -51,6 +51,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Fracassa Autolinee" />
+        {/* Prevent automatic detection that can trigger search popups */}
+        <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
       </head>
       <body
         className={`${inter.variable} ${geistMono.variable} antialiased`}

@@ -302,8 +302,13 @@ function SearchResultsContent() {
         {/* Back button */}
         <div className="frame-161">
 
-        <div className="frame-back" onClick={handleBackToSearch}>
-          <div className="back-arrow-wrapper">
+        <button 
+          type="button"
+          className="frame-back" 
+          onClick={handleBackToSearch}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <span className="back-arrow-wrapper">
             <Image
               src="/mobile/search/frame-410.svg"
               alt="Back"
@@ -311,10 +316,15 @@ function SearchResultsContent() {
               height={16}
               className="back-arrow"
             />
-          </div>
-        </div>
+          </span>
+        </button>
         {/* Close button */}
-        <div className="chiudi-e-dietro clear-search-button" onClick={handleBackToSearchCleared}>
+        <button 
+          type="button"
+          className="chiudi-e-dietro clear-search-button" 
+          onClick={handleBackToSearchCleared}
+          onContextMenu={(e) => e.preventDefault()}
+        >
           <Image
             src="/mobile/search/frame-580.svg"
             alt="Close"
@@ -322,7 +332,7 @@ function SearchResultsContent() {
             height={16}
             className="close-icon"
           />
-        </div>
+        </button>
        </div>
        
       <div className="frame-139 results-scroll">
@@ -380,7 +390,12 @@ function SearchResultsContent() {
                   <div className="teramo-p-zza-garibaldi2">{truncateStopName(capitalizeWords(toStopName))}</div>
                 </div>
               </div>
-              <div className="frame-131" onClick={() => handlePurchase(ride.id)}>
+              <button 
+                type="button"
+                className="frame-131" 
+                onClick={() => handlePurchase(ride.id)}
+                onContextMenu={(e) => e.preventDefault()}
+              >
                 <Image
                   src="/mobile/search/mdi-cart-outline0.svg"
                   alt="Cart"
@@ -388,8 +403,8 @@ function SearchResultsContent() {
                   height={14}
                   className="cart-icon"
                   />
-                <div className="acquista">Acquista</div>
-              </div>
+                <span className="acquista">Acquista</span>
+              </button>
              </div>
             </div>
           );
@@ -424,6 +439,12 @@ function SearchResultsContent() {
           min-height: 100dvh;
           position: relative;
           overflow: hidden;
+          /* Prevent text selection globally on this page */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
         }
         .frame-1 {
           display: flex;
@@ -964,6 +985,17 @@ function SearchResultsContent() {
           top: 77px;
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
+          /* Prevent text selection and mobile context menu */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+        }
+        .frame-131:active {
+          transform: scale(0.95);
         }
         .cart-icon {
           flex-shrink: 0;
@@ -980,6 +1012,12 @@ function SearchResultsContent() {
           font-size: 14px;
           font-weight: 600;
           position: relative;
+          /* Prevent text selection */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          pointer-events: none;
         }
         .frame-39 {
           align-self: stretch;
@@ -1036,6 +1074,14 @@ function SearchResultsContent() {
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
           transition: background-color 0.2s;
+          /* Prevent text selection and mobile context menu */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
         }
         .altro-button:hover {
           background: #e68501;
@@ -1063,6 +1109,17 @@ function SearchResultsContent() {
           transform: translateY(-50%);
           cursor: pointer;
           transition: all 0.2s ease;
+          background: transparent;
+          border: none;
+          padding: 8px;
+          /* Prevent text selection and mobile context menu */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
         }
         
         .frame-back:hover {
@@ -1099,6 +1156,17 @@ function SearchResultsContent() {
           overflow: visible;
           cursor: pointer;
           transition: all 0.2s ease;
+          background: transparent;
+          border: none;
+          padding: 8px;
+          /* Prevent text selection and mobile context menu */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
         }
         
         .chiudi-e-dietro:hover {

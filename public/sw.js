@@ -1,7 +1,7 @@
 // Service Worker per Fracassa Autolinee PWA
-const CACHE_NAME = 'fracassa-autolinee-v1';
-const STATIC_CACHE = 'fracassa-static-v1';
-const DYNAMIC_CACHE = 'fracassa-dynamic-v1';
+const CACHE_NAME = 'fracassa-autolinee-v2';
+const STATIC_CACHE = 'fracassa-static-v2';
+const DYNAMIC_CACHE = 'fracassa-dynamic-v2';
 
 // File da cachare immediatamente all'installazione
 const STATIC_FILES = [
