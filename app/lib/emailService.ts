@@ -29,6 +29,11 @@ function getSupportEmail(): string {
   return process.env.SUPPORT_EMAIL || 'support@fracassaautolinee.it';
 }
 
+function getBaseUrl(): string {
+  // Use environment variable or fallback to Vercel URL
+  return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://fracassa-autolinee.vercel.app';
+}
+
 export interface TicketEmailData {
   ticketNumber: string;
   passengerName: string;
@@ -90,6 +95,8 @@ function generateEmailHTML(data: TicketEmailData): string {
   const amountFormatted = formatCurrency(data.amountPaid);
   const purchaseDateTime = formatDateTime(data.purchaseTimestamp);
   const fullName = `${data.passengerName} ${data.passengerSurname}`;
+  const baseUrl = getBaseUrl();
+  const logoUrl = `${baseUrl}/mobile/logo-fracassa-new.png`;
 
   return `
 <!DOCTYPE html>
@@ -118,7 +125,7 @@ function generateEmailHTML(data: TicketEmailData): string {
           <!-- Header -->
           <tr>
             <td style="background-color: #ffffff; color: #1e40af; padding: 30px 20px; text-align: center; border-bottom: 3px solid #f59e0b;">
-              <p style="font-size: 28px; font-weight: bold; margin: 0; color: #1e40af;">Fracassa Autolinee</p>
+              <img src="${logoUrl}" alt="Fracassa Autolinee" width="200" height="auto" style="display: block; margin: 0 auto 15px auto; max-width: 200px; height: auto;" />
               <p style="margin: 10px 0 0 0; font-size: 13px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 2px;">Conferma Acquisto Biglietto</p>
             </td>
           </tr>
@@ -135,7 +142,7 @@ function generateEmailHTML(data: TicketEmailData): string {
                 <tr>
                   <td style="background-color: #eff6ff; border: 2px solid #1e40af; border-radius: 8px; padding: 20px; text-align: center;">
                     <p style="font-size: 14px; color: #64748b; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">Numero Biglietto</p>
-                    <p style="font-size: 24px; font-weight: bold; color: #1e40af; margin: 0; font-family: 'Courier New', monospace; letter-spacing: 1px;">${data.ticketNumber}</p>
+                    <p style="font-size: 16px; font-weight: bold; color: #1e40af; margin: 0; font-family: 'Courier New', monospace; letter-spacing: 0.5px;">${data.ticketNumber}</p>
                   </td>
                 </tr>
               </table>
