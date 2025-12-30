@@ -77,6 +77,12 @@ export default function StopsModal({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="stops-modal-search-input"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            inputMode="search"
+            autoFocus
           />
         </div>
 

@@ -489,11 +489,12 @@ function ConfirmPageContent() {
 
           {/* Confirm Button */}
           <button 
-            className="frame-37"
+            className={`frame-37 ${!userData.cognome || userData.cognome.trim() === '' ? 'disabled' : ''}`}
             onClick={handleConfirmAndPay}
+            disabled={!userData.cognome || userData.cognome.trim() === ''}
           >
             <div className="frame-17">
-              <span className="continua">Conferma e paga</span>
+              <span className="continua">ACQUISTA</span>
             </div>
           </button>
         </div>
@@ -502,12 +503,14 @@ function ConfirmPageContent() {
       <style jsx>{`
         .confirm-page {
           display: flex;
+          flex-direction: column;
           width: 100%;
           max-width: 393px;
-          min-height: 852px;
+          min-height: 100dvh;
           position: relative;
           background: #ffffff;
-          overflow: hidden;
+          overflow-x: hidden;
+          overflow-y: auto;
           margin: 0 auto;
           box-sizing: border-box;
         }
@@ -523,7 +526,7 @@ function ConfirmPageContent() {
         .frame-256 {
           width: 100%;
           max-width: 393px;
-          height: 91px;
+          height: 80px;
           position: fixed;
           left: 50%;
           transform: translateX(-50%);
@@ -537,10 +540,10 @@ function ConfirmPageContent() {
           width: 100%;
           height: 100%;
           position: relative;
-          border-bottom-right-radius: 20px;
-          border-bottom-left-radius: 20px;
-          padding: 16px 23px 20px;
-          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+          border-bottom-right-radius: 18px;
+          border-bottom-left-radius: 18px;
+          padding: 14px 23px 18px;
+          box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.25);
           background: linear-gradient(135deg, rgba(255,169,37,1) 0%, rgba(250,159,19,1) 57%, rgba(244,148,1,1) 75%);
         }
         
@@ -602,54 +605,42 @@ function ConfirmPageContent() {
           color: #ffffff;
           font-size: 20px;
           font-family: Inter, sans-serif;
-          font-weight: 400;
+          font-weight: 500;
           letter-spacing: 0.5px;
           text-transform: uppercase;
         }
         
         .frame-192 {
-          position: absolute;
-          left: 22px;
-          top: 125px;
-          right: 22px;
-          bottom: 0px;
-          width: auto;
+          margin-top: 90px;
+          padding: 10px 22px 24px;
+          width: 100%;
           display: flex;
           flex-direction: column;
-          gap: 32px;
+          gap: 14px;
           align-items: center;
-          overflow-y: auto;
-          overflow-x: hidden;
-          padding-bottom: 30px;
-          scrollbar-width: none; /* Firefox */
-          -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .frame-192::-webkit-scrollbar {
-          display: none; /* Chrome, Safari, Opera */
+          box-sizing: border-box;
         }
         
         .frame-185 {
-          width: 184px;
-          padding: 10px;
+          width: 150px;
+          padding: 6px;
           display: flex;
           flex-direction: column;
-          gap: 10px;
-          align-items: flex-start;
+          gap: 4px;
+          align-items: center;
         }
         
         .logo-fracassa-ok-323-page-0001-1 {
           width: 100%;
-          height: 117px;
-          object-fit: cover;
-          aspect-ratio: 164/117;
+          height: auto;
+          object-fit: contain;
         }
         
         .content-section {
           width: 100%;
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 18px;
           align-items: center;
         }
         
@@ -664,12 +655,12 @@ function ConfirmPageContent() {
           width: 100%;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 8px;
         }
         
         .section-title {
           color: #232336;
-          font-size: 16px;
+          font-size: 15px;
           font-family: Inter, sans-serif;
           font-weight: 600;
           margin: 0;
@@ -680,16 +671,16 @@ function ConfirmPageContent() {
           background: #fffeff;
           border-radius: 16px;
           border: 1px solid rgba(0, 0, 0, 0.17);
-          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-          padding: 16px;
+          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.22);
+          padding: 12px 16px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 0;
         }
         
         .price-value {
           color: #f49401;
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 700;
         }
         
@@ -697,7 +688,7 @@ function ConfirmPageContent() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 8px 0;
+          padding: 7px 0;
           border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
         
@@ -721,27 +712,49 @@ function ConfirmPageContent() {
         
         .frame-37 {
           background: #f49401;
-          border-radius: 16px;
+          border-radius: 18px;
           border: 1px solid rgba(0, 0, 0, 0.17);
-          padding: 15px 27px;
+          padding: 16px 36px;
           display: flex;
           flex-direction: column;
           gap: 10px;
           align-items: center;
           justify-content: center;
-          min-width: 180px;
-          height: 47px;
-          box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+          min-width: 220px;
+          height: 56px;
+          box-shadow: 0px 5px 8px rgba(244, 148, 1, 0.4);
           cursor: pointer;
-          transition: filter 0.2s ease, transform 0.2s ease;
+          transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+          margin-top: 8px;
         }
         
         .frame-37:hover {
           filter: brightness(0.95);
+          box-shadow: 0px 6px 12px rgba(244, 148, 1, 0.5);
         }
         
         .frame-37:active {
-          transform: translateY(1px);
+          transform: translateY(2px);
+          box-shadow: 0px 3px 6px rgba(244, 148, 1, 0.35);
+        }
+        
+        .frame-37.disabled,
+        .frame-37:disabled {
+          background: #cccccc;
+          cursor: not-allowed;
+          box-shadow: none;
+          opacity: 0.7;
+        }
+        
+        .frame-37.disabled:hover,
+        .frame-37:disabled:hover {
+          filter: none;
+          box-shadow: none;
+        }
+        
+        .frame-37.disabled:active,
+        .frame-37:disabled:active {
+          transform: none;
         }
         
         .frame-17 {
@@ -754,10 +767,11 @@ function ConfirmPageContent() {
         
         .continua {
           color: #ffffff;
-          font-size: 14px;
+          font-size: 17px;
           font-family: "Inter-SemiBold", sans-serif;
-          font-weight: 600;
+          font-weight: 700;
           letter-spacing: 0.5px;
+          text-transform: uppercase;
         }
       `}</style>
     </div>

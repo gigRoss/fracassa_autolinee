@@ -236,7 +236,10 @@ function SearchContent() {
   };
 
   // Handle search button click
-  const handleSearch = () => {
+  const handleSearch = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (isLoading) {
       return;
     }
@@ -373,15 +376,23 @@ function SearchContent() {
             <div className={`a ${showToStopError ? 'label-error' : ''}`}>A</div>
             
             {/* Input fields */}
-            <div className={`frame-114 ${showFromStopError ? 'field-error' : ''}`} onClick={() => setIsFromStopModalOpen(true)}>
-              <div className={`cerca ${fromStop ? 'selected' : ''}`}>
+            <div 
+              className={`frame-114 ${showFromStopError ? 'field-error' : ''}`} 
+              onClick={() => setIsFromStopModalOpen(true)}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <span className={`cerca ${fromStop ? 'selected' : ''}`}>
                 {fromStop ? capitalizeWords(fromStop.name) : (showFromStopError ? 'Seleziona una fermata' : 'Cerca')}
-              </div>
+              </span>
             </div>
-            <div className={`frame-115 ${showToStopError ? 'field-error' : ''}`} onClick={() => setIsToStopModalOpen(true)}>
-              <div className={`cerca2 ${toStop ? 'selected' : ''}`}>
+            <div 
+              className={`frame-115 ${showToStopError ? 'field-error' : ''}`} 
+              onClick={() => setIsToStopModalOpen(true)}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <span className={`cerca2 ${toStop ? 'selected' : ''}`}>
                 {toStop ? capitalizeWords(toStop.name) : (showToStopError ? 'Seleziona una fermata' : 'Cerca')}
-              </div>
+              </span>
             </div>
 
             {/* Route indicators */}
@@ -419,10 +430,16 @@ function SearchContent() {
         </div>
 
         {/* Search Button */}
-        <div className={`frame-37 ${isLoading ? 'is-loading' : ''}`} onClick={handleSearch}>
-          <div className="frame-17">
-            <div className="frame-116">
-              <div className="frame-35">
+        <button 
+          type="button"
+          className={`frame-37 ${isLoading ? 'is-loading' : ''}`} 
+          onClick={handleSearch}
+          onTouchStart={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <span className="frame-17">
+            <span className="frame-116">
+              <span className="frame-35">
                 <Image
                   src="/mobile/search/entypo-magnifying-glass0.svg"
                   alt="Search"
@@ -430,16 +447,20 @@ function SearchContent() {
                   height={11}
                   className="entypo-magnifying-glass"
                 />
-                <div className="cerca3">Cerca</div>
-              </div>
-            </div>
-          </div>
-        </div>
+                <span className="cerca3">Cerca</span>
+              </span>
+            </span>
+          </span>
+        </button>
 
         {/* Date Pickers */}
-        <div className={`frame-30 ${showAndataError ? 'has-error' : ''} ${andataDate ? 'has-date' : ''}`} onClick={() => setIsAndataCalendarOpen(true)}>
-          {!andataDate && <div className="date-label">Seleziona una data di partenza</div>}
-          {andataDate && <div className="date-value-selected">{formatDateDisplay(andataDate)}</div>}
+        <div 
+          className={`frame-30 ${showAndataError ? 'has-error' : ''} ${andataDate ? 'has-date' : ''}`} 
+          onClick={() => setIsAndataCalendarOpen(true)}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          {!andataDate && <span className="date-label">Seleziona una data di partenza</span>}
+          {andataDate && <span className="date-value-selected">{formatDateDisplay(andataDate)}</span>}
           <Image
             src="/mobile/search/vector-50.svg"
             alt="Dropdown"
@@ -537,6 +558,12 @@ function SearchContent() {
           height: 852px;
           position: relative;
           overflow: hidden;
+          /* Prevent text selection globally on this page */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
         }
         .frame-1 {
           display: flex;
@@ -662,6 +689,13 @@ function SearchContent() {
           transition: background-color 0.2s;
           border-radius: 8px;
           z-index: 10;
+          /* Prevent text selection and mobile context menu */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
         }
 
         .frame-114:hover {
@@ -701,6 +735,13 @@ function SearchContent() {
           transition: background-color 0.2s;
           border-radius: 8px;
           z-index: 10;
+          /* Prevent text selection and mobile context menu */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
         }
 
         .frame-115:hover {
@@ -843,6 +884,14 @@ function SearchContent() {
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
           cursor: pointer;
           transition: filter 0.2s;
+          /* Prevent text selection and mobile context menu */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
         }
 
         .frame-37.is-loading {
@@ -898,6 +947,12 @@ function SearchContent() {
           font-size: 16px;
           font-weight: 600;
           position: relative;
+          /* Prevent text selection */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          pointer-events: none;
         }
         .frame-30 {
           background: rgba(255, 254, 254, 0.6);
@@ -919,6 +974,13 @@ function SearchContent() {
           flex-direction: row;
           align-items: center;
           justify-content: space-between;
+          /* Prevent text selection */
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
         }
         .date-label {
           color: #d6d8dc;
