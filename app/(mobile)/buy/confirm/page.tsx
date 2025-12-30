@@ -489,8 +489,9 @@ function ConfirmPageContent() {
 
           {/* Confirm Button */}
           <button 
-            className="frame-37"
+            className={`frame-37 ${!userData.cognome || userData.cognome.trim() === '' ? 'disabled' : ''}`}
             onClick={handleConfirmAndPay}
+            disabled={!userData.cognome || userData.cognome.trim() === ''}
           >
             <div className="frame-17">
               <span className="continua">ACQUISTA</span>
@@ -735,6 +736,25 @@ function ConfirmPageContent() {
         .frame-37:active {
           transform: translateY(2px);
           box-shadow: 0px 3px 6px rgba(244, 148, 1, 0.35);
+        }
+        
+        .frame-37.disabled,
+        .frame-37:disabled {
+          background: #cccccc;
+          cursor: not-allowed;
+          box-shadow: none;
+          opacity: 0.7;
+        }
+        
+        .frame-37.disabled:hover,
+        .frame-37:disabled:hover {
+          filter: none;
+          box-shadow: none;
+        }
+        
+        .frame-37.disabled:active,
+        .frame-37:disabled:active {
+          transform: none;
         }
         
         .frame-17 {
