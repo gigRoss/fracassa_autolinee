@@ -1,4 +1,4 @@
-# 🚌 Fracassa Autolinee - Schedule Management System
+# Fracassa Autolinee - Schedule Management System
 
 Mobile-optimized web system for schedule consultation and ride management for Fracassa Autolinee.
 Best viewed on smartphone
