@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import { normalizeStopName, normalizeCity } from '@/app/lib/textUtils';
 
 interface PassengerTicket {
   id: string;
@@ -11,6 +12,8 @@ interface PassengerTicket {
   validated: boolean;
   departureDate?: string;
   passengerCount?: number;
+  originStopId: string;
+  destinationStopId: string;
   isValidating?: boolean;
 }
 
@@ -21,7 +24,14 @@ interface ApiTicket {
   departureDate: string;
   departureTime: string;
   passengerCount: number;
+  originStopId: string;
+  destinationStopId: string;
   validated: boolean;
+}
+
+interface Stop {
+  id: string;
+  name: string;
 }
 
 /**
@@ -40,7 +50,7 @@ export default function DriverRideTicketsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [confirmTicket, setConfirmTicket] = useState<PassengerTicket | null>(null);
-
+  const [stops, setStops] = useState<Stop[]>([]);
   // Format the date for display
   const formatDateDisplay = (dateStr: string | null): string => {
     if (!dateStr) return '';
@@ -55,14 +65,15 @@ export default function DriverRideTicketsPage() {
     if (!rideId) return;
 
     async function fetchTickets() {
+      setLoading(true);
+      setError(null);
+      
       try {
-        setLoading(true);
-        setError(null);
-        
         // Include date parameter if available
         const url = dateParam 
           ? `/api/driver/rides/${rideId}/tickets?date=${dateParam}`
           : `/api/driver/rides/${rideId}/tickets`;
+          
         
         const res = await fetch(url, {
           cache: 'no-store',
@@ -72,6 +83,12 @@ export default function DriverRideTicketsPage() {
           throw new Error('Errore nel caricamento dei biglietti');
         }
         
+        const stopsRes = await fetch('/api/stops', { cache: 'no-store' });
+
+        if (stopsRes.ok) {
+          const stopsData = await stopsRes.json();
+          setStops(stopsData);
+        }
         const data: ApiTicket[] = await res.json();
         
         // Transform API data to PassengerTicket format
@@ -83,6 +100,8 @@ export default function DriverRideTicketsPage() {
           validated: ticket.validated ?? false,
           departureDate: ticket.departureDate,
           passengerCount: ticket.passengerCount,
+          originStopId: ticket.originStopId ,
+          destinationStopId: ticket.destinationStopId ,
           isValidating: false,
         }));
         
@@ -98,6 +117,20 @@ export default function DriverRideTicketsPage() {
     fetchTickets();
   }, [rideId, dateParam]);
 
+
+  const stopIdToStop = Object.fromEntries(stops.map((s) => [s.id, s] as const));
+
+  const getStopLabel = (passengerTicket:PassengerTicket): string => {
+    const origin = stopIdToStop[passengerTicket.originStopId];
+    const dest = stopIdToStop[passengerTicket.destinationStopId];
+    
+    if (!origin || !dest) return 'N/A';
+    
+    const originName = normalizeStopName(origin.name);
+    const destName = normalizeStopName(dest.name);
+    
+    return `${originName} → ${destName}`;
+  };
   // Show confirmation popup before validating
   const handleRequestValidation = (id: string) => {
     const ticket = passengers.find((p) => p.id === id);
@@ -250,6 +283,9 @@ export default function DriverRideTicketsPage() {
                         </div>
                       </div>
                       <div className="frame-74">
+                        <div className="tratta">{getStopLabel(passenger)}</div>
+                      </div>
+                      <div className="frame-90">
                         <div className="codice-ticket">Codice Ticket:</div>
                       </div>
                       <div className="frame-75">
@@ -475,7 +511,7 @@ export default function DriverRideTicketsPage() {
         /* Rettangolo semplice per il biglietto (senza PNG, senza mezzelune) */
         .ticket-shape {
           width: 334px;
-          height: 122px;
+          height: 162px;
           position: absolute;
           left: 0;
           top: 0;
@@ -565,6 +601,24 @@ export default function DriverRideTicketsPage() {
           left: 0;
           top: 49px;
         }
+          .frame-90 {
+          width: 200px;
+          height: 30px;
+          position: absolute;
+          left: 0;
+          top: 100px;
+        }
+
+         .tratta {
+          color: rgba(0, 0, 0, 0.4);
+          text-align: left;
+          font-family: 'Inter-Bold', sans-serif;
+          font-size: 16px;
+          font-weight: 700;
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
 
         .codice-ticket {
           color: rgba(0, 0, 0, 0.4);
@@ -578,11 +632,11 @@ export default function DriverRideTicketsPage() {
         }
 
         .frame-75 {
-          width: 120px;
+          width: 180px;
           height: 19px;
           position: absolute;
           right: 0;
-          top: 49px;
+          top: 100px;
           text-align: right;
         }
 
