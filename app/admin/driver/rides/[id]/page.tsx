@@ -489,7 +489,7 @@ export default function DriverRideTicketsPage() {
         .ticket-card {
           align-self: stretch;
           flex-shrink: 0;
-          height: 122px;
+          height: 180px;
           display: flex;
           align-items: center;
           padding-right: 13px;
@@ -499,7 +499,7 @@ export default function DriverRideTicketsPage() {
         .ticket-inner {
           position: relative;
           width: 334px;
-          height: 122px;
+          height: 180px;
           padding: 27px 26px;
           display: inline-flex;
           flex-direction: column;
@@ -595,7 +595,7 @@ export default function DriverRideTicketsPage() {
         }
 
         .frame-74 {
-          width: 140px;
+          width: 100%;
           height: 19px;
           position: absolute;
           left: 0;
@@ -618,6 +618,7 @@ export default function DriverRideTicketsPage() {
           position: absolute;
           left: 0;
           top: 0;
+          white-space: nowrap;
         }
 
         .codice-ticket {
