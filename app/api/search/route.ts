@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { listRides } from "@/app/lib/ridesStore";
 import { listStops } from "@/app/lib/stopsStore";
 import { getIntermediateStopsByRideId, searchRidesBetweenStops } from "@/app/lib/intermediateStopsStore";
+import { logRequest, logError, startTimer } from "@/app/lib/requestLogger";
 
 /**
  * Search API endpoint
@@ -11,6 +12,8 @@ import { getIntermediateStopsByRideId, searchRidesBetweenStops } from "@/app/lib
  * - date: (optional) date in YYYY-MM-DD format
  */
 export async function GET(request: NextRequest) {
+  const timer = startTimer();
+  
   try {
     const { searchParams } = request.nextUrl;
     const origin = searchParams.get("origin");
@@ -19,6 +22,13 @@ export async function GET(request: NextRequest) {
     const useIntermediateSearch = searchParams.get("useIntermediate") === "true";
 
     if (!origin || !destination) {
+      await logRequest({
+        request,
+        statusCode: 400,
+        durationMs: timer.elapsed(),
+        errorCode: 'MISSING_PARAMS',
+        errorMessage: 'Missing required parameters: origin and destination',
+      });
       return NextResponse.json(
         { error: "Missing required parameters: origin and destination" },
         { status: 400 }
@@ -92,6 +102,14 @@ export async function GET(request: NextRequest) {
     const destinationStop = findStop(destination);
 
     if (!originStop || !destinationStop) {
+      await logRequest({
+        request,
+        statusCode: 404,
+        durationMs: timer.elapsed(),
+        errorCode: 'STOP_NOT_FOUND',
+        errorMessage: `Stop not found: origin=${originStop?.name || 'Not found'}, dest=${destinationStop?.name || 'Not found'}`,
+        info: { origin, destination },
+      });
       return NextResponse.json(
         {
           error: "Stop not found",
@@ -177,6 +195,14 @@ export async function GET(request: NextRequest) {
         .filter(r => r !== null)
         .filter(r => isRideInFuture(r!.departureTime));
 
+      // Log successful search
+      logRequest({
+        request,
+        statusCode: 200,
+        durationMs: timer.elapsed(),
+        info: { resultsCount: validResults.length, method: 'intermediateStops' },
+      }).catch(console.error);
+
       return NextResponse.json({
         results: validResults,
         count: validResults.length,
@@ -246,6 +272,14 @@ export async function GET(request: NextRequest) {
     // Filter out past rides if today
     const filteredRides = enrichedRides.filter(r => isRideInFuture(r.departureTime));
 
+    // Log successful search
+    logRequest({
+      request,
+      statusCode: 200,
+      durationMs: timer.elapsed(),
+      info: { resultsCount: filteredRides.length, method: 'direct' },
+    }).catch(console.error);
+
     return NextResponse.json({
       results: filteredRides,
       count: filteredRides.length,
@@ -257,6 +291,14 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Search error:", error);
+    
+    // Log error
+    await logError(request, error, {
+      statusCode: 500,
+      errorCode: 'SEARCH_ERROR',
+      durationMs: timer.elapsed(),
+    });
+
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
