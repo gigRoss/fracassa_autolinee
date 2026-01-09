@@ -38,6 +38,8 @@ export async function GET(
       departureDate: ticket.departureDate,
       departureTime: ticket.departureTime,
       passengerCount: ticket.passengerCount,
+      originStopId: ticket.originStopId,
+      destinationStopId: ticket.destinationStopId,
       validated: ticket.validated ?? false,
     }));
 
