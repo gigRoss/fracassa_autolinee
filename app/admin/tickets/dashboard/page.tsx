@@ -24,7 +24,7 @@ async function fetchTickets() {
     id: string;
     ticketNumber: string;
     passengerName: string;
-    passengerSurname: string;
+    //: string;
     passengerEmail: string;
     departureDate: string;
     departureTime: string;
@@ -142,9 +142,7 @@ export default async function TicketsDashboardPage() {
                       <div className="font-semibold text-lg">
                         {ticket.ticketNumber}
                       </div>
-                      <div className="text-sm text-gray-600">
-                        {ticket.passengerName} {ticket.passengerSurname}
-                      </div>
+                      
                       <div className="text-xs text-gray-500">
                         {ticket.passengerEmail}
                       </div>

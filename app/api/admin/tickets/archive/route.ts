@@ -8,7 +8,6 @@ interface TicketInfo {
   id: string;
   ticketNumber: string;
   passengerName: string;
-  passengerSurname: string;
   passengerEmail: string;
   passengerCount: number;
   amountPaid: number;
@@ -88,7 +87,6 @@ export async function GET(req: NextRequest) {
         id: ticket.id,
         ticketNumber: ticket.ticketNumber,
         passengerName: ticket.passengerName,
-        passengerSurname: ticket.passengerSurname,
         passengerEmail: ticket.passengerEmail,
         passengerCount: ticket.passengerCount,
         amountPaid: ticket.amountPaid,

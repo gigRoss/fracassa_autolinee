@@ -127,7 +127,6 @@ export async function generateTicketNumber(
  */
 export interface CreateTicketData {
   passengerName: string;
-  passengerSurname: string;
   passengerEmail: string;
   rideId: string;
   departureDate: string; // YYYY-MM-DD
@@ -172,7 +171,6 @@ export async function createTicket(data: CreateTicketData) {
     id: ticketId,
     ticketNumber,
     passengerName: data.passengerName,
-    passengerSurname: data.passengerSurname,
     passengerEmail: data.passengerEmail,
     rideId: data.rideId,
     departureDate: data.departureDate,

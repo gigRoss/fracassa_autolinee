@@ -151,7 +151,6 @@ export const tickets = sqliteTable('tickets', {
   id: text('id').primaryKey(),
   ticketNumber: text('ticket_number').notNull().unique(), // formato YYYYMMDD-CCC-HH-I
   passengerName: text('passenger_name').notNull(),
-  passengerSurname: text('passenger_surname').notNull(),
   passengerEmail: text('passenger_email').notNull(),
   rideId: text('ride_id').notNull().references(() => rides.id),
   departureDate: text('departure_date').notNull(), // formato YYYY-MM-DD

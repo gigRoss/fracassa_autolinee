@@ -29,6 +29,7 @@ export interface LogRequestOptions {
   responseSize?: number;
   error?: Error | { message?: string; code?: string; stack?: string; type?: string };
   errorCode?: string;
+  errorMessage?: string;
   sessionId?: string;
   requestBody?: Record<string, unknown>;
   responseBody?: unknown;
@@ -41,7 +42,7 @@ export interface LogRequestOptions {
 export async function logRequest(options: LogRequestOptions) {
   try {
     const db = getDb();
-    const { request, statusCode, durationMs, responseSize, error, errorCode, sessionId, requestBody, responseBody, info } = options;
+    const { request, statusCode, durationMs, responseSize, error, errorCode,  sessionId, requestBody, responseBody, info } = options;
 
     // Query params
     const queryParams: Record<string, string> = {};

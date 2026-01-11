@@ -8,9 +8,7 @@ const STATIC_FILES = [
   '/',
   '/manifest.json',
   '/icon-192x192.png',
-  '/icon-512x512.png',
-  '/fracassa-logo.png',
-  '/pullman_fraca.jpg'
+  '/icon-512x512.png'
 ];
 
 // Installazione: cachare file statici

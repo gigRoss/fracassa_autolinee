@@ -33,7 +33,7 @@ export async function GET(
     // Transform tickets to driver-friendly format
     const driverTickets = tickets.map((ticket) => ({
       id: ticket.id,
-      name: `${ticket.passengerName} ${ticket.passengerSurname}`,
+      name: ticket.passengerName,
       ticketCode: ticket.ticketNumber,
       departureDate: ticket.departureDate,
       departureTime: ticket.departureTime,

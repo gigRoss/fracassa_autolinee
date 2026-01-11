@@ -10,7 +10,6 @@ export const dynamic = 'force-dynamic';
 interface TicketInfo {
   ticketNumber: string;
   passengerName: string;
-  passengerSurname: string;
   departureDate: string;
   departureTime: string;
   passengerCount: number;
@@ -123,7 +122,7 @@ function SuccessContent() {
               <div className="ticket-details">
                 <div className="ticket-detail-row">
                   <span className="detail-label">Passeggero:</span>
-                  <span className="detail-value">{ticket.passengerName} {ticket.passengerSurname}</span>
+                  <span className="detail-value">{ticket.passengerName} </span>
                 </div>
                 <div className="ticket-detail-row">
                   <span className="detail-label">Data partenza:</span>

@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 
 export interface UserData {
-  nome: string;
-  cognome: string;
+  nomeCognome: string;
+ // cognome: string;
   email: string;
 }
 
@@ -56,6 +56,7 @@ const validateCognome = (value: string): string => {
   return '';
 };
 
+
 const validateEmail = (value: string): string => {
   if (!value.trim()) {
     return 'L\'email è obbligatoria';
@@ -76,36 +77,36 @@ export default function UserDataForm({
   // Load from sessionStorage on mount
   const loadFromStorage = useCallback((): UserData => {
     if (typeof window === 'undefined') {
-      return { nome: '', cognome: '', email: '' };
+      return { nomeCognome: '', email: '' };
     }
     try {
       const stored = sessionStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         return {
-          nome: parsed.nome || '',
-          cognome: parsed.cognome || '',
+          nomeCognome: parsed.nomeCognome || '',
+          //cognome: parsed.cognome || '',
           email: parsed.email || '',
         };
       }
     } catch (e) {
       console.warn('Failed to load from sessionStorage:', e);
     }
-    return { nome: '', cognome: '', email: '' };
+    return { nomeCognome: '', email: '' };
   }, []);
 
   const [formData, setFormData] = useState<UserData>(() => {
     const storageData = loadFromStorage();
     return {
-      nome: initialData?.nome || storageData.nome || '',
-      cognome: initialData?.cognome || storageData.cognome || '',
+      nomeCognome: initialData?.nomeCognome || storageData.nomeCognome || '',
+     // cognome: initialData?.cognome || storageData.cognome || '',
       email: initialData?.email || storageData.email || '',
     };
   });
 
   const [validation, setValidation] = useState<Record<keyof UserData, FieldValidation>>({
-    nome: { isValid: true, error: '', touched: false },
-    cognome: { isValid: true, error: '', touched: false },
+    nomeCognome: { isValid: true, error: '', touched: false },
+    //cognome: { isValid: true, error: '', touched: false },
     email: { isValid: true, error: '', touched: false },
   });
 
@@ -124,12 +125,12 @@ export default function UserDataForm({
   const validateField = useCallback((field: keyof UserData, value: string): FieldValidation => {
     let error = '';
     switch (field) {
-      case 'nome':
+      case 'nomeCognome':
         error = validateNome(value);
         break;
-      case 'cognome':
-        error = validateCognome(value);
-        break;
+      //case 'cognome':
+      //  error = validateCognome(value);
+      //  break;
       case 'email':
         error = validateEmail(value);
         break;
@@ -180,8 +181,8 @@ export default function UserDataForm({
     
     // Validate all fields before submit
     const newValidation: Record<keyof UserData, FieldValidation> = {
-      nome: validateField('nome', formData.nome),
-      cognome: validateField('cognome', formData.cognome),
+      nomeCognome: validateField('nomeCognome', formData.nomeCognome),
+      //cognome: validateField('cognome', formData.cognome),
       email: validateField('email', formData.email),
     };
     setValidation(newValidation);
@@ -190,8 +191,8 @@ export default function UserDataForm({
     
     if (allValid && onSubmit) {
       onSubmit({
-        nome: formData.nome.trim(),
-        cognome: formData.cognome.trim(),
+        nomeCognome: formData.nomeCognome.trim(),
+        // cognome: formData.cognome.trim(),
         email: formData.email.trim(),
       });
     }
@@ -199,49 +200,26 @@ export default function UserDataForm({
 
   return (
     <form onSubmit={handleSubmit} className="frame-170">
-      {/* Nome Field */}
+      {/* Nome e Cognome Field */}
       <div className="frame-49-wrapper">
         <div className="frame-49">
           <input
             type="text"
-            placeholder="Nome"
-            value={formData.nome}
-            onChange={(e) => handleChange('nome', e.target.value)}
-            onBlur={() => handleBlur('nome')}
-            className={`nome ${validation.nome.touched && !validation.nome.isValid ? 'error' : ''} ${validation.nome.touched && validation.nome.isValid && formData.nome.trim() ? 'valid' : ''}`}
-            autoComplete="given-name"
+            placeholder="Nome e Cognome"
+            value={formData.nomeCognome}
+            onChange={(e) => handleChange('nomeCognome', e.target.value)}
+            onBlur={() => handleBlur('nomeCognome')}
+            className={`nome-cognome ${validation.nomeCognome.touched && !validation.nomeCognome.isValid ? 'error' : ''} ${validation.nomeCognome.touched && validation.nomeCognome.isValid && formData.nomeCognome.trim() ? 'valid' : ''}`}
+            autoComplete="name"
           />
-          {validation.nome.touched && (
-            <span className={`validation-icon ${validation.nome.isValid ? 'valid' : 'invalid'}`}>
-              {validation.nome.isValid ? '✓' : '✗'}
+          {validation.nomeCognome.touched && (
+            <span className={`validation-icon ${validation.nomeCognome.isValid ? 'valid' : 'invalid'}`}>
+              {validation.nomeCognome.isValid ? '✓' : '✗'}
             </span>
           )}
         </div>
-        {validation.nome.touched && validation.nome.error && (
-          <p className="error-message" role="alert">{validation.nome.error}</p>
-        )}
-      </div>
-
-      {/* Cognome Field */}
-      <div className="frame-492-wrapper">
-        <div className="frame-492">
-          <input
-            type="text"
-            placeholder="Cognome"
-            value={formData.cognome}
-            onChange={(e) => handleChange('cognome', e.target.value)}
-            onBlur={() => handleBlur('cognome')}
-            className={`cognome ${validation.cognome.touched && !validation.cognome.isValid ? 'error' : ''} ${validation.cognome.touched && validation.cognome.isValid && formData.cognome.trim() ? 'valid' : ''}`}
-            autoComplete="family-name"
-          />
-          {validation.cognome.touched && (
-            <span className={`validation-icon ${validation.cognome.isValid ? 'valid' : 'invalid'}`}>
-              {validation.cognome.isValid ? '✓' : '✗'}
-            </span>
-          )}
-        </div>
-        {validation.cognome.touched && validation.cognome.error && (
-          <p className="error-message" role="alert">{validation.cognome.error}</p>
+        {validation.nomeCognome.touched && validation.nomeCognome.error && (
+          <p className="error-message" role="alert">{validation.nomeCognome.error}</p>
         )}
       </div>
 
@@ -292,23 +270,20 @@ export default function UserDataForm({
       )}
 
       <style jsx>{`
-        .frame-49-wrapper,
-        .frame-492-wrapper {
+        .frame-49-wrapper {
           align-self: stretch;
           display: flex;
           flex-direction: column;
           gap: 4px;
         }
 
-        .frame-49,
-        .frame-492 {
+        .frame-49 {
           position: relative;
           width: 100%;
           height: 45px;
         }
 
-        .nome,
-        .cognome,
+        .nome-cognome,
         .email {
           width: 100%;
           height: 100%;
@@ -323,14 +298,12 @@ export default function UserDataForm({
           outline: none;
         }
 
-        .nome::placeholder,
-        .cognome::placeholder,
+        .nome-cognome::placeholder,
         .email::placeholder {
           color: rgba(151, 151, 164, 0.80);
         }
 
-        .nome:focus,
-        .cognome:focus,
+        .nome-cognome:focus,
         .email:focus {
           border-color: #F49401;
         }
@@ -355,15 +328,13 @@ export default function UserDataForm({
           color: #dc2626;
         }
 
-        .nome.error,
-        .cognome.error,
+        .nome-cognome.error,
         .email.error {
           border-color: #dc2626;
           color: #dc2626;
         }
 
-        .nome.valid,
-        .cognome.valid,
+        .nome-cognome.valid,
         .email.valid {
           border-color: #16a34a;
           color: #16a34a;
@@ -408,8 +379,7 @@ export default function UserDataForm({
           background: #9ca3af !important;
         }
 
-        .frame-49,
-        .frame-492 {
+        .frame-49 {
           flex-direction: column;
           align-items: stretch;
           gap: 4px;
