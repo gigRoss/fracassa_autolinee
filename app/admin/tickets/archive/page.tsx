@@ -8,7 +8,6 @@ interface TicketInfo {
   id: string;
   ticketNumber: string;
   passengerName: string;
-  passengerSurname: string;
   passengerEmail: string;
   passengerCount: number;
   amountPaid: number;
@@ -235,7 +234,7 @@ export default function TicketsArchivePage() {
                                       )}
                                     </div>
                                     <div className="ticket-passenger">
-                                      <strong>{ticket.passengerName} {ticket.passengerSurname}</strong>
+                                      <strong>{ticket.passengerName}</strong>
                                       {ticket.passengerCount > 1 && (
                                         <span className="multi-passenger"> ({ticket.passengerCount} passeggeri)</span>
                                       )}

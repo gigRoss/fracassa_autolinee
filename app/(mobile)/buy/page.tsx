@@ -3,8 +3,7 @@
 import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 interface UserData {
-  nome: string;
-  cognome: string;
+  nomeCognome: string;
   email: string;
 }
 
@@ -12,8 +11,7 @@ export default function BuyPage() {
   const router = useRouter();
   const [nomeCognome, setNomeCognome] = useState('');
   const [userData, setUserData] = useState<UserData>({
-    nome: '',
-    cognome: '',
+    nomeCognome: '',
     email: '',
   });
   const [passeggeri, setPasseggeri] = useState('1');
@@ -23,20 +21,6 @@ export default function BuyPage() {
 
   const isValidEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-
-  // Split nome e cognome from the single field
-  const splitNomeCognome = (fullName: string) => {
-    const trimmed = fullName.trim();
-    if (!trimmed) return { nome: '', cognome: '' };
-    const parts = trimmed.split(/\s+/);
-    if (parts.length === 1) {
-      return { nome: parts[0], cognome: '' };
-    }
-    return {
-      nome: parts[0],
-      cognome: parts.slice(1).join(' '),
-    };
-  };
 
   const isFormValid =
     nomeCognome.trim().length > 0 &&
@@ -81,11 +65,8 @@ export default function BuyPage() {
       return;
     }
 
-    // Split nome e cognome from the single field
-    const { nome, cognome } = splitNomeCognome(nomeCognome);
     const completeFormData = {
-      nome,
-      cognome,
+      nomeCognome: nomeCognome,
       email: userData.email,
       passeggeri: passeggeri,
     };

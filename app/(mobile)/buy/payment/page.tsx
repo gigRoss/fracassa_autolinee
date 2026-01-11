@@ -7,8 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 export const dynamic = 'force-dynamic';
 
 interface UserData {
-  nome: string;
-  cognome: string;
+  nomeCognome: string;
   email: string;
   passeggeri: string;
 }

@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     const requiredFields = [
       'passengerName',
-      'passengerSurname',
       'passengerEmail',
       'rideId',
       'departureDate',
@@ -85,7 +84,6 @@ export async function POST(request: NextRequest) {
     // Create ticket data
     const ticketData: CreateTicketData = {
       passengerName: body.passengerName.trim(),
-      passengerSurname: body.passengerSurname.trim(),
       passengerEmail: body.passengerEmail.trim().toLowerCase(),
       rideId: body.rideId,
       departureDate: body.departureDate,
@@ -120,7 +118,6 @@ export async function POST(request: NextRequest) {
           id: ticket.id,
           ticketNumber: ticket.ticketNumber,
           passengerName: ticket.passengerName,
-          passengerSurname: ticket.passengerSurname,
           passengerEmail: ticket.passengerEmail,
           departureDate: ticket.departureDate,
           departureTime: ticket.departureTime,

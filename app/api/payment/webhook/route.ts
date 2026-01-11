@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
           const metadata = session.metadata;
           
           if (!metadata || !metadata.rideId || !metadata.passengerName || 
-              !metadata.passengerSurname || !metadata.userEmail || 
+              !metadata.userEmail || 
               !metadata.departureTime || !metadata.originStopId || 
               !metadata.destinationStopId) {
             console.error('[WEBHOOK] Missing metadata for ticket generation:', metadata);
@@ -85,7 +85,6 @@ export async function POST(request: NextRequest) {
           // Prepare ticket data
           const ticketData: CreateTicketData = {
             passengerName: metadata.passengerName,
-            passengerSurname: metadata.passengerSurname,
             passengerEmail: metadata.userEmail,
             rideId: metadata.rideId,
             departureDate: departureDate,
@@ -128,7 +127,6 @@ export async function POST(request: NextRequest) {
               const emailData: TicketEmailData = {
                 ticketNumber: ticket.ticketNumber,
                 passengerName: ticket.passengerName,
-                passengerSurname: ticket.passengerSurname,
                 passengerEmail: ticket.passengerEmail,
                 originStopName: originStop[0].name,
                 destinationStopName: destinationStop[0].name,

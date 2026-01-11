@@ -37,7 +37,6 @@ function getBaseUrl(): string {
 export interface TicketEmailData {
   ticketNumber: string;
   passengerName: string;
-  passengerSurname: string;
   passengerEmail: string;
   originStopName: string;
   destinationStopName: string;
@@ -94,7 +93,7 @@ function generateEmailHTML(data: TicketEmailData): string {
   const formattedDate = formatDate(data.departureDate);
   const amountFormatted = formatCurrency(data.amountPaid);
   const purchaseDateTime = formatDateTime(data.purchaseTimestamp);
-  const fullName = `${data.passengerName} ${data.passengerSurname}`;
+  const fullName = data.passengerName;
   const baseUrl = getBaseUrl();
   const logoUrl = `${baseUrl}/mobile/logo-fracassa-new.png`;
 
@@ -273,7 +272,7 @@ function generateEmailText(data: TicketEmailData): string {
   const formattedDate = formatDate(data.departureDate);
   const amountFormatted = formatCurrency(data.amountPaid);
   const purchaseDateTime = formatDateTime(data.purchaseTimestamp);
-  const fullName = `${data.passengerName} ${data.passengerSurname}`;
+  const fullName = data.passengerName;
 
   return `
 FRACASSA AUTOLINEE

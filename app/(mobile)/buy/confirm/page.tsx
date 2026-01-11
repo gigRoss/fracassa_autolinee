@@ -21,8 +21,7 @@ interface RideData {
 }
 
 interface UserData {
-  nome: string;
-  cognome: string;
+  nomeCognome: string;
   email: string;
   passeggeri: string;
 }
@@ -404,19 +403,10 @@ function ConfirmPageContent() {
           <div className="section-container">
             <div className="user-details-card">
               <div className="user-info-row">
-                <span className="user-label">Nome:</span>
+                <span className="user-label">Nome e Cognome:</span>
                 <span className="user-value">
-                  {userData.nome && userData.nome.trim() !== '' 
-                    ? userData.nome 
-                    : <span className="field-missing">Campo obbligatorio</span>}
-                </span>
-              </div>
-              
-              <div className="user-info-row">
-                <span className="user-label">Cognome:</span>
-                <span className="user-value">
-                  {userData.cognome && userData.cognome.trim() !== '' 
-                    ? userData.cognome 
+                  {userData.nomeCognome && userData.nomeCognome.trim() !== '' 
+                    ? userData.nomeCognome 
                     : <span className="field-missing">Campo obbligatorio</span>}
                 </span>
               </div>
@@ -489,9 +479,9 @@ function ConfirmPageContent() {
 
           {/* Confirm Button */}
           <button 
-            className={`frame-37 ${!userData.cognome || userData.cognome.trim() === '' ? 'disabled' : ''}`}
+            className={`frame-37 ${!userData.nomeCognome || userData.nomeCognome.trim() === '' ? 'disabled' : ''}`}
             onClick={handleConfirmAndPay}
-            disabled={!userData.cognome || userData.cognome.trim() === ''}
+            disabled={!userData.nomeCognome || userData.nomeCognome.trim() === ''}
           >
             <div className="frame-17">
               <span className="continua">ACQUISTA</span>

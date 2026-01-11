@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate userData fields
-    if (!userData.nome || !userData.cognome || !userData.email || !userData.passeggeri) {
+    if (!userData.nomeCognome || !userData.email || !userData.passeggeri) {
       return NextResponse.json(
         { error: 'Dati utente incompleti' },
         { status: 400 }
@@ -119,11 +119,10 @@ export async function POST(request: NextRequest) {
     // We'll include ride data for ticket generation
     const metadata: Record<string, string> = {
       rideId,
-      userName: `${userData.nome} ${userData.cognome}`,
+      userName: userData.nomeCognome,
       userEmail: userData.email,
       passengers: passengers.toString(),
-      passengerName: userData.nome,
-      passengerSurname: userData.cognome,
+      passengerName: userData.nomeCognome,
     };
 
     // Add ride data if provided

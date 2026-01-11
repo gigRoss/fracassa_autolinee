@@ -151,7 +151,6 @@ export const tickets = sqliteTable('tickets', {
   id: text('id').primaryKey(),
   ticketNumber: text('ticket_number').notNull().unique(), // formato YYYYMMDD-CCC-HH-I
   passengerName: text('passenger_name').notNull(),
-  passengerSurname: text('passenger_surname').notNull(),
   passengerEmail: text('passenger_email').notNull(),
   rideId: text('ride_id').notNull().references(() => rides.id),
   departureDate: text('departure_date').notNull(), // formato YYYY-MM-DD
@@ -260,4 +259,42 @@ export type NewTicket = typeof tickets.$inferInsert;
 
 export type EmailLog = typeof emailLogs.$inferSelect;
 export type NewEmailLog = typeof emailLogs.$inferInsert;
+
+// ============================================================================
+// HTTP_REQUEST_LOGS TABLE (API request logging)
+// ============================================================================
+export const httpRequestLogs = sqliteTable('http_request_logs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  method: text('method').notNull(), // GET, POST, PUT, DELETE
+  path: text('path').notNull(), // /api/search, /api/tickets
+  queryParams: text('query_params'), // JSON query parameters
+  statusCode: integer('status_code').notNull(), // 200, 201, 400, 404, 500
+  statusText: text('status_text'), // OK, Created, Bad Request, Not Found
+  durationMs: integer('duration_ms'), // Response time in ms
+  userAgent: text('user_agent'),
+  ipAddress: text('ip_address'),
+  referer: text('referer'),
+  requestBody: text('request_body'), // JSON (sanitized)
+  responseSize: integer('response_size'),
+  // Error details
+  errorMessage: text('error_message'),
+  errorCode: text('error_code'), // VALIDATION_ERROR, DB_ERROR
+  errorStack: text('error_stack'), // Stack trace
+  errorType: text('error_type'), // TypeError, ValidationError
+  // Additional info
+  responseBody: text('response_body'), // JSON response (truncated)
+  requestHeaders: text('request_headers'), // JSON headers (sanitized)
+  info: text('info'), // Extra context as JSON
+  sessionId: text('session_id'),
+  timestamp: integer('timestamp', { mode: 'timestamp' }).notNull(),
+}, (table) => ({
+  timestampIdx: index('idx_http_logs_timestamp').on(table.timestamp),
+  pathIdx: index('idx_http_logs_path').on(table.path),
+  statusIdx: index('idx_http_logs_status').on(table.statusCode),
+  methodPathIdx: index('idx_http_logs_method_path').on(table.method, table.path),
+  errorCodeIdx: index('idx_http_logs_error_code').on(table.errorCode),
+}));
+
+export type HttpRequestLog = typeof httpRequestLogs.$inferSelect;
+export type NewHttpRequestLog = typeof httpRequestLogs.$inferInsert;
 
