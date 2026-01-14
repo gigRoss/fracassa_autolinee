@@ -137,9 +137,7 @@ export default function PWAInstaller() {
                   Premi i tre puntini in basso a destra
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <span>Cerca l'icona</span>
-                  <span className="text-xl font-bold">⋯</span>
-                  <span>nella barra del browser</span>
+                  <span>Cerca l'icona nella barra del browser</span>
                 </div>
               </div>
             </div>
@@ -172,26 +170,10 @@ export default function PWAInstaller() {
                 <p className="font-semibold text-gray-800 mb-1">
                   Ripremi i 3 puntini e seleziona "Aggiungi a Home"
                 </p>
-                <p className="text-sm text-gray-600">
-                  Nel nuovo menu, trova l'opzione per aggiungere alla home
-                </p>
+              
               </div>
             </div>
-
-            {/* Passo 4 */}
-            <div className="flex items-start gap-4 bg-blue-50 p-4 rounded-xl">
-              <div className="w-8 h-8 bg-[var(--brand-primary)] text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                4
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-gray-800 mb-1">
-                  Seleziona "Aggiungi alla schermata Home"
-                </p>
-                <p className="text-sm text-gray-600">
-                  Scorri nel menu, trova l'opzione e tocca "Aggiungi"
-                </p>
-              </div>
-            </div>
+         
 
             {/* Nota */}
             <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded">
