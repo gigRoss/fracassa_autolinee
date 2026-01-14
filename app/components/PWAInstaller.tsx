@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function PWAInstaller() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -94,8 +95,14 @@ export default function PWAInstaller() {
           <div className="bg-gradient-to-r from-[var(--brand-primary)] to-blue-600 text-white p-6 rounded-t-3xl md:rounded-t-2xl">
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-3xl">
-                  📱
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden">
+                  <Image 
+                    src="/icon-72x72.png" 
+                    alt="Fracassa Autolinee" 
+                    width={48} 
+                    height={48}
+                    className="object-contain"
+                  />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Installa l'App</h3>
@@ -127,14 +134,12 @@ export default function PWAInstaller() {
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-800 mb-1">
-                  Tocca il pulsante Condividi
+                  Premi i tre puntini in basso a destra
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <span>Cerca l'icona</span>
-                  <svg className="w-6 h-6 text-[var(--brand-primary)]" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-                  </svg>
-                  <span>in basso al browser</span>
+                  <span className="text-xl font-bold">⋯</span>
+                  <span>nella barra del browser</span>
                 </div>
               </div>
             </div>
@@ -146,11 +151,15 @@ export default function PWAInstaller() {
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-800 mb-1">
-                  Seleziona "Aggiungi a Home"
+                  Premi il pulsante Condividi
                 </p>
-                <p className="text-sm text-gray-600">
-                  Scorri nel menu e trova l'opzione "Aggiungi alla schermata Home"
-                </p>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>Cerca l'icona</span>
+                  <svg className="w-5 h-5 text-[var(--brand-primary)]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 5l-1.42 1.42-1.59-1.59V16h-2V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.11 0-2-.9-2-2V10c0-1.11.89-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .89 2 2z"/>
+                  </svg>
+                  <span>nel menu</span>
+                </div>
               </div>
             </div>
 
@@ -161,10 +170,25 @@ export default function PWAInstaller() {
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-800 mb-1">
-                  Conferma l'installazione
+                  Ripremi i 3 puntini e seleziona "Aggiungi a Home"
                 </p>
                 <p className="text-sm text-gray-600">
-                  Tocca "Aggiungi" e l'icona apparirà sulla tua home screen
+                  Nel nuovo menu, trova l'opzione per aggiungere alla home
+                </p>
+              </div>
+            </div>
+
+            {/* Passo 4 */}
+            <div className="flex items-start gap-4 bg-blue-50 p-4 rounded-xl">
+              <div className="w-8 h-8 bg-[var(--brand-primary)] text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
+                4
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-800 mb-1">
+                  Seleziona "Aggiungi alla schermata Home"
+                </p>
+                <p className="text-sm text-gray-600">
+                  Scorri nel menu, trova l'opzione e tocca "Aggiungi"
                 </p>
               </div>
             </div>
@@ -199,8 +223,14 @@ export default function PWAInstaller() {
         
         <div className="p-5 flex items-start gap-4">
           {/* Icona App */}
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-lg flex-shrink-0 animate-bounce-slow">
-            🚌
+          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 animate-bounce-slow overflow-hidden">
+            <Image 
+              src="/icon-72x72.png" 
+              alt="Fracassa Autolinee" 
+              width={56} 
+              height={56}
+              className="object-contain"
+            />
           </div>
           
           <div className="flex-1 min-w-0">
