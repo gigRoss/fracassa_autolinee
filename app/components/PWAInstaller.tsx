@@ -90,7 +90,7 @@ export default function PWAInstaller() {
   if (isIOS && showIOSInstructions) {
     return (
       <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center md:justify-center p-4 animate-fadeIn">
-        <div className="bg-white rounded-t-3xl md:rounded-2xl shadow-2xl max-w-md w-full animate-slideUp">
+        <div className="bg-white rounded-t-3xl md:rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] overflow-y-auto animate-slideUp">
           {/* Header */}
           <div className="bg-gradient-to-r from-[var(--brand-primary)] to-blue-600 text-white p-6 rounded-t-3xl md:rounded-t-2xl">
             <div className="flex items-start justify-between mb-2">
